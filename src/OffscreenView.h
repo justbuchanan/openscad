@@ -1,25 +1,24 @@
 #pragma once
 
-#include "OffscreenContext.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <string>
-#include "system-gl.h"
 #include <iostream>
+#include <string>
 #include "GLView.h"
+#include "OffscreenContext.h"
+#include "system-gl.h"
 
-class OffscreenView : public GLView
-{
+class OffscreenView : public GLView {
 public:
-	OffscreenView(int width, int height);
-	~OffscreenView();
-	bool save(std::ostream &output);
-	OffscreenContext *ctx;
+    OffscreenView(int width, int height);
+    ~OffscreenView();
+    bool save(std::ostream &output);
+    OffscreenContext *ctx;
 
-	// overrides
-	bool save(const char *filename);
-	std::string getRendererInfo() const;
+    // overrides
+    bool save(const char *filename);
+    std::string getRendererInfo() const;
 #ifdef ENABLE_OPENCSG
-	void display_opencsg_warning();
+    void display_opencsg_warning();
 #endif
 };

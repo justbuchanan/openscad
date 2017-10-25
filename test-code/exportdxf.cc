@@ -23,24 +23,24 @@
  *
  */
 
-#include "myqhash.h"
-#include "openscad.h"
-#include "node.h"
-#include "module.h"
-#include "context.h"
-#include "value.h"
-#include "export.h"
-#include "builtin.h"
-#include "Tree.h"
 #include "CGALRenderer.h"
 #include "PolySetCGALRenderer.h"
+#include "Tree.h"
+#include "builtin.h"
+#include "context.h"
+#include "export.h"
+#include "module.h"
+#include "myqhash.h"
+#include "node.h"
+#include "openscad.h"
+#include "value.h"
 
+#include <getopt.h>
 #include <QApplication>
-#include <QFile>
 #include <QDir>
+#include <QFile>
 #include <QSet>
 #include <QTextStream>
-#include <getopt.h>
 #include <iostream>
 
 QString commandline_commands;
@@ -52,134 +52,131 @@ QString librarydir;
 
 using std::string;
 
-void handle_dep(QString filename)
-{
-	if (filename.startsWith("/"))
-		dependencies.insert(filename);
-	else
-		dependencies.insert(QDir::currentPath() + QString("/") + filename);
-	if (!QFile(filename).exists() && make_command) {
-		char buffer[4096];
-		snprintf(buffer, 4096, "%s '%s'", make_command, filename.replace("'", "'\\''").toUtf8().data());
-		system(buffer); // FIXME: Handle error
-	}
+void handle_dep(QString filename) {
+    if (filename.startsWith("/"))
+        dependencies.insert(filename);
+    else
+        dependencies.insert(QDir::currentPath() + QString("/") + filename);
+    if (!QFile(filename).exists() && make_command) {
+        char buffer[4096];
+        snprintf(buffer, 4096, "%s '%s'", make_command,
+                 filename.replace("'", "'\\''").toUtf8().data());
+        system(buffer);  // FIXME: Handle error
+    }
 }
 
-// FIXME: enforce some maximum cache size (old version had 100K vertices as limit)
+// FIXME: enforce some maximum cache size (old version had 100K vertices as
+// limit)
 QHash<std::string, CGAL_Nef_polyhedron> cache;
 
-void cgalTree(Tree &tree)
-{
-	assert(tree.root());
+void cgalTree(Tree &tree) {
+    assert(tree.root());
 
-	CGALRenderer renderer(cache, tree);
-	Traverser render(renderer, *tree.root(), Traverser::PRE_AND_POSTFIX);
-	render.execute();
+    CGALRenderer renderer(cache, tree);
+    Traverser render(renderer, *tree.root(), Traverser::PRE_AND_POSTFIX);
+    render.execute();
 }
 
-int main(int argc, char **argv)
-{
-	if (argc != 2) {
-		fprintf(stderr, "Usage: %s <file.scad>\n", argv[0]);
-		exit(1);
-	}
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <file.scad>\n", argv[0]);
+        exit(1);
+    }
 
-	const char *filename = argv[1];
+    const char *filename = argv[1];
 
-	int rc = 0;
+    int rc = 0;
 
-	initialize_builtin_functions();
-	initialize_builtin_modules();
+    initialize_builtin_functions();
+    initialize_builtin_modules();
 
-	QApplication app(argc, argv, false);
-	QDir original_path = QDir::current();
+    QApplication app(argc, argv, false);
+    QDir original_path = QDir::current();
 
-	currentdir = QDir::currentPath();
+    currentdir = QDir::currentPath();
 
-	QDir libdir(QApplication::instance()->applicationDirPath());
+    QDir libdir(QApplication::instance()->applicationDirPath());
 #ifdef Q_WS_MAC
-	libdir.cd("../Resources"); // Libraries can be bundled
-	if (!libdir.exists("libraries")) libdir.cd("../../..");
+    libdir.cd("../Resources");  // Libraries can be bundled
+    if (!libdir.exists("libraries")) libdir.cd("../../..");
 #elif defined(Q_OS_UNIX)
-	if (libdir.cd("../share/openscad/libraries")) {
-		librarydir = libdir.path();
-	} else
-	if (libdir.cd("../../share/openscad/libraries")) {
-		librarydir = libdir.path();
-	} else
-	if (libdir.cd("../../libraries")) {
-		librarydir = libdir.path();
-	} else
+    if (libdir.cd("../share/openscad/libraries")) {
+        librarydir = libdir.path();
+    } else if (libdir.cd("../../share/openscad/libraries")) {
+        librarydir = libdir.path();
+    } else if (libdir.cd("../../libraries")) {
+        librarydir = libdir.path();
+    } else
 #endif
-	if (libdir.cd("libraries")) {
-		librarydir = libdir.path();
-	}
+    if (libdir.cd("libraries")) {
+        librarydir = libdir.path();
+    }
 
-	Context root_ctx;
-	root_ctx.functions_p = &builtin_functions;
-	root_ctx.modules_p = &builtin_modules;
-	root_ctx.set_variable("$fn", Value(0.0));
-	root_ctx.set_variable("$fs", Value(1.0));
-	root_ctx.set_variable("$fa", Value(12.0));
-	root_ctx.set_variable("$t", Value(0.0));
+    Context root_ctx;
+    root_ctx.functions_p = &builtin_functions;
+    root_ctx.modules_p = &builtin_modules;
+    root_ctx.set_variable("$fn", Value(0.0));
+    root_ctx.set_variable("$fs", Value(1.0));
+    root_ctx.set_variable("$fa", Value(12.0));
+    root_ctx.set_variable("$t", Value(0.0));
 
-	Value zero3;
-	zero3.type = Value::VECTOR;
-	zero3.vec.append(new Value(0.0));
-	zero3.vec.append(new Value(0.0));
-	zero3.vec.append(new Value(0.0));
-	root_ctx.set_variable("$vpt", zero3);
-	root_ctx.set_variable("$vpr", zero3);
+    Value zero3;
+    zero3.type = Value::VECTOR;
+    zero3.vec.append(new Value(0.0));
+    zero3.vec.append(new Value(0.0));
+    zero3.vec.append(new Value(0.0));
+    root_ctx.set_variable("$vpt", zero3);
+    root_ctx.set_variable("$vpr", zero3);
 
+    AbstractModule *root_module;
+    ModuleInstantiation root_inst;
+    AbstractNode *root_node;
 
-	AbstractModule *root_module;
-	ModuleInstantiation root_inst;
-	AbstractNode *root_node;
+    QFileInfo fileInfo(filename);
+    handle_dep(filename);
+    FILE *fp = fopen(filename, "rt");
+    if (!fp) {
+        fprintf(stderr, "Can't open input file `%s'!\n", filename);
+        exit(1);
+    } else {
+        QString text;
+        char buffer[513];
+        int ret;
+        while ((ret = fread(buffer, 1, 512, fp)) > 0) {
+            buffer[ret] = 0;
+            text += buffer;
+        }
+        fclose(fp);
+        if (!parse(root_module, (text + commandline_commands).toAscii().data(),
+                   fileInfo.absolutePath().toLocal8Bit(), false)) {
+            delete root_module;  // parse failed
+            root_module = NULL;
+        }
+        if (!root_module) {
+            exit(1);
+        }
+    }
 
-	QFileInfo fileInfo(filename);
-	handle_dep(filename);
-	FILE *fp = fopen(filename, "rt");
-	if (!fp) {
-		fprintf(stderr, "Can't open input file `%s'!\n", filename);
-		exit(1);
-	} else {
-		QString text;
-		char buffer[513];
-		int ret;
-		while ((ret = fread(buffer, 1, 512, fp)) > 0) {
-			buffer[ret] = 0;
-			text += buffer;
-		}
-		fclose(fp);
-		if(!parse(root_module, (text+commandline_commands).toAscii().data(), fileInfo.absolutePath().toLocal8Bit(), false)) {
-			delete root_module; // parse failed
-			root_module = NULL;
-		}
-		if (!root_module) {
-			exit(1);
-		}
-	}
+    QDir::setCurrent(fileInfo.absolutePath());
 
-	QDir::setCurrent(fileInfo.absolutePath());
+    AbstractNode::resetIndexCounter();
+    root_node = root_module->evaluate(&root_ctx, &root_inst);
 
-	AbstractNode::resetIndexCounter();
-	root_node = root_module->evaluate(&root_ctx, &root_inst);
+    Tree tree;
+    tree.setRoot(root_node);
 
-	Tree tree;
-	tree.setRoot(root_node);
+    cgalTree(tree);
 
-	cgalTree(tree);
+    CGAL_Nef_polyhedron N = cache[tree.getString(*root_node)];
 
-	CGAL_Nef_polyhedron N = cache[tree.getString(*root_node)];
+    QDir::setCurrent(original_path.absolutePath());
+    QTextStream outstream(stdout);
+    export_dxf(&N, outstream, NULL);
 
-	QDir::setCurrent(original_path.absolutePath());
-	QTextStream outstream(stdout);
-	export_dxf(&N, outstream, NULL);
+    PolySetRenderer::setRenderer(NULL);
 
-	PolySetRenderer::setRenderer(NULL);
+    destroy_builtin_functions();
+    destroy_builtin_modules();
 
-	destroy_builtin_functions();
-	destroy_builtin_modules();
-
-	return rc;
+    return rc;
 }

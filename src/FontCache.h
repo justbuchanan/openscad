@@ -25,9 +25,9 @@
  */
 #pragma once
 
+#include <iostream>
 #include <map>
 #include <string>
-#include <iostream>
 
 #include <time.h>
 
@@ -35,22 +35,24 @@
 #include FT_FREETYPE_H
 #include FT_TRUETYPE_IDS_H
 
-#include <vector>
-#include <string>
 #include <fontconfig/fontconfig.h>
+#include <string>
+#include <vector>
 
-#include <hb.h>
 #include <hb-ft.h>
+#include <hb.h>
 
 class FontInfo {
 public:
-    FontInfo(const std::string &family, const std::string &style, const std::string &file);
+    FontInfo(const std::string &family, const std::string &style,
+             const std::string &file);
     virtual ~FontInfo();
-    
+
     const std::string &get_family() const;
     const std::string &get_style() const;
     const std::string &get_file() const;
     bool operator<(const FontInfo &rhs) const;
+
 private:
     std::string family;
     std::string style;
@@ -66,8 +68,9 @@ typedef std::vector<FontInfo> FontInfoList;
  */
 class FontCacheInitializer {
 public:
-    FontCacheInitializer(FcConfig *config) : config(config) { }
+    FontCacheInitializer(FcConfig *config) : config(config) {}
     void run() { FcConfigBuildFonts(config); }
+
 private:
     FcConfig *config;
 };
@@ -76,7 +79,7 @@ class FontCache {
 public:
     const static std::string DEFAULT_FONT;
     const static unsigned int MAX_NR_OF_CACHE_ENTRIES = 3;
-    
+
     FontCache();
     virtual ~FontCache();
 
@@ -86,11 +89,13 @@ public:
     void register_font_file(const std::string &path);
     void clear();
     FontInfoList *list_fonts() const;
-    
+
     static FontCache *instance();
 
-    typedef void (InitHandlerFunc)(FontCacheInitializer *initializer, void *userdata);
-    static void registerProgressHandler(InitHandlerFunc *handler, void *userdata = nullptr);
+    typedef void(InitHandlerFunc)(FontCacheInitializer *initializer,
+                                  void *userdata);
+    static void registerProgressHandler(InitHandlerFunc *handler,
+                                        void *userdata = nullptr);
 
 private:
     typedef std::pair<FT_Face, time_t> cache_entry_t;
@@ -100,7 +105,8 @@ private:
     static InitHandlerFunc *cb_handler;
     static void *cb_userdata;
 
-    static void defaultInitHandler(FontCacheInitializer *delegate, void *userdata);
+    static void defaultInitHandler(FontCacheInitializer *delegate,
+                                   void *userdata);
 
     bool init_ok;
     cache_t cache;
@@ -109,12 +115,11 @@ private:
 
     void check_cleanup();
     void dump_cache(const std::string &info);
-    
+
     void add_font_dir(const std::string &path);
     void init_pattern(FcPattern *pattern) const;
-    
+
     FT_Face find_face(const std::string &font) const;
     FT_Face find_face_fontconfig(const std::string &font) const;
     bool try_charmap(FT_Face face, int platform_id, int encoding_id) const;
 };
-

@@ -24,26 +24,26 @@
  *
  */
 
-#include "tests-common.h"
+#include "ModuleInstantiation.h"
+#include "Tree.h"
+#include "builtin.h"
+#include "export.h"
+#include "modcontext.h"
+#include "module.h"
+#include "node.h"
 #include "openscad.h"
 #include "parsersettings.h"
-#include "node.h"
-#include "module.h"
-#include "ModuleInstantiation.h"
-#include "modcontext.h"
-#include "value.h"
-#include "export.h"
-#include "builtin.h"
-#include "Tree.h"
 #include "stackcheck.h"
+#include "tests-common.h"
+#include "value.h"
 
 #ifndef _MSC_VER
 #include <getopt.h>
 #endif
 #include <assert.h>
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -54,69 +54,69 @@ std::string currentdir;
 
 using std::string;
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 #ifdef _MSC_VER
-  _set_output_format(_TWO_DIGIT_EXPONENT);
+    _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
-	if (argc != 3) {
-		fprintf(stderr, "Usage: %s <file.scad> <output.txt>\n", argv[0]);
-		exit(1);
-	}
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <file.scad> <output.txt>\n", argv[0]);
+        exit(1);
+    }
 
-	const char *filename = argv[1];
-	const char *outfilename = argv[2];
+    const char *filename = argv[1];
+    const char *outfilename = argv[2];
 
-	int rc = 0;
+    int rc = 0;
 
-	StackCheck::inst()->init();
-	Builtins::instance()->initialize();
+    StackCheck::inst()->init();
+    Builtins::instance()->initialize();
 
-	fs::path original_path = fs::current_path();
+    fs::path original_path = fs::current_path();
 
-	currentdir = fs::current_path().generic_string();
+    currentdir = fs::current_path().generic_string();
 
-	PlatformUtils::registerApplicationPath(fs::path(argv[0]).branch_path().generic_string());
-	parser_init();
+    PlatformUtils::registerApplicationPath(
+        fs::path(argv[0]).branch_path().generic_string());
+    parser_init();
 
-	ModuleContext top_ctx;
-	top_ctx.registerBuiltin();
+    ModuleContext top_ctx;
+    top_ctx.registerBuiltin();
 
-	ModuleInstantiation root_inst("group");
-	AbstractNode *root_node;
+    ModuleInstantiation root_inst("group");
+    AbstractNode *root_node;
 
-	FileModule *root_module = parsefile(filename);
-	if (!root_module) {
-		fprintf(stderr, "Error: Unable to parse input file\n");
-		exit(1);
-	}
+    FileModule *root_module = parsefile(filename);
+    if (!root_module) {
+        fprintf(stderr, "Error: Unable to parse input file\n");
+        exit(1);
+    }
 
-	if (fs::path(filename).has_parent_path()) {
-		fs::current_path(fs::path(filename).parent_path());
-	}
+    if (fs::path(filename).has_parent_path()) {
+        fs::current_path(fs::path(filename).parent_path());
+    }
 
-	AbstractNode::resetIndexCounter();
-	root_node = root_module->instantiate(&top_ctx, &root_inst);
+    AbstractNode::resetIndexCounter();
+    root_node = root_module->instantiate(&top_ctx, &root_inst);
 
-	delete root_node;
-	delete root_module;
+    delete root_node;
+    delete root_module;
 
-	fs::current_path(original_path);
+    fs::current_path(original_path);
 
-	fprintf(stderr, "Second parse\n");
-	root_module = parsefile(filename);
-	if (!root_module) {
-		fprintf(stderr, "Error: Unable to parse second time\n");
-		exit(1);
-	}
+    fprintf(stderr, "Second parse\n");
+    root_module = parsefile(filename);
+    if (!root_module) {
+        fprintf(stderr, "Error: Unable to parse second time\n");
+        exit(1);
+    }
 
-	AbstractNode::resetIndexCounter();
-	root_node = root_module->instantiate(&top_ctx, &root_inst);
+    AbstractNode::resetIndexCounter();
+    root_node = root_module->instantiate(&top_ctx, &root_inst);
 
-	delete root_node;
-	delete root_module;
+    delete root_node;
+    delete root_module;
 
-	Builtins::instance(true);
+    Builtins::instance(true);
 
-	return rc;
+    return rc;
 }

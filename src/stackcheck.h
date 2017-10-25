@@ -1,19 +1,18 @@
 #pragma once
 
-class StackCheck
-{
+class StackCheck {
 public:
-	StackCheck();
-	virtual ~StackCheck();
-	
-	static StackCheck * inst();
-	
-	void init();
-	bool check();
-	unsigned long size();
-  
+    StackCheck();
+    virtual ~StackCheck();
+
+    static StackCheck *inst();
+
+    void init();
+    bool check();
+    unsigned long size();
+
 private:
-	unsigned char * ptr;
-  
-	static StackCheck *self;
+    unsigned char *ptr;
+
+    static StackCheck *self;
 };

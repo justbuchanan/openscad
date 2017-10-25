@@ -25,35 +25,36 @@
  */
 #pragma once
 
-#include <vector>
 #include <math.h>
 #include <Eigen/Core>
+#include <vector>
 #include "Polygon2d.h"
 
 class DrawingCallback {
 public:
     DrawingCallback(unsigned long fn);
     virtual ~DrawingCallback();
-    
+
     void start_glyph();
     void finish_glyph();
     void set_glyph_offset(double offset_x, double offset_y);
     void add_glyph_advance(double advance_x, double advance_y);
-	std::vector<const Geometry *> get_result();
+    std::vector<const Geometry *> get_result();
 
     void move_to(const Vector2d &to);
     void line_to(const Vector2d &to);
     void curve_to(const Vector2d &c1, const Vector2d &to);
     void curve_to(const Vector2d &c1, const Vector2d &c2, const Vector2d &to);
+
 private:
     Vector2d pen;
     Vector2d offset;
     Vector2d advance;
     unsigned long fn;
 
-	Outline2d outline;
-	class Polygon2d *polygon;
-	std::vector<const class Geometry *> polygons;
-    
+    Outline2d outline;
+    class Polygon2d *polygon;
+    std::vector<const class Geometry *> polygons;
+
     void add_vertex(const Vector2d &v);
 };

@@ -8,23 +8,23 @@
 
 #include "AutoUpdater.h"
 
-class SparkleAutoUpdater : public AutoUpdater
-{
-	Q_OBJECT;
+class SparkleAutoUpdater : public AutoUpdater {
+    Q_OBJECT;
+
 public:
-	SparkleAutoUpdater();
-	~SparkleAutoUpdater();
-	
-	void checkForUpdates();
-	void setAutomaticallyChecksForUpdates(bool on);
-	bool automaticallyChecksForUpdates();
-	void setEnableSnapshots(bool on);
-	bool enableSnapshots();
-	QString lastUpdateCheckDate();
+    SparkleAutoUpdater();
+    ~SparkleAutoUpdater();
+
+    void checkForUpdates();
+    void setAutomaticallyChecksForUpdates(bool on);
+    bool automaticallyChecksForUpdates();
+    void setEnableSnapshots(bool on);
+    bool enableSnapshots();
+    QString lastUpdateCheckDate();
 
 private:
-	void updateFeed();
+    void updateFeed();
 
-	class Private;
-	Private *d;
+    class Private;
+    Private *d;
 };

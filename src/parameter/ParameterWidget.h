@@ -27,57 +27,58 @@
 
 #include <QTimer>
 
-#include "parameterextractor.h"
-#include "ui_ParameterWidget.h"
 #include "groupwidget.h"
+#include "parameterextractor.h"
 #include "parameterset.h"
+#include "ui_ParameterWidget.h"
 
-class ParameterWidget : public QWidget, public Ui::ParameterWidget, public ParameterExtractor, public ParameterSet
-{
-	Q_OBJECT
+class ParameterWidget : public QWidget,
+                        public Ui::ParameterWidget,
+                        public ParameterExtractor,
+                        public ParameterSet {
+    Q_OBJECT
 private:
-	struct groupInst {
-		std::vector<std::string> parameterVector;
-		bool show;
-		bool inList;
-	};
-	std::vector<std::string> groupPos;
-	typedef std::map<std::string,groupInst > group_map;
-	group_map groupMap;
-	QTimer autoPreviewTimer;
-	bool descriptionShow;
-	QVBoxLayout * anyLayout;
-	std::string jsonFile;
-	bool anyfocused;
-	ParameterVirtualWidget *entryToFocus;
+    struct groupInst {
+        std::vector<std::string> parameterVector;
+        bool show;
+        bool inList;
+    };
+    std::vector<std::string> groupPos;
+    typedef std::map<std::string, groupInst> group_map;
+    group_map groupMap;
+    QTimer autoPreviewTimer;
+    bool descriptionShow;
+    QVBoxLayout *anyLayout;
+    std::string jsonFile;
+    bool anyfocused;
+    ParameterVirtualWidget *entryToFocus;
 
 public:
-	ParameterWidget(QWidget *parent = 0);
-	virtual ~ParameterWidget();
-	void readFile(QString scadFile);
-	void writeFile(QString scadFile);
-																
-protected slots:
-	void onValueChanged();
-	void onPreviewTimerElapsed();
-	void onDescriptionShow();
-	void onSetChanged(int idx);
-	void onSetAdd();
-	void onSetDelete();
-	void resetParameter();
-	
-signals:
-	void previewRequested();
-	
-protected:
-	void connectWidget();
-	void begin();
-	void addEntry(class ParameterVirtualWidget *entry);
-	void end();
-	void clear();
-	void AddParameterWidget(std::string parameterName);
-	void setComboBoxForSet();
-	void applyParameterSet(std::string setName);
-	void updateParameterSet(std::string setName);
-};
+    ParameterWidget(QWidget *parent = 0);
+    virtual ~ParameterWidget();
+    void readFile(QString scadFile);
+    void writeFile(QString scadFile);
 
+protected slots:
+    void onValueChanged();
+    void onPreviewTimerElapsed();
+    void onDescriptionShow();
+    void onSetChanged(int idx);
+    void onSetAdd();
+    void onSetDelete();
+    void resetParameter();
+
+signals:
+    void previewRequested();
+
+protected:
+    void connectWidget();
+    void begin();
+    void addEntry(class ParameterVirtualWidget *entry);
+    void end();
+    void clear();
+    void AddParameterWidget(std::string parameterName);
+    void setComboBoxForSet();
+    void applyParameterSet(std::string setName);
+    void updateParameterSet(std::string setName);
+};

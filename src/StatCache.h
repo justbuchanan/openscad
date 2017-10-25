@@ -28,5 +28,5 @@
 
 class StatCache {
 public:
-	static int stat(const char *, struct stat *);
+    static int stat(const char *, struct stat *);
 };

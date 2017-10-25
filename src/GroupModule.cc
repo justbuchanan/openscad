@@ -26,22 +26,20 @@
 
 #include "GroupModule.h"
 #include "ModuleInstantiation.h"
-#include "node.h"
 #include "builtin.h"
 #include "evalcontext.h"
+#include "node.h"
 
-AbstractNode *GroupModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
-{
-	(void)ctx; // avoid unusued parameter warning
+AbstractNode *GroupModule::instantiate(const Context *ctx,
+                                       const ModuleInstantiation *inst,
+                                       EvalContext *evalctx) const {
+    (void)ctx;  // avoid unusued parameter warning
 
-	auto node = new GroupNode(inst);
+    auto node = new GroupNode(inst);
 
-	node->children = inst->instantiateChildren(evalctx);
+    node->children = inst->instantiateChildren(evalctx);
 
-	return node;
+    return node;
 }
 
-void register_builtin_group()
-{
-	Builtins::init("group", new GroupModule());
-}
+void register_builtin_group() { Builtins::init("group", new GroupModule()); }

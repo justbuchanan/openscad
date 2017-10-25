@@ -1,5 +1,5 @@
 #ifndef LIBSVG_ELLIPSE_H
-#define	LIBSVG_ELLIPSE_H
+#define LIBSVG_ELLIPSE_H
 
 #include "shape.h"
 
@@ -9,12 +9,12 @@ class ellipse : public shape {
 protected:
     double rx;
     double ry;
-    
+
 public:
     ellipse();
     ellipse(const ellipse& orig);
     virtual ~ellipse();
-    
+
     virtual double get_radius_x() { return rx; }
     virtual double get_radius_y() { return ry; }
 
@@ -25,7 +25,6 @@ public:
     static const std::string name;
 };
 
-}
+}  // namespace libsvg
 
-#endif	/* LIBSVG_ELLIPSE_H */
-
+#endif /* LIBSVG_ELLIPSE_H */

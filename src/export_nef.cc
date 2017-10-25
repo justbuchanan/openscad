@@ -24,33 +24,32 @@
  *
  */
 
+#include "Geometry.h"
 #include "export.h"
 #include "printutils.h"
-#include "Geometry.h"
 
 #ifdef ENABLE_CGAL
+#include <CGAL/IO/Nef_polyhedron_iostream_3.h>  // for dumping .nef3
 #include "CGAL_Nef_polyhedron.h"
 #include "cgal.h"
 #include "cgalutils.h"
-#include <CGAL/IO/Nef_polyhedron_iostream_3.h> // for dumping .nef3
 
-void export_nefdbg(const shared_ptr<const Geometry> &geom, std::ostream &output)
-{
-	if (const CGAL_Nef_polyhedron *N = dynamic_cast<const CGAL_Nef_polyhedron *>(geom.get())) {
-		output << N->dump();
-	}
-	else {
-		PRINT("Not a CGALNefPoly. Add some CSG ops?");
-	}
+void export_nefdbg(const shared_ptr<const Geometry> &geom,
+                   std::ostream &output) {
+    if (const CGAL_Nef_polyhedron *N =
+            dynamic_cast<const CGAL_Nef_polyhedron *>(geom.get())) {
+        output << N->dump();
+    } else {
+        PRINT("Not a CGALNefPoly. Add some CSG ops?");
+    }
 }
 
-void export_nef3(const shared_ptr<const Geometry> &geom, std::ostream &output)
-{
-	if (const CGAL_Nef_polyhedron *N = dynamic_cast<const CGAL_Nef_polyhedron *>(geom.get())) {
-		output << *(N->p3);
-	}
-	else {
-		PRINT("Not a CGALNefPoly. Add some CSG ops?");
-	}
+void export_nef3(const shared_ptr<const Geometry> &geom, std::ostream &output) {
+    if (const CGAL_Nef_polyhedron *N =
+            dynamic_cast<const CGAL_Nef_polyhedron *>(geom.get())) {
+        output << *(N->p3);
+    } else {
+        PRINT("Not a CGALNefPoly. Add some CSG ops?");
+    }
 }
 #endif

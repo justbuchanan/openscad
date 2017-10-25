@@ -3,12 +3,12 @@
 #include "qtgettext.h"
 #include "ui_OpenCSGWarningDialog.h"
 
-class OpenCSGWarningDialog : public QDialog, public Ui::OpenCSGWarningDialog
-{
-	Q_OBJECT;
+class OpenCSGWarningDialog : public QDialog, public Ui::OpenCSGWarningDialog {
+    Q_OBJECT;
+
 public:
-	OpenCSGWarningDialog(QWidget *parent);
+    OpenCSGWarningDialog(QWidget *parent);
 
 public slots:
-	void setText(const QString &text);
+    void setText(const QString &text);
 };

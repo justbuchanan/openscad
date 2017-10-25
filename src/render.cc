@@ -24,55 +24,54 @@
  *
  */
 
-#include "rendernode.h"
-#include "module.h"
 #include "ModuleInstantiation.h"
-#include "evalcontext.h"
 #include "builtin.h"
+#include "evalcontext.h"
+#include "module.h"
 #include "polyset.h"
+#include "rendernode.h"
 
-#include <sstream>
 #include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
+#include <sstream>
+using namespace boost::assign;  // bring 'operator+=()' into scope
 
-class RenderModule : public AbstractModule
-{
+class RenderModule : public AbstractModule {
 public:
-	RenderModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+    RenderModule() {}
+    virtual AbstractNode *instantiate(const Context *ctx,
+                                      const ModuleInstantiation *inst,
+                                      EvalContext *evalctx) const;
 };
 
-AbstractNode *RenderModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
-{
-	auto node = new RenderNode(inst);
+AbstractNode *RenderModule::instantiate(const Context *ctx,
+                                        const ModuleInstantiation *inst,
+                                        EvalContext *evalctx) const {
+    auto node = new RenderNode(inst);
 
-	AssignmentList args{Assignment("convexity")};
+    AssignmentList args{Assignment("convexity")};
 
-	Context c(ctx);
-	c.setVariables(args, evalctx);
-	inst->scope.apply(*evalctx);
+    Context c(ctx);
+    c.setVariables(args, evalctx);
+    inst->scope.apply(*evalctx);
 
-	auto v = c.lookup_variable("convexity");
-	if (v->type() == Value::ValueType::NUMBER) {
-		node->convexity = static_cast<int>(v->toDouble());
-	}
+    auto v = c.lookup_variable("convexity");
+    if (v->type() == Value::ValueType::NUMBER) {
+        node->convexity = static_cast<int>(v->toDouble());
+    }
 
-	auto instantiatednodes = inst->instantiateChildren(evalctx);
-	node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
+    auto instantiatednodes = inst->instantiateChildren(evalctx);
+    node->children.insert(node->children.end(), instantiatednodes.begin(),
+                          instantiatednodes.end());
 
-	return node;
+    return node;
 }
 
-std::string RenderNode::toString() const
-{
-	std::stringstream stream;
+std::string RenderNode::toString() const {
+    std::stringstream stream;
 
-	stream << this->name() << "(convexity = " << convexity << ")";
+    stream << this->name() << "(convexity = " << convexity << ")";
 
-	return stream.str();
+    return stream.str();
 }
 
-void register_builtin_render()
-{
-	Builtins::init("render", new RenderModule());
-}
+void register_builtin_render() { Builtins::init("render", new RenderModule()); }

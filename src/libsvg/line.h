@@ -1,5 +1,5 @@
 #ifndef LIBSVG_LINE_H
-#define	LIBSVG_LINE_H
+#define LIBSVG_LINE_H
 
 #include "shape.h"
 
@@ -21,11 +21,10 @@ public:
     virtual void set_attrs(attr_map_t& attrs);
     virtual void dump();
     const std::string& get_name() const { return line::name; };
-    
+
     static const std::string name;
 };
 
-}
+}  // namespace libsvg
 
-#endif	/* LIBSVG_LINE_H */
-
+#endif /* LIBSVG_LINE_H */

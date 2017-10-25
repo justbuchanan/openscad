@@ -1,5 +1,5 @@
 #ifndef LIBSVG_POLYGON_H
-#define	LIBSVG_POLYGON_H
+#define LIBSVG_POLYGON_H
 
 #include "shape.h"
 
@@ -20,7 +20,6 @@ public:
     static const std::string name;
 };
 
-}
+}  // namespace libsvg
 
-#endif	/* LIBSVG_POLYGON_H */
-
+#endif /* LIBSVG_POLYGON_H */

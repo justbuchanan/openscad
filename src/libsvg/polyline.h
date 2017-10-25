@@ -1,5 +1,5 @@
 #ifndef LIBSVG_POLYLINE_H
-#define	LIBSVG_POLYLINE_H
+#define LIBSVG_POLYLINE_H
 
 #include "shape.h"
 
@@ -16,11 +16,10 @@ public:
 
     virtual void set_attrs(attr_map_t& attrs);
     const std::string& get_name() const { return polyline::name; };
-    
+
     static const std::string name;
 };
 
-}
+}  // namespace libsvg
 
-#endif	/* LIBSVG_POLYLINE_H */
-
+#endif /* LIBSVG_POLYLINE_H */

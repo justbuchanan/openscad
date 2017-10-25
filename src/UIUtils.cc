@@ -24,31 +24,29 @@
  *
  */
 
+#include <QDesktopServices>
 #include <QDir>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QUrl>
-#include <QFileDialog>
-#include <QDesktopServices>
 
-#include "qtgettext.h"
-#include "UIUtils.h"
 #include "PlatformUtils.h"
-#include "openscad.h"
 #include "QSettingsCached.h"
+#include "UIUtils.h"
+#include "openscad.h"
+#include "qtgettext.h"
 
-
-#include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
-QFileInfo UIUtils::openFile(QWidget *parent)
-{
+QFileInfo UIUtils::openFile(QWidget *parent) {
     QSettingsCached settings;
     QString last_dirname = settings.value("lastOpenDirName").toString();
-    QString new_filename = QFileDialog::getOpenFileName(parent, "Open File",
-	    last_dirname, "OpenSCAD Designs (*.scad *.csg)");
+    QString new_filename = QFileDialog::getOpenFileName(
+        parent, "Open File", last_dirname, "OpenSCAD Designs (*.scad *.csg)");
 
     if (new_filename.isEmpty()) {
-	return QFileInfo();
+        return QFileInfo();
     }
 
     QFileInfo fileInfo(new_filename);
@@ -58,9 +56,9 @@ QFileInfo UIUtils::openFile(QWidget *parent)
     return fileInfo;
 }
 
-QStringList UIUtils::recentFiles()
-{
-    QSettingsCached settings; // set up project and program properly in main.cpp
+QStringList UIUtils::recentFiles() {
+    QSettingsCached
+        settings;  // set up project and program properly in main.cpp
     QStringList files = settings.value("recentFileList").toStringList();
 
     // Remove any duplicate or empty entries from the list
@@ -70,13 +68,12 @@ QStringList UIUtils::recentFiles()
     files.removeAll(QString());
     // Now remove any entries which do not exist
     for (int i = files.size() - 1; i >= 0; --i) {
-	QFileInfo fileInfo(files[i]);
-	if (!QFile(fileInfo.absoluteFilePath()).exists())
-	    files.removeAt(i);
+        QFileInfo fileInfo(files[i]);
+        if (!QFile(fileInfo.absoluteFilePath()).exists()) files.removeAt(i);
     }
-    
+
     while (files.size() > UIUtils::maxRecentFiles) {
-	files.removeAt(files.size() - 1);
+        files.removeAt(files.size() - 1);
     }
 
     settings.setValue("recentFileList", files);
@@ -86,67 +83,66 @@ QStringList UIUtils::recentFiles()
 using namespace boost::property_tree;
 
 static ptree *examples_tree = nullptr;
-static ptree *examplesTree()
-{
-	if (!examples_tree) {
-		std::string path = (PlatformUtils::resourcePath("examples") / "examples.json").string();
-		try {
-			examples_tree = new ptree;
-			read_json(path, *examples_tree);
-		} catch (const std::exception & e) {
-			PRINTB("Error reading examples.json: %s", e.what());
-			delete examples_tree;
-			examples_tree = nullptr;
-		}
-	}
-	return examples_tree;
+static ptree *examplesTree() {
+    if (!examples_tree) {
+        std::string path =
+            (PlatformUtils::resourcePath("examples") / "examples.json")
+                .string();
+        try {
+            examples_tree = new ptree;
+            read_json(path, *examples_tree);
+        } catch (const std::exception &e) {
+            PRINTB("Error reading examples.json: %s", e.what());
+            delete examples_tree;
+            examples_tree = nullptr;
+        }
+    }
+    return examples_tree;
 }
 
-QStringList UIUtils::exampleCategories()
-{
-	// categories in File menu item - Examples
-	QStringList categories;
-	ptree *pt = examplesTree();
-	if (pt) {
-		for(const auto &v : *pt) {
-			// v.first is the name of the child.
-			// v.second is the child tree.
-			categories << QString::fromStdString(v.first);
-		}
-	}
-  
-	return categories;
+QStringList UIUtils::exampleCategories() {
+    // categories in File menu item - Examples
+    QStringList categories;
+    ptree *pt = examplesTree();
+    if (pt) {
+        for (const auto &v : *pt) {
+            // v.first is the name of the child.
+            // v.second is the child tree.
+            categories << QString::fromStdString(v.first);
+        }
+    }
+
+    return categories;
 }
 
-QFileInfoList UIUtils::exampleFiles(const QString &category)
-{
-	QFileInfoList examples;
-	ptree *pt = examplesTree();
-	if (pt) {
-		fs::path examplesPath = PlatformUtils::resourcePath("examples") / category.toStdString();
-		for(const auto &v : pt->get_child(category.toStdString())) {
-			examples << QFileInfo(QString::fromStdString((examplesPath / v.second.data()).string()));
-		}
-	}
-	return examples;
+QFileInfoList UIUtils::exampleFiles(const QString &category) {
+    QFileInfoList examples;
+    ptree *pt = examplesTree();
+    if (pt) {
+        fs::path examplesPath =
+            PlatformUtils::resourcePath("examples") / category.toStdString();
+        for (const auto &v : pt->get_child(category.toStdString())) {
+            examples << QFileInfo(QString::fromStdString(
+                (examplesPath / v.second.data()).string()));
+        }
+    }
+    return examples;
 }
 
-void UIUtils::openHomepageURL()
-{
+void UIUtils::openHomepageURL() {
     QDesktopServices::openUrl(QUrl("http://openscad.org/"));
 }
 
-static void openVersionedURL(QString url)
-{
-    QDesktopServices::openUrl(QUrl(url.arg(openscad_shortversionnumber.c_str())));
+static void openVersionedURL(QString url) {
+    QDesktopServices::openUrl(
+        QUrl(url.arg(openscad_shortversionnumber.c_str())));
 }
 
-void UIUtils::openUserManualURL()
-{
+void UIUtils::openUserManualURL() {
     openVersionedURL("http://www.openscad.org/documentation.html?version=%1");
 }
 
-void UIUtils::openCheatSheetURL()
-{
-    openVersionedURL("http://www.openscad.org/cheatsheet/index.html?version=%1");
+void UIUtils::openCheatSheetURL() {
+    openVersionedURL(
+        "http://www.openscad.org/cheatsheet/index.html?version=%1");
 }

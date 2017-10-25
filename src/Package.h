@@ -1,20 +1,20 @@
 #pragma once
 
-#include "AST.h"
 #include <string>
+#include "AST.h"
 
-class Package : public ASTNode
-{
+class Package : public ASTNode {
 public:
-  Package() {}
-	virtual ~Package() {}
+    Package() {}
+    virtual ~Package() {}
 
-	void setPath(const std::string &path) { this->_path = path; }
-	const std::string &path() const { return this->_path; }
+    void setPath(const std::string &path) { this->_path = path; }
+    const std::string &path() const { return this->_path; }
 
-	LocalScope scope;
-	typedef std::unordered_set<std::string> ModuleContainer;
-	ModuleContainer usedlibs;
+    LocalScope scope;
+    typedef std::unordered_set<std::string> ModuleContainer;
+    ModuleContainer usedlibs;
+
 private:
-	std::string _path;
+    std::string _path;
 };

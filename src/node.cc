@@ -25,88 +25,76 @@
  */
 
 #include "node.h"
-#include "module.h"
-#include "ModuleInstantiation.h"
-#include "progress.h"
-#include "printutils.h"
+#include <algorithm>
 #include <functional>
 #include <iostream>
-#include <algorithm>
+#include "ModuleInstantiation.h"
+#include "module.h"
+#include "printutils.h"
+#include "progress.h"
 
 size_t AbstractNode::idx_counter;
 
-AbstractNode::AbstractNode(const ModuleInstantiation *mi) : modinst(mi), idx(idx_counter++)
-{
+AbstractNode::AbstractNode(const ModuleInstantiation *mi)
+    : modinst(mi), idx(idx_counter++) {}
+
+AbstractNode::~AbstractNode() {
+    std::for_each(this->children.begin(), this->children.end(),
+                  std::default_delete<AbstractNode>());
 }
 
-AbstractNode::~AbstractNode()
-{
-	std::for_each(this->children.begin(), this->children.end(), std::default_delete<AbstractNode>());
+std::string AbstractNode::toString() const { return this->name() + "()"; }
+
+std::string GroupNode::name() const { return "group"; }
+
+std::string RootNode::name() const { return "root"; }
+
+std::string AbstractIntersectionNode::toString() const {
+    return this->name() + "()";
 }
 
-std::string AbstractNode::toString() const
-{
-	return this->name() + "()";
+std::string AbstractIntersectionNode::name() const {
+    // We write intersection here since the module will have to be evaluated
+    // before we get here and it will not longer retain the intersection_for
+    // parameters
+    return "intersection";
 }
 
-std::string GroupNode::name() const
-{
-	return "group";
+void AbstractNode::progress_prepare() {
+    std::for_each(this->children.begin(), this->children.end(),
+                  std::mem_fun(&AbstractNode::progress_prepare));
+    this->progress_mark = ++progress_report_count;
 }
 
-std::string RootNode::name() const
-{
-	return "root";
+void AbstractNode::progress_report() const {
+    progress_update(this, this->progress_mark);
 }
 
-std::string AbstractIntersectionNode::toString() const
-{
-	return this->name() + "()";
-}
-
-std::string AbstractIntersectionNode::name() const
-{
-  // We write intersection here since the module will have to be evaluated
-	// before we get here and it will not longer retain the intersection_for parameters
-	return "intersection";
-}
-
-void AbstractNode::progress_prepare()
-{
-	std::for_each(this->children.begin(), this->children.end(), std::mem_fun(&AbstractNode::progress_prepare));
-	this->progress_mark = ++progress_report_count;
-}
-
-void AbstractNode::progress_report() const
-{
-	progress_update(this, this->progress_mark);
-}
-
-std::ostream &operator<<(std::ostream &stream, const AbstractNode &node)
-{
-	stream << node.toString();
-	return stream;
+std::ostream &operator<<(std::ostream &stream, const AbstractNode &node) {
+    stream << node.toString();
+    return stream;
 }
 
 // Do we have an explicit root node (! modifier)?
-AbstractNode *find_root_tag(AbstractNode *n)
-{
-	std::vector<AbstractNode*> rootTags;
+AbstractNode *find_root_tag(AbstractNode *n) {
+    std::vector<AbstractNode *> rootTags;
 
-	std::function <void (AbstractNode *n)> find_root_tags = [&](AbstractNode *n) {
-		for (auto v : n->children) {
-			if (v->modinst->tag_root) rootTags.push_back(v);
-			find_root_tags(v);
-		}
-	};
+    std::function<void(AbstractNode * n)> find_root_tags =
+        [&](AbstractNode *n) {
+            for (auto v : n->children) {
+                if (v->modinst->tag_root) rootTags.push_back(v);
+                find_root_tags(v);
+            }
+        };
 
-	find_root_tags(n);
+    find_root_tags(n);
 
-	if (rootTags.size() == 0) return nullptr;
-	if (rootTags.size() > 1) {
-		for (const auto& rootTag : rootTags) {
-			PRINTB("WARNING: Root Modifier (!) Added At Line%d \n", rootTag->modinst->location().firstLine());
-		}
-	}
-	return rootTags.front();
+    if (rootTags.size() == 0) return nullptr;
+    if (rootTags.size() > 1) {
+        for (const auto &rootTag : rootTags) {
+            PRINTB("WARNING: Root Modifier (!) Added At Line%d \n",
+                   rootTag->modinst->location().firstLine());
+        }
+    }
+    return rootTags.front();
 }
