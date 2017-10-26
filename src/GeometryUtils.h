@@ -1,7 +1,7 @@
 #pragma once
 
-#include "linalg.h"
 #include <vector>
+#include "linalg.h"
 
 typedef std::vector<Vector3d> Polygon;
 typedef std::vector<Polygon> Polygons;
@@ -26,14 +26,13 @@ struct IndexedPolyMesh {
 };
 
 namespace GeometryUtils {
-	bool tessellatePolygon(const Polygon &polygon,
-												 Polygons &triangles,
-												 const Vector3f *normal = nullptr);
-	bool tessellatePolygonWithHoles(const Vector3f *vertices,
-																	const std::vector<IndexedFace> &faces, 
-																	std::vector<IndexedTriangle> &triangles,
-																	const Vector3f *normal = nullptr);
+bool tessellatePolygon(const Polygon &polygon, Polygons &triangles,
+                       const Vector3f *normal = nullptr);
+bool tessellatePolygonWithHoles(const Vector3f *vertices,
+                                const std::vector<IndexedFace> &faces,
+                                std::vector<IndexedTriangle> &triangles,
+                                const Vector3f *normal = nullptr);
 
-	int findUnconnectedEdges(const std::vector<std::vector<IndexedFace>> &polygons);
-	int findUnconnectedEdges(const std::vector<IndexedTriangle> &triangles);
-}
+int findUnconnectedEdges(const std::vector<std::vector<IndexedFace>> &polygons);
+int findUnconnectedEdges(const std::vector<IndexedTriangle> &triangles);
+}  // namespace GeometryUtils

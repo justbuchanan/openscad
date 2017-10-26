@@ -24,24 +24,23 @@
  *
  */
 
-#include "export.h"
-#include "polyset.h"
-#include "polyset-utils.h"
 #include "dxfdata.h"
+#include "export.h"
+#include "polyset-utils.h"
+#include "polyset.h"
 
 #ifdef ENABLE_CGAL
 #include "CGAL_Nef_polyhedron.h"
 #include "cgal.h"
 #include "cgalutils.h"
 
-static void append_stl(const PolySet &ps, std::ostream &output)
-{
+static void append_stl(const PolySet &ps, std::ostream &output) {
 	PolySet triangulated(3);
 	PolysetUtils::tessellate_faces(ps, triangulated);
 
-	setlocale(LC_NUMERIC, "C"); // Ensure radix is . (not ,) in output
-	for(const auto &p : triangulated.polygons) {
-		assert(p.size() == 3); // STL only allows triangles
+	setlocale(LC_NUMERIC, "C");  // Ensure radix is . (not ,) in output
+	for (const auto &p : triangulated.polygons) {
+		assert(p.size() == 3);  // STL only allows triangles
 		std::stringstream stream;
 		stream << p[0][0] << " " << p[0][1] << " " << p[0][2];
 		std::string vs1 = stream.str();
@@ -52,37 +51,37 @@ static void append_stl(const PolySet &ps, std::ostream &output)
 		stream << p[2][0] << " " << p[2][1] << " " << p[2][2];
 		std::string vs3 = stream.str();
 		if (vs1 != vs2 && vs1 != vs3 && vs2 != vs3) {
-			// The above condition ensures that there are 3 distinct vertices, but
-			// they may be collinear. If they are, the unit normal is meaningless
-			// so the default value of "0 0 0" can be used. If the vertices are not
-			// collinear then the unit normal must be calculated from the
-			// components.
+			// The above condition ensures that there are 3 distinct vertices,
+			// but they may be collinear. If they are, the unit normal is
+			// meaningless so the default value of "0 0 0" can be used. If the
+			// vertices are not collinear then the unit normal must be
+			// calculated from the components.
 			output << "  facet normal ";
 			Vector3d normal = (p[1] - p[0]).cross(p[2] - p[0]);
 			normal.normalize();
 			if (is_finite(normal) && !is_nan(normal)) {
-				output << normal[0] << " " << normal[1] << " " << normal[2] << "\n";
-			}
-			else {
+				output << normal[0] << " " << normal[1] << " " << normal[2]
+				       << "\n";
+			} else {
 				output << "0 0 0\n";
 			}
 			output << "    outer loop\n";
-		
-			for(const auto &v : p) {
-				output << "      vertex " << v[0] << " " << v[1] << " " << v[2] << "\n";
+
+			for (const auto &v : p) {
+				output << "      vertex " << v[0] << " " << v[1] << " " << v[2]
+				       << "\n";
 			}
 			output << "    endloop\n";
 			output << "  endfacet\n";
 		}
 	}
-	setlocale(LC_NUMERIC, "");      // Set default locale
+	setlocale(LC_NUMERIC, "");  // Set default locale
 }
 
-static void append_stl(const CGAL_Polyhedron &P, std::ostream &output)
-{
-	typedef CGAL_Polyhedron::Vertex                                 Vertex;
-	typedef CGAL_Polyhedron::Vertex_const_iterator                  VCI;
-	typedef CGAL_Polyhedron::Facet_const_iterator                   FCI;
+static void append_stl(const CGAL_Polyhedron &P, std::ostream &output) {
+	typedef CGAL_Polyhedron::Vertex Vertex;
+	typedef CGAL_Polyhedron::Vertex_const_iterator VCI;
+	typedef CGAL_Polyhedron::Facet_const_iterator FCI;
 	typedef CGAL_Polyhedron::Halfedge_around_facet_const_circulator HFCC;
 
 	for (FCI fi = P.facets_begin(); fi != P.facets_end(); ++fi) {
@@ -113,22 +112,29 @@ static void append_stl(const CGAL_Polyhedron &P, std::ostream &output)
 			stream << x3 << " " << y3 << " " << z3;
 			std::string vs3 = stream.str();
 			if (vs1 != vs2 && vs1 != vs3 && vs2 != vs3) {
-				// The above condition ensures that there are 3 distinct vertices, but
-				// they may be collinear. If they are, the unit normal is meaningless
-				// so the default value of "1 0 0" can be used. If the vertices are not
-				// collinear then the unit normal must be calculated from the
-				// components.
-				if (!CGAL::collinear(v1.point(),v2.point(),v3.point())) {
-					CGAL_Polyhedron::Traits::Vector_3 normal = CGAL::normal(v1.point(),v2.point(),v3.point());
+				// The above condition ensures that there are 3 distinct
+				// vertices, but they may be collinear. If they are, the unit
+				// normal is meaningless so the default value of "1 0 0" can be
+				// used. If the vertices are not collinear then the unit normal
+				// must be calculated from the components.
+				if (!CGAL::collinear(v1.point(), v2.point(), v3.point())) {
+					CGAL_Polyhedron::Traits::Vector_3 normal =
+					    CGAL::normal(v1.point(), v2.point(), v3.point());
 					output << "  facet normal "
-								 << CGAL::sign(normal.x()) * sqrt(CGAL::to_double(normal.x()*normal.x()/normal.squared_length()))
-								 << " "
-								 << CGAL::sign(normal.y()) * sqrt(CGAL::to_double(normal.y()*normal.y()/normal.squared_length()))
-								 << " "
-								 << CGAL::sign(normal.z()) * sqrt(CGAL::to_double(normal.z()*normal.z()/normal.squared_length()))
-								 << "\n";
-				}
-				else output << "  facet normal 1 0 0\n";
+					       << CGAL::sign(normal.x()) *
+					              sqrt(CGAL::to_double(normal.x() * normal.x() /
+					                                   normal.squared_length()))
+					       << " "
+					       << CGAL::sign(normal.y()) *
+					              sqrt(CGAL::to_double(normal.y() * normal.y() /
+					                                   normal.squared_length()))
+					       << " "
+					       << CGAL::sign(normal.z()) *
+					              sqrt(CGAL::to_double(normal.z() * normal.z() /
+					                                   normal.squared_length()))
+					       << "\n";
+				} else
+					output << "  facet normal 1 0 0\n";
 				output << "    outer loop\n";
 				output << "      vertex " << vs1 << "\n";
 				output << "      vertex " << vs2 << "\n";
@@ -141,70 +147,76 @@ static void append_stl(const CGAL_Polyhedron &P, std::ostream &output)
 }
 
 /*!
-	Saves the current 3D CGAL Nef polyhedron as STL to the given file.
-	The file must be open.
+    Saves the current 3D CGAL Nef polyhedron as STL to the given file.
+    The file must be open.
  */
-static void append_stl(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
-{
+static void append_stl(const CGAL_Nef_polyhedron &root_N,
+                       std::ostream &output) {
 	if (!root_N.p3->is_simple()) {
-		PRINT("WARNING: Exported object may not be a valid 2-manifold and may need repair");
+		PRINT(
+		    "WARNING: Exported object may not be a valid 2-manifold and may "
+		    "need repair");
 	}
 
 	bool usePolySet = true;
 	if (usePolySet) {
 		PolySet ps(3);
 		bool err = CGALUtils::createPolySetFromNefPolyhedron3(*(root_N.p3), ps);
-		if (err) { PRINT("ERROR: Nef->PolySet failed"); }
-		else {
+		if (err) {
+			PRINT("ERROR: Nef->PolySet failed");
+		} else {
 			append_stl(ps, output);
 		}
-	}
-	else {
-		CGAL::Failure_behaviour old_behaviour = CGAL::set_error_behaviour(CGAL::THROW_EXCEPTION);
+	} else {
+		CGAL::Failure_behaviour old_behaviour =
+		    CGAL::set_error_behaviour(CGAL::THROW_EXCEPTION);
 		try {
 			CGAL_Polyhedron P;
-			//root_N.p3->convert_to_Polyhedron(P);
-			bool err = nefworkaround::convert_to_Polyhedron<CGAL_Kernel3>( *(root_N.p3), P );
+			// root_N.p3->convert_to_Polyhedron(P);
+			bool err = nefworkaround::convert_to_Polyhedron<CGAL_Kernel3>(
+			    *(root_N.p3), P);
 			if (err) {
-				PRINT("ERROR: CGAL NefPolyhedron->Polyhedron conversion failed");
+				PRINT(
+				    "ERROR: CGAL NefPolyhedron->Polyhedron conversion failed");
 				return;
 			}
 			append_stl(P, output);
-		}
-		catch (const CGAL::Assertion_exception &e) {
-			PRINTB("ERROR: CGAL error in CGAL_Nef_polyhedron3::convert_to_Polyhedron(): %s", e.what());
-		}
-		catch (...) {
-			PRINT("ERROR: CGAL unknown error in CGAL_Nef_polyhedron3::convert_to_Polyhedron()");
+		} catch (const CGAL::Assertion_exception &e) {
+			PRINTB(
+			    "ERROR: CGAL error in "
+			    "CGAL_Nef_polyhedron3::convert_to_Polyhedron(): %s",
+			    e.what());
+		} catch (...) {
+			PRINT(
+			    "ERROR: CGAL unknown error in "
+			    "CGAL_Nef_polyhedron3::convert_to_Polyhedron()");
 		}
 		CGAL::set_error_behaviour(old_behaviour);
 	}
 }
 
-static void append_stl(const shared_ptr<const Geometry> &geom, std::ostream &output)
-{
-	if (const CGAL_Nef_polyhedron *N = dynamic_cast<const CGAL_Nef_polyhedron *>(geom.get())) {
+static void append_stl(const shared_ptr<const Geometry> &geom,
+                       std::ostream &output) {
+	if (const CGAL_Nef_polyhedron *N =
+	        dynamic_cast<const CGAL_Nef_polyhedron *>(geom.get())) {
 		append_stl(*N, output);
-	}
-	else if (const PolySet *ps = dynamic_cast<const PolySet *>(geom.get())) {
+	} else if (const PolySet *ps = dynamic_cast<const PolySet *>(geom.get())) {
 		append_stl(*ps, output);
-	}
-	else if (dynamic_cast<const Polygon2d *>(geom.get())) {
+	} else if (dynamic_cast<const Polygon2d *>(geom.get())) {
 		assert(false && "Unsupported file format");
 	} else {
 		assert(false && "Not implemented");
 	}
 }
 
-void export_stl(const shared_ptr<const Geometry> &geom, std::ostream &output)
-{
-	setlocale(LC_NUMERIC, "C"); // Ensure radix is . (not ,) in output
+void export_stl(const shared_ptr<const Geometry> &geom, std::ostream &output) {
+	setlocale(LC_NUMERIC, "C");  // Ensure radix is . (not ,) in output
 	output << "solid OpenSCAD_Model\n";
 
 	append_stl(geom, output);
 
 	output << "endsolid OpenSCAD_Model\n";
-	setlocale(LC_NUMERIC, "");      // Set default locale
+	setlocale(LC_NUMERIC, "");  // Set default locale
 }
 
-#endif // ENABLE_CGAL
+#endif  // ENABLE_CGAL

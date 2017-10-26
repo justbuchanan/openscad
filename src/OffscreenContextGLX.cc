@@ -36,10 +36,10 @@ OffscreenContext.mm (Mac OSX version)
  */
 
 #include "OffscreenContext.h"
-#include "printutils.h"
-#include "imageutils.h"
-#include "system-gl.h"
 #include "fbo.h"
+#include "imageutils.h"
+#include "printutils.h"
+#include "system-gl.h"
 
 #include <GL/gl.h>
 #include <GL/glx.h>
@@ -48,14 +48,16 @@ OffscreenContext.mm (Mac OSX version)
 #include <sstream>
 #include <string>
 
-#include <sys/utsname.h> // for uname
+#include <sys/utsname.h>  // for uname
 
-struct OffscreenContext
-{
-	OffscreenContext(int width, int height) :
-		openGLContext(nullptr), xdisplay(nullptr), xwindow(0),
-		width(width), height(height),
-		fbo(nullptr) {}
+struct OffscreenContext {
+	OffscreenContext(int width, int height)
+	    : openGLContext(nullptr),
+	      xdisplay(nullptr),
+	      xwindow(0),
+	      width(width),
+	      height(height),
+	      fbo(nullptr) {}
 	GLXContext openGLContext;
 	Display *xdisplay;
 	Window xwindow;
@@ -66,30 +68,26 @@ struct OffscreenContext
 
 #include "OffscreenContextAll.hpp"
 
-std::string get_os_info()
-{
+std::string get_os_info() {
 	struct utsname u;
 	std::stringstream out;
 
 	if (uname(&u) < 0) {
 		out << "OS info: unknown, uname() error\n";
-	}
-	else {
-		out << "OS info: "
-		    << u.sysname << " "
-		    << u.release << " "
-		    << u.version << "\n";
+	} else {
+		out << "OS info: " << u.sysname << " " << u.release << " " << u.version
+		    << "\n";
 		out << "Machine: " << u.machine;
 	}
 	return out.str();
 }
 
-std::string offscreen_context_getinfo(OffscreenContext *ctx)
-{
+std::string offscreen_context_getinfo(OffscreenContext *ctx) {
 	assert(ctx);
 
 	if (!ctx->xdisplay) {
-		return std::string("No GL Context initialized. No information to report\n");
+		return std::string(
+		    "No GL Context initialized. No information to report\n");
 	}
 
 	int major, minor;
@@ -106,13 +104,12 @@ std::string offscreen_context_getinfo(OffscreenContext *ctx)
 
 static XErrorHandler original_xlib_handler = nullptr;
 static auto XCreateWindow_failed = false;
-static int XCreateWindow_error(Display *dpy, XErrorEvent *event)
-{
+static int XCreateWindow_error(Display *dpy, XErrorEvent *event) {
 	std::cerr << "XCreateWindow failed: XID: " << event->resourceid
-	     << " request: " << static_cast<int>(event->request_code)
-	     << " minor: " << static_cast<int>(event->minor_code) << "\n";
+	          << " request: " << static_cast<int>(event->request_code)
+	          << " minor: " << static_cast<int>(event->minor_code) << "\n";
 	char description[1024];
-	XGetErrorText( dpy, event->error_code, description, 1023 );
+	XGetErrorText(dpy, event->error_code, description, 1023);
 	std::cerr << " error message: " << description << "\n";
 	XCreateWindow_failed = true;
 	return 0;
@@ -123,43 +120,52 @@ static int XCreateWindow_error(Display *dpy, XErrorEvent *event)
    and save information to the ctx.
 
    This purposely does not use glxCreateWindow, to avoid crashes,
-   "failed to create drawable" errors, and Mesa "WARNING: Application calling 
+   "failed to create drawable" errors, and Mesa "WARNING: Application calling
    GLX 1.3 function when GLX 1.3 is not supported! This is an application bug!"
 
    This function will alter ctx.openGLContext and ctx.xwindow if successfull
  */
-bool create_glx_dummy_window(OffscreenContext &ctx)
-{
-	int attributes[] = {
-		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT | GLX_PIXMAP_BIT | GLX_PBUFFER_BIT, //support all 3, for OpenCSG
-		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
-		GLX_RED_SIZE, 8,
-		GLX_GREEN_SIZE, 8,
-		GLX_BLUE_SIZE, 8,
-		GLX_ALPHA_SIZE, 8,
-		GLX_DEPTH_SIZE, 24, // depth-stencil for OpenCSG
-		GLX_STENCIL_SIZE, 8,
-		GLX_DOUBLEBUFFER, true,
-		None
-	};
+bool create_glx_dummy_window(OffscreenContext &ctx) {
+	int attributes[] = {GLX_DRAWABLE_TYPE,
+	                    GLX_WINDOW_BIT | GLX_PIXMAP_BIT |
+	                        GLX_PBUFFER_BIT,  // support all 3, for OpenCSG
+	                    GLX_RENDER_TYPE,
+	                    GLX_RGBA_BIT,
+	                    GLX_RED_SIZE,
+	                    8,
+	                    GLX_GREEN_SIZE,
+	                    8,
+	                    GLX_BLUE_SIZE,
+	                    8,
+	                    GLX_ALPHA_SIZE,
+	                    8,
+	                    GLX_DEPTH_SIZE,
+	                    24,  // depth-stencil for OpenCSG
+	                    GLX_STENCIL_SIZE,
+	                    8,
+	                    GLX_DOUBLEBUFFER,
+	                    true,
+	                    None};
 
 	auto dpy = ctx.xdisplay;
 
 	int num_returned = 0;
-	auto fbconfigs = glXChooseFBConfig( dpy, DefaultScreen(dpy), attributes, &num_returned );
+	auto fbconfigs =
+	    glXChooseFBConfig(dpy, DefaultScreen(dpy), attributes, &num_returned);
 	if (fbconfigs == nullptr) {
 		std::cerr << "glXChooseFBConfig failed\n";
 		return false;
 	}
 
-	auto visinfo = glXGetVisualFromFBConfig( dpy, fbconfigs[0] );
+	auto visinfo = glXGetVisualFromFBConfig(dpy, fbconfigs[0]);
 	if (visinfo == nullptr) {
 		std::cerr << "glXGetVisualFromFBConfig failed\n";
 		XFree(fbconfigs);
 		return false;
 	}
 
-	// can't depend on xWin==nullptr at failure. use a custom Xlib error handler instead.
+	// can't depend on xWin==nullptr at failure. use a custom Xlib error handler
+	// instead.
 	original_xlib_handler = XSetErrorHandler(XCreateWindow_error);
 
 	auto root = DefaultRootWindow(dpy);
@@ -169,15 +175,16 @@ bool create_glx_dummy_window(OffscreenContext &ctx)
 	xwin_attr.background_pixmap = None;
 	xwin_attr.background_pixel = 0;
 	xwin_attr.border_pixel = 0;
-	xwin_attr.colormap = XCreateColormap( dpy, root, visinfo->visual, AllocNone);
+	xwin_attr.colormap = XCreateColormap(dpy, root, visinfo->visual, AllocNone);
 	xwin_attr.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
-	unsigned long int mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
+	unsigned long int mask =
+	    CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 
-	auto xWin = XCreateWindow( dpy, root, 0, 0, width, height,
-														 0, visinfo->depth, InputOutput,
-														 visinfo->visual, mask, &xwin_attr );
+	auto xWin = XCreateWindow(dpy, root, 0, 0, width, height, 0, visinfo->depth,
+	                          InputOutput, visinfo->visual, mask, &xwin_attr);
 
-	// Window xWin = XCreateSimpleWindow( dpy, DefaultRootWindow(dpy), 0,0,42,42, 0,0,0 );
+	// Window xWin = XCreateSimpleWindow( dpy, DefaultRootWindow(dpy),
+	// 0,0,42,42, 0,0,0 );
 
 	XSync(dpy, false);
 	if (XCreateWindow_failed) {
@@ -187,10 +194,11 @@ bool create_glx_dummy_window(OffscreenContext &ctx)
 	}
 	XSetErrorHandler(original_xlib_handler);
 
-	// Most programs would call XMapWindow here. But we don't, to keep the window hidden
-	// XMapWindow( dpy, xWin );
+	// Most programs would call XMapWindow here. But we don't, to keep the
+	// window hidden XMapWindow( dpy, xWin );
 
-	auto context = glXCreateNewContext(dpy, fbconfigs[0], GLX_RGBA_TYPE, nullptr, true);
+	auto context =
+	    glXCreateNewContext(dpy, fbconfigs[0], GLX_RGBA_TYPE, nullptr, true);
 	if (context == nullptr) {
 		std::cerr << "glXCreateNewContext failed\n";
 		XDestroyWindow(dpy, xWin);
@@ -199,10 +207,10 @@ bool create_glx_dummy_window(OffscreenContext &ctx)
 		return false;
 	}
 
-	//GLXWindow glxWin = glXCreateWindow( dpy, fbconfigs[0], xWin, nullptr );
+	// GLXWindow glxWin = glXCreateWindow( dpy, fbconfigs[0], xWin, nullptr );
 
-	if (!glXMakeContextCurrent( dpy, xWin, xWin, context )) {
-		//if (!glXMakeContextCurrent( dpy, glxWin, glxWin, context )) {
+	if (!glXMakeContextCurrent(dpy, xWin, xWin, context)) {
+		// if (!glXMakeContextCurrent( dpy, glxWin, glxWin, context )) {
 		std::cerr << "glXMakeContextCurrent failed\n";
 		glXDestroyContext(dpy, context);
 		XDestroyWindow(dpy, xWin);
@@ -222,12 +230,11 @@ bool create_glx_dummy_window(OffscreenContext &ctx)
 
 bool create_glx_dummy_context(OffscreenContext &ctx);
 
-OffscreenContext *create_offscreen_context(int w, int h)
-{
+OffscreenContext *create_offscreen_context(int w, int h) {
 	auto ctx = new OffscreenContext(w, h);
 
 	// before an FBO can be setup, a GLX context must be created
-	// this call alters ctx->xDisplay and ctx->openGLContext 
+	// this call alters ctx->xDisplay and ctx->openGLContext
 	// and ctx->xwindow if successful
 	if (!create_glx_dummy_context(*ctx)) {
 		delete ctx;
@@ -237,29 +244,27 @@ OffscreenContext *create_offscreen_context(int w, int h)
 	return create_offscreen_context_common(ctx);
 }
 
-bool teardown_offscreen_context(OffscreenContext *ctx)
-{
+bool teardown_offscreen_context(OffscreenContext *ctx) {
 	if (ctx) {
 		fbo_unbind(ctx->fbo);
 		fbo_delete(ctx->fbo);
-		XDestroyWindow( ctx->xdisplay, ctx->xwindow );
-		glXDestroyContext( ctx->xdisplay, ctx->openGLContext );
-		XCloseDisplay( ctx->xdisplay );
+		XDestroyWindow(ctx->xdisplay, ctx->xwindow);
+		glXDestroyContext(ctx->xdisplay, ctx->openGLContext);
+		XCloseDisplay(ctx->xdisplay);
 		return true;
 	}
 	return false;
 }
 
-bool save_framebuffer(OffscreenContext *ctx, std::ostream &output)
-{
+bool save_framebuffer(OffscreenContext *ctx, std::ostream &output) {
 	glXSwapBuffers(ctx->xdisplay, ctx->xwindow);
 	return save_framebuffer_common(ctx, output);
 }
 
 #pragma GCC diagnostic ignored "-Waddress"
-bool create_glx_dummy_context(OffscreenContext &ctx)
-{
-	// This will alter ctx.openGLContext and ctx.xdisplay and ctx.xwindow if successfull
+bool create_glx_dummy_context(OffscreenContext &ctx) {
+	// This will alter ctx.openGLContext and ctx.xdisplay and ctx.xwindow if
+	// successfull
 	int major;
 	int minor;
 	auto result = false;
@@ -268,7 +273,7 @@ bool create_glx_dummy_context(OffscreenContext &ctx)
 	if (ctx.xdisplay == nullptr) {
 		std::cerr << "Unable to open a connection to the X server.\n";
 		auto dpyenv = getenv("DISPLAY");
-		std::cerr << "DISPLAY=" << (dpyenv?dpyenv:"") << "\n";
+		std::cerr << "DISPLAY=" << (dpyenv ? dpyenv : "") << "\n";
 		return false;
 	}
 
@@ -276,9 +281,9 @@ bool create_glx_dummy_context(OffscreenContext &ctx)
 	// also check to see if GLX 1.3 functions exist
 
 	glXQueryVersion(ctx.xdisplay, &major, &minor);
-	if (major==1 && minor<=2 && glXGetVisualFromFBConfig==nullptr) {
+	if (major == 1 && minor <= 2 && glXGetVisualFromFBConfig == nullptr) {
 		std::cerr << "Error: GLX version 1.3 functions missing. "
-			<< "Your GLX version: " << major << "." << minor << std::endl;
+		          << "Your GLX version: " << major << "." << minor << std::endl;
 	} else {
 		result = create_glx_dummy_window(ctx);
 	}

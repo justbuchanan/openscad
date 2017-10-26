@@ -24,28 +24,30 @@
  *
  */
 
-#include "projectionnode.h"
-#include "module.h"
 #include "ModuleInstantiation.h"
-#include "evalcontext.h"
-#include "printutils.h"
 #include "builtin.h"
+#include "evalcontext.h"
+#include "module.h"
 #include "polyset.h"
+#include "printutils.h"
+#include "projectionnode.h"
 
 #include <assert.h>
-#include <sstream>
 #include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
+#include <sstream>
+using namespace boost::assign;  // bring 'operator+=()' into scope
 
-class ProjectionModule : public AbstractModule
-{
+class ProjectionModule : public AbstractModule {
 public:
-	ProjectionModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	ProjectionModule() {}
+	virtual AbstractNode *instantiate(const Context *ctx,
+	                                  const ModuleInstantiation *inst,
+	                                  EvalContext *evalctx) const;
 };
 
-AbstractNode *ProjectionModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
-{
+AbstractNode *ProjectionModule::instantiate(const Context *ctx,
+                                            const ModuleInstantiation *inst,
+                                            EvalContext *evalctx) const {
 	auto node = new ProjectionNode(inst);
 
 	AssignmentList args{Assignment("cut")};
@@ -64,22 +66,21 @@ AbstractNode *ProjectionModule::instantiate(const Context *ctx, const ModuleInst
 	}
 
 	auto instantiatednodes = inst->instantiateChildren(evalctx);
-	node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
+	node->children.insert(node->children.end(), instantiatednodes.begin(),
+	                      instantiatednodes.end());
 
 	return node;
 }
 
-std::string ProjectionNode::toString() const
-{
+std::string ProjectionNode::toString() const {
 	std::stringstream stream;
 
 	stream << "projection(cut = " << (this->cut_mode ? "true" : "false")
-				 << ", convexity = " << this->convexity << ")";
+	       << ", convexity = " << this->convexity << ")";
 
 	return stream.str();
 }
 
-void register_builtin_projection()
-{
+void register_builtin_projection() {
 	Builtins::init("projection", new ProjectionModule());
 }

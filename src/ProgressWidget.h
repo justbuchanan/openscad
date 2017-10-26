@@ -1,14 +1,13 @@
 #pragma once
 
+#include <QTime>
 #include "qtgettext.h"
 #include "ui_ProgressWidget.h"
-#include <QTime>
 
-class ProgressWidget : public QWidget, public Ui::ProgressWidget
-{
+class ProgressWidget : public QWidget, public Ui::ProgressWidget {
 	Q_OBJECT;
 	Q_PROPERTY(bool wasCanceled READ wasCanceled);
-	
+
 public:
 	ProgressWidget(QWidget *parent = nullptr);
 	bool wasCanceled() const;

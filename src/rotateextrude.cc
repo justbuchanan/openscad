@@ -24,35 +24,38 @@
  *
  */
 
-#include "rotateextrudenode.h"
-#include "module.h"
 #include "ModuleInstantiation.h"
-#include "evalcontext.h"
-#include "printutils.h"
-#include "fileutils.h"
 #include "builtin.h"
-#include "polyset.h"
+#include "evalcontext.h"
+#include "fileutils.h"
 #include "handle_dep.h"
+#include "module.h"
+#include "polyset.h"
+#include "printutils.h"
+#include "rotateextrudenode.h"
 
-#include <sstream>
 #include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
+#include <sstream>
+using namespace boost::assign;  // bring 'operator+=()' into scope
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-class RotateExtrudeModule : public AbstractModule
-{
+class RotateExtrudeModule : public AbstractModule {
 public:
-	RotateExtrudeModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	RotateExtrudeModule() {}
+	virtual AbstractNode *instantiate(const Context *ctx,
+	                                  const ModuleInstantiation *inst,
+	                                  EvalContext *evalctx) const;
 };
 
-AbstractNode *RotateExtrudeModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
-{
+AbstractNode *RotateExtrudeModule::instantiate(const Context *ctx,
+                                               const ModuleInstantiation *inst,
+                                               EvalContext *evalctx) const {
 	auto node = new RotateExtrudeNode(inst);
 
-	AssignmentList args{Assignment("file"), Assignment("layer"), Assignment("origin"), Assignment("scale")};
+	AssignmentList args{Assignment("file"), Assignment("layer"),
+	                    Assignment("origin"), Assignment("scale")};
 
 	Context c(ctx);
 	c.setVariables(args, evalctx);
@@ -61,7 +64,6 @@ AbstractNode *RotateExtrudeModule::instantiate(const Context *ctx, const ModuleI
 	node->fn = c.lookup_variable("$fn")->toDouble();
 	node->fs = c.lookup_variable("$fs")->toDouble();
 	node->fa = c.lookup_variable("$fa")->toDouble();
-    
 
 	auto file = c.lookup_variable("file");
 	auto layer = c.lookup_variable("layer", true);
@@ -69,10 +71,13 @@ AbstractNode *RotateExtrudeModule::instantiate(const Context *ctx, const ModuleI
 	auto origin = c.lookup_variable("origin", true);
 	auto scale = c.lookup_variable("scale", true);
 	auto angle = c.lookup_variable("angle", true);
-    
+
 	if (!file->isUndefined()) {
-		printDeprecation("Support for reading files in rotate_extrude will be removed in future releases. Use a child import() instead.");
-		auto filename = lookup_file(file->toString(), inst->path(), c.documentPath());
+		printDeprecation(
+		    "Support for reading files in rotate_extrude will be removed in "
+		    "future releases. Use a child import() instead.");
+		auto filename =
+		    lookup_file(file->toString(), inst->path(), c.documentPath());
 		node->filename = filename;
 		handle_dep(filename);
 	}
@@ -84,48 +89,53 @@ AbstractNode *RotateExtrudeModule::instantiate(const Context *ctx, const ModuleI
 	node->angle = 360;
 	angle->getFiniteDouble(node->angle);
 
-	if (node->convexity <= 0)
-		node->convexity = 2;
+	if (node->convexity <= 0) node->convexity = 2;
 
-	if (node->scale <= 0)
-		node->scale = 1;
+	if (node->scale <= 0) node->scale = 1;
 
-	if ((node->angle <= -360) || (node->angle > 360))
-		node->angle = 360;
+	if ((node->angle <= -360) || (node->angle > 360)) node->angle = 360;
 
 	if (node->filename.empty()) {
 		auto instantiatednodes = inst->instantiateChildren(evalctx);
-		node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
+		node->children.insert(node->children.end(), instantiatednodes.begin(),
+		                      instantiatednodes.end());
 	}
 
 	return node;
 }
 
-std::string RotateExtrudeNode::toString() const
-{
+std::string RotateExtrudeNode::toString() const {
 	std::stringstream stream;
 
 	stream << this->name() << "(";
-	if (!this->filename.empty()) { // Ignore deprecated parameters if empty 
+	if (!this->filename.empty()) {  // Ignore deprecated parameters if empty
 		fs::path path((std::string)this->filename);
-		stream <<
-			"file = " << this->filename << ", "
-			"layer = " << QuotedString(this->layername) << ", "
-			"origin = [" << std::dec << this->origin_x << ", " << this->origin_y << "], "
-			"scale = " << this->scale << ", "
-			<< "timestamp = " << (fs::exists(path) ? fs::last_write_time(path) : 0) << ", "
-			;
+		stream << "file = " << this->filename
+		       << ", "
+		          "layer = "
+		       << QuotedString(this->layername)
+		       << ", "
+		          "origin = ["
+		       << std::dec << this->origin_x << ", " << this->origin_y
+		       << "], "
+		          "scale = "
+		       << this->scale << ", "
+		       << "timestamp = "
+		       << (fs::exists(path) ? fs::last_write_time(path) : 0) << ", ";
 	}
-	stream <<
-		"angle = " << this->angle << ", "
-		"convexity = " << this->convexity << ", "
-		"$fn = " << this->fn << ", $fa = " << this->fa << ", $fs = " << this->fs << ")";
+	stream << "angle = " << this->angle
+	       << ", "
+	          "convexity = "
+	       << this->convexity
+	       << ", "
+	          "$fn = "
+	       << this->fn << ", $fa = " << this->fa << ", $fs = " << this->fs
+	       << ")";
 
 	return stream.str();
 }
 
-void register_builtin_dxf_rotate_extrude()
-{
+void register_builtin_dxf_rotate_extrude() {
 	Builtins::init("dxf_rotate_extrude", new RotateExtrudeModule());
 	Builtins::init("rotate_extrude", new RotateExtrudeModule());
 }

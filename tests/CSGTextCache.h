@@ -1,22 +1,21 @@
 #ifndef CSGTEXTCACHE_H_
 #define CSGTEXTCACHE_H_
 
-#include "Tree.h"
-#include <string>
 #include <boost/unordered_map.hpp>
+#include <string>
+#include "Tree.h"
 
 using std::string;
 
-class CSGTextCache
-{
+class CSGTextCache {
 public:
 	CSGTextCache(const Tree &tree) : tree(tree) {}
 	~CSGTextCache() {}
 
 	bool contains(const AbstractNode &node) const;
-  string operator[](const AbstractNode &node) const;
-  void insert(const class AbstractNode &node, const string & value);
-  void remove(const class AbstractNode &node);
+	string operator[](const AbstractNode &node) const;
+	void insert(const class AbstractNode &node, const string &value);
+	void remove(const class AbstractNode &node);
 	void clear();
 
 private:

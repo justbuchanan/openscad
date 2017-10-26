@@ -3,12 +3,11 @@
 #include <QApplication>
 #include "WindowManager.h"
 
-class OpenSCADApp : public QApplication
-{
+class OpenSCADApp : public QApplication {
 	Q_OBJECT
 
 public:
-	OpenSCADApp(int &argc ,char **argv);
+	OpenSCADApp(int &argc, char **argv);
 	~OpenSCADApp();
 
 	bool notify(QObject *object, QEvent *event);

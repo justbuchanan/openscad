@@ -1,34 +1,32 @@
 #ifndef QWORDSEARCHFIELD_H
 #define QWORDSEARCHFIELD_H
 
-#include <QLineEdit>
 #include <QLabel>
+#include <QLineEdit>
 
-class QWordSearchField : public QLineEdit
-{
-    Q_OBJECT
-    
+class QWordSearchField : public QLineEdit {
+	Q_OBJECT
+
 public:
-    QWordSearchField(QFrame *parent = nullptr);
-    int findCount() const { return findcount; }
-    
+	QWordSearchField(QFrame *parent = nullptr);
+	int findCount() const { return findcount; }
+
 protected:
-    void resizeEvent(QResizeEvent *);
-    void resizeSearchField();
-    
+	void resizeEvent(QResizeEvent *);
+	void resizeSearchField();
+
 private slots:
-    void updateFieldLabel();
-    
+	void updateFieldLabel();
+
 public slots:
-    void setFindCount(int value);
-    
+	void setFindCount(int value);
+
 signals:
-    void findCountChanged();
-    
+	void findCountChanged();
+
 private:
-    QLabel *fieldLabel;
-    int findcount;
+	QLabel *fieldLabel;
+	int findcount;
 };
 
 #endif /* QWORDSEARCHFIELD_H */
-

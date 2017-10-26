@@ -3,9 +3,9 @@
 #include <QObject>
 #include "memory.h"
 
-class CGALWorker : public QObject
-{
+class CGALWorker : public QObject {
 	Q_OBJECT;
+
 public:
 	CGALWorker();
 	virtual ~CGALWorker();
@@ -20,7 +20,6 @@ signals:
 	void done(shared_ptr<const class Geometry>);
 
 protected:
-
 	class QThread *thread;
 	const class Tree *tree;
 };

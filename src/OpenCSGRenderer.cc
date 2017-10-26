@@ -24,19 +24,18 @@
  *
  */
 
-#include "system-gl.h"
 #include "OpenCSGRenderer.h"
-#include "polyset.h"
 #include "csgnode.h"
+#include "polyset.h"
+#include "system-gl.h"
 
 #ifdef ENABLE_OPENCSG
-#  include <opencsg.h>
+#include <opencsg.h>
 
-class OpenCSGPrim : public OpenCSG::Primitive
-{
+class OpenCSGPrim : public OpenCSG::Primitive {
 public:
-	OpenCSGPrim(OpenCSG::Operation operation, unsigned int convexity) :
-			OpenCSG::Primitive(operation, convexity) { }
+	OpenCSGPrim(OpenCSG::Operation operation, unsigned int convexity)
+	    : OpenCSG::Primitive(operation, convexity) {}
 	shared_ptr<const Geometry> geom;
 	Transform3d m;
 	Renderer::csgmode_e csgmode;
@@ -51,55 +50,67 @@ public:
 #endif
 
 OpenCSGRenderer::OpenCSGRenderer(shared_ptr<CSGProducts> root_products,
-																 shared_ptr<CSGProducts> highlights_products,
-																 shared_ptr<CSGProducts> background_products,
-																 GLint *shaderinfo)
-	: root_products(root_products), 
-		highlights_products(highlights_products), 
-		background_products(background_products), shaderinfo(shaderinfo)
-{
-}
+                                 shared_ptr<CSGProducts> highlights_products,
+                                 shared_ptr<CSGProducts> background_products,
+                                 GLint *shaderinfo)
+    : root_products(root_products),
+      highlights_products(highlights_products),
+      background_products(background_products),
+      shaderinfo(shaderinfo) {}
 
-void OpenCSGRenderer::draw(bool /*showfaces*/, bool showedges) const
-{
+void OpenCSGRenderer::draw(bool /*showfaces*/, bool showedges) const {
 	GLint *shaderinfo = this->shaderinfo;
 	if (!shaderinfo[0]) shaderinfo = nullptr;
 	if (this->root_products) {
-		renderCSGProducts(*this->root_products, showedges ? shaderinfo : nullptr, false, false);
+		renderCSGProducts(*this->root_products,
+		                  showedges ? shaderinfo : nullptr, false, false);
 	}
 	if (this->background_products) {
-		renderCSGProducts(*this->background_products, showedges ? shaderinfo : nullptr, false, true);
+		renderCSGProducts(*this->background_products,
+		                  showedges ? shaderinfo : nullptr, false, true);
 	}
 	if (this->highlights_products) {
-		renderCSGProducts(*this->highlights_products, showedges ? shaderinfo : nullptr, true, false);
+		renderCSGProducts(*this->highlights_products,
+		                  showedges ? shaderinfo : nullptr, true, false);
 	}
 }
 
 // Primitive for rendering using OpenCSG
-OpenCSGPrim *OpenCSGRenderer::createCSGPrimitive(const CSGChainObject &csgobj, OpenCSG::Operation operation, bool highlight_mode, bool background_mode, OpenSCADOperator type) const
-{
-	OpenCSGPrim *prim = new OpenCSGPrim(operation, csgobj.leaf->geom->getConvexity());
+OpenCSGPrim *OpenCSGRenderer::createCSGPrimitive(const CSGChainObject &csgobj,
+                                                 OpenCSG::Operation operation,
+                                                 bool highlight_mode,
+                                                 bool background_mode,
+                                                 OpenSCADOperator type) const {
+	OpenCSGPrim *prim =
+	    new OpenCSGPrim(operation, csgobj.leaf->geom->getConvexity());
 	prim->geom = csgobj.leaf->geom;
 	prim->m = csgobj.leaf->matrix;
-	prim->csgmode = csgmode_e(
-		(highlight_mode ? 
-		 CSGMODE_HIGHLIGHT :
-		 (background_mode ? CSGMODE_BACKGROUND : CSGMODE_NORMAL)) |
-		(type == OpenSCADOperator::DIFFERENCE ? CSGMODE_DIFFERENCE : CSGMODE_NONE));
+	prim->csgmode =
+	    csgmode_e((highlight_mode ? CSGMODE_HIGHLIGHT
+	                              : (background_mode ? CSGMODE_BACKGROUND
+	                                                 : CSGMODE_NORMAL)) |
+	              (type == OpenSCADOperator::DIFFERENCE ? CSGMODE_DIFFERENCE
+	                                                    : CSGMODE_NONE));
 	return prim;
 }
 
-void OpenCSGRenderer::renderCSGProducts(const CSGProducts &products, GLint *shaderinfo, 
-																				bool highlight_mode, bool background_mode) const
-{
+void OpenCSGRenderer::renderCSGProducts(const CSGProducts &products,
+                                        GLint *shaderinfo, bool highlight_mode,
+                                        bool background_mode) const {
 #ifdef ENABLE_OPENCSG
-	for(const auto &product : products.products) {
-		std::vector<OpenCSG::Primitive*> primitives;
-		for(const auto &csgobj : product.intersections) {
-			if (csgobj.leaf->geom) primitives.push_back(createCSGPrimitive(csgobj, OpenCSG::Intersection, highlight_mode, background_mode, OpenSCADOperator::INTERSECTION));
+	for (const auto &product : products.products) {
+		std::vector<OpenCSG::Primitive *> primitives;
+		for (const auto &csgobj : product.intersections) {
+			if (csgobj.leaf->geom)
+				primitives.push_back(createCSGPrimitive(
+				    csgobj, OpenCSG::Intersection, highlight_mode,
+				    background_mode, OpenSCADOperator::INTERSECTION));
 		}
-		for(const auto &csgobj : product.subtractions) {
-			if (csgobj.leaf->geom) primitives.push_back(createCSGPrimitive(csgobj, OpenCSG::Subtraction, highlight_mode, background_mode, OpenSCADOperator::DIFFERENCE));
+		for (const auto &csgobj : product.subtractions) {
+			if (csgobj.leaf->geom)
+				primitives.push_back(createCSGPrimitive(
+				    csgobj, OpenCSG::Subtraction, highlight_mode,
+				    background_mode, OpenSCADOperator::DIFFERENCE));
 		}
 		if (primitives.size() > 1) {
 			OpenCSG::render(primitives);
@@ -107,13 +118,13 @@ void OpenCSGRenderer::renderCSGProducts(const CSGProducts &products, GLint *shad
 		}
 		if (shaderinfo) glUseProgram(shaderinfo[0]);
 
-		for(const auto &csgobj : product.intersections) {
+		for (const auto &csgobj : product.intersections) {
 			const Color4f &c = csgobj.leaf->color;
-				csgmode_e csgmode = csgmode_e(
-					highlight_mode ? 
-					CSGMODE_HIGHLIGHT :
-					(background_mode ? CSGMODE_BACKGROUND : CSGMODE_NORMAL));
-			
+			csgmode_e csgmode =
+			    csgmode_e(highlight_mode ? CSGMODE_HIGHLIGHT
+			                             : (background_mode ? CSGMODE_BACKGROUND
+			                                                : CSGMODE_NORMAL));
+
 			ColorMode colormode = ColorMode::NONE;
 			if (highlight_mode) {
 				colormode = ColorMode::HIGHLIGHT;
@@ -122,20 +133,22 @@ void OpenCSGRenderer::renderCSGProducts(const CSGProducts &products, GLint *shad
 			} else {
 				colormode = ColorMode::MATERIAL;
 			}
-			
+
 			setColor(colormode, c.data(), shaderinfo);
 			glPushMatrix();
 			glMultMatrixd(csgobj.leaf->matrix.data());
-			render_surface(csgobj.leaf->geom, csgmode, csgobj.leaf->matrix, shaderinfo);
+			render_surface(csgobj.leaf->geom, csgmode, csgobj.leaf->matrix,
+			               shaderinfo);
 			glPopMatrix();
 		}
-		for(const auto &csgobj : product.subtractions) {
+		for (const auto &csgobj : product.subtractions) {
 			const Color4f &c = csgobj.leaf->color;
-				csgmode_e csgmode = csgmode_e(
-					(highlight_mode ? 
-					 CSGMODE_HIGHLIGHT :
-					 (background_mode ? CSGMODE_BACKGROUND : CSGMODE_NORMAL)) | CSGMODE_DIFFERENCE);
-			
+			csgmode_e csgmode = csgmode_e(
+			    (highlight_mode ? CSGMODE_HIGHLIGHT
+			                    : (background_mode ? CSGMODE_BACKGROUND
+			                                       : CSGMODE_NORMAL)) |
+			    CSGMODE_DIFFERENCE);
+
 			ColorMode colormode = ColorMode::NONE;
 			if (highlight_mode) {
 				colormode = ColorMode::HIGHLIGHT;
@@ -144,28 +157,29 @@ void OpenCSGRenderer::renderCSGProducts(const CSGProducts &products, GLint *shad
 			} else {
 				colormode = ColorMode::CUTOUT;
 			}
-			
+
 			setColor(colormode, c.data(), shaderinfo);
 			glPushMatrix();
 			glMultMatrixd(csgobj.leaf->matrix.data());
-			render_surface(csgobj.leaf->geom, csgmode, csgobj.leaf->matrix, shaderinfo);
+			render_surface(csgobj.leaf->geom, csgmode, csgobj.leaf->matrix,
+			               shaderinfo);
 			glPopMatrix();
 		}
 
 		if (shaderinfo) glUseProgram(0);
-		for(auto &p : primitives) delete p;
+		for (auto &p : primitives) delete p;
 		glDepthFunc(GL_LEQUAL);
 	}
 #endif
 }
 
-BoundingBox OpenCSGRenderer::getBoundingBox() const
-{
+BoundingBox OpenCSGRenderer::getBoundingBox() const {
 	BoundingBox bbox;
 	if (this->root_products) bbox = this->root_products->getBoundingBox();
-	if (this->highlights_products) bbox.extend(this->highlights_products->getBoundingBox());
-	if (this->background_products) bbox.extend(this->background_products->getBoundingBox());
-
+	if (this->highlights_products)
+		bbox.extend(this->highlights_products->getBoundingBox());
+	if (this->background_products)
+		bbox.extend(this->background_products->getBoundingBox());
 
 	return bbox;
 }

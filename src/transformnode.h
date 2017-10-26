@@ -1,10 +1,9 @@
 #pragma once
 
-#include "node.h"
 #include "linalg.h"
+#include "node.h"
 
-class TransformNode : public AbstractNode
-{
+class TransformNode : public AbstractNode {
 public:
 	VISITABLE();
 	TransformNode(const ModuleInstantiation *mi);

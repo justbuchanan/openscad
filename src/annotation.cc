@@ -24,32 +24,23 @@
  *
  */
 
-
 #include "annotation.h"
-#include "expression.h"
 #include "context.h"
+#include "expression.h"
 
-Annotation::Annotation(const std::string &name, shared_ptr<class Expression> expr)
-	: name(name), expr(expr)
-{
-}
+Annotation::Annotation(const std::string &name,
+                       shared_ptr<class Expression> expr)
+    : name(name), expr(expr) {}
 
-Annotation::~Annotation()
-{
-}
+Annotation::~Annotation() {}
 
-ValuePtr Annotation::evaluate(class Context *ctx) const
-{
+ValuePtr Annotation::evaluate(class Context *ctx) const {
 	return this->expr->evaluate(ctx);
 }
 
-const std::string & Annotation::getName() const
-{
-	return name;
-}
+const std::string &Annotation::getName() const { return name; }
 
-std::string Annotation::dump() const
-{
+std::string Annotation::dump() const {
 	std::stringstream dump;
 	dump << "//" << name << "(" << *this->expr << ")" << std::endl;
 	return dump.str();

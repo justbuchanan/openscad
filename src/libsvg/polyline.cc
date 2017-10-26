@@ -4,27 +4,18 @@
 
 namespace libsvg {
 
-const std::string polyline::name("polyline"); 
+const std::string polyline::name("polyline");
 
-polyline::polyline()
-{
-}
+polyline::polyline() {}
 
-polyline::polyline(const polyline& orig) : shape(orig)
-{
-	points = orig.points;
-}
+polyline::polyline(const polyline& orig) : shape(orig) { points = orig.points; }
 
-polyline::~polyline()
-{
-}
+polyline::~polyline() {}
 
-void
-polyline::set_attrs(attr_map_t& attrs)
-{
+void polyline::set_attrs(attr_map_t& attrs) {
 	shape::set_attrs(attrs);
 	this->points = attrs["points"];
-	
+
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep(" ,");
 	tokenizer tokens(this->points, sep);
@@ -32,10 +23,10 @@ polyline::set_attrs(attr_map_t& attrs)
 	double x = 0.0;
 	path_t path;
 	bool first = true;
-	for (tokenizer::iterator it = tokens.begin();it != tokens.end();++it) {
+	for (tokenizer::iterator it = tokens.begin(); it != tokens.end(); ++it) {
 		std::string v = (*it);
 		double p = parse_double(v);
-		
+
 		if (first) {
 			x = p;
 		} else {
@@ -43,8 +34,8 @@ polyline::set_attrs(attr_map_t& attrs)
 		}
 		first = !first;
 	}
-	
+
 	offset_path(path_list, path, get_stroke_width(), get_stroke_linecap());
 }
 
-}
+}  // namespace libsvg

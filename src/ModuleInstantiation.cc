@@ -1,39 +1,33 @@
 #include "ModuleInstantiation.h"
+#include <boost/filesystem.hpp>
 #include "evalcontext.h"
 #include "expression.h"
-#include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-ModuleInstantiation::~ModuleInstantiation()
-{
-}
+ModuleInstantiation::~ModuleInstantiation() {}
 
-IfElseModuleInstantiation::~IfElseModuleInstantiation()
-{
-}
+IfElseModuleInstantiation::~IfElseModuleInstantiation() {}
 
 /*!
-	Returns the absolute path to the given filename, unless it's empty.
+    Returns the absolute path to the given filename, unless it's empty.
 
-	NB! This will actually search for the file, to be backwards compatible with <= 2013.01
-	(see issue #217)
+    NB! This will actually search for the file, to be backwards compatible with
+   <= 2013.01 (see issue #217)
 */
-std::string ModuleInstantiation::getAbsolutePath(const std::string &filename) const
-{
+std::string ModuleInstantiation::getAbsolutePath(
+    const std::string &filename) const {
 	if (!filename.empty() && !fs::path(filename).is_absolute()) {
 		return fs::absolute(fs::path(this->modpath) / filename).string();
-	}
-	else {
+	} else {
 		return filename;
 	}
 }
 
-std::string ModuleInstantiation::dump(const std::string &indent) const
-{
+std::string ModuleInstantiation::dump(const std::string &indent) const {
 	std::stringstream dump;
 	dump << indent;
 	dump << modname + "(";
-	for (size_t i=0; i < this->arguments.size(); i++) {
+	for (size_t i = 0; i < this->arguments.size(); i++) {
 		const Assignment &arg = this->arguments[i];
 		if (i > 0) dump << ", ";
 		if (!arg.name.empty()) dump << arg.name << " = ";
@@ -52,8 +46,7 @@ std::string ModuleInstantiation::dump(const std::string &indent) const
 	return dump.str();
 }
 
-std::string IfElseModuleInstantiation::dump(const std::string &indent) const
-{
+std::string IfElseModuleInstantiation::dump(const std::string &indent) const {
 	std::stringstream dump;
 	dump << ModuleInstantiation::dump(indent);
 	dump << indent;
@@ -61,8 +54,7 @@ std::string IfElseModuleInstantiation::dump(const std::string &indent) const
 		dump << indent << "else ";
 		if (else_scope.numElements() == 1) {
 			dump << else_scope.dump("");
-		}
-		else {
+		} else {
 			dump << "{\n";
 			dump << else_scope.dump(indent + "\t");
 			dump << indent << "}\n";
@@ -71,8 +63,7 @@ std::string IfElseModuleInstantiation::dump(const std::string &indent) const
 	return dump.str();
 }
 
-AbstractNode *ModuleInstantiation::evaluate(const Context *ctx) const
-{
+AbstractNode *ModuleInstantiation::evaluate(const Context *ctx) const {
 	EvalContext c(ctx, this->arguments, &this->scope);
 
 #if 0 && DEBUG
@@ -80,17 +71,17 @@ AbstractNode *ModuleInstantiation::evaluate(const Context *ctx) const
 	c.dump(nullptr, this);
 #endif
 
-	AbstractNode *node = ctx->instantiate_module(*this, &c); // Passes c as evalctx
+	AbstractNode *node =
+	    ctx->instantiate_module(*this, &c);  // Passes c as evalctx
 	return node;
 }
 
-std::vector<AbstractNode*> ModuleInstantiation::instantiateChildren(const Context *evalctx) const
-{
+std::vector<AbstractNode *> ModuleInstantiation::instantiateChildren(
+    const Context *evalctx) const {
 	return this->scope.instantiateChildren(evalctx);
 }
 
-std::vector<AbstractNode*> IfElseModuleInstantiation::instantiateElseChildren(const Context *evalctx) const
-{
+std::vector<AbstractNode *> IfElseModuleInstantiation::instantiateElseChildren(
+    const Context *evalctx) const {
 	return this->else_scope.instantiateChildren(evalctx);
 }
-

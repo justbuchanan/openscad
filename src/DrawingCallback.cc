@@ -25,32 +25,29 @@
  */
 #include <math.h>
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
-#include "Polygon2d.h"
 #include "DrawingCallback.h"
+#include "Polygon2d.h"
 
-DrawingCallback::DrawingCallback(unsigned long fn) :
-	pen(Vector2d(0, 0)), offset(Vector2d(0, 0)), advance(Vector2d(0, 0)), fn(fn)
-{
-}
+DrawingCallback::DrawingCallback(unsigned long fn)
+    : pen(Vector2d(0, 0)),
+      offset(Vector2d(0, 0)),
+      advance(Vector2d(0, 0)),
+      fn(fn) {}
 
-DrawingCallback::~DrawingCallback()
-{
-}
+DrawingCallback::~DrawingCallback() {}
 
-void DrawingCallback::start_glyph()
-{
+void DrawingCallback::start_glyph() {
 	this->polygon = new Polygon2d();
 	this->polygon->setSanitized(true);
 }
 
-void DrawingCallback::finish_glyph()
-{
+void DrawingCallback::finish_glyph() {
 	if (this->outline.vertices.size() > 0) {
 		this->polygon->addOutline(this->outline);
-        this->outline.vertices.clear();
+		this->outline.vertices.clear();
 	}
 	if (this->polygon->outlines().size() == 0) {
 		delete this->polygon;
@@ -59,28 +56,23 @@ void DrawingCallback::finish_glyph()
 	if (this->polygon) this->polygons.push_back(this->polygon);
 }
 
-std::vector<const Geometry *> DrawingCallback::get_result()
-{
+std::vector<const Geometry *> DrawingCallback::get_result() {
 	return this->polygons;
 }
 
-void DrawingCallback::set_glyph_offset(double offset_x, double offset_y)
-{
+void DrawingCallback::set_glyph_offset(double offset_x, double offset_y) {
 	offset = Vector2d(offset_x, offset_y);
 }
 
-void DrawingCallback::add_glyph_advance(double advance_x, double advance_y)
-{
+void DrawingCallback::add_glyph_advance(double advance_x, double advance_y) {
 	advance += Vector2d(advance_x, advance_y);
 }
 
-void DrawingCallback::add_vertex(const Vector2d &v)
-{
+void DrawingCallback::add_vertex(const Vector2d &v) {
 	this->outline.vertices.push_back(v + offset + advance);
 }
 
-void DrawingCallback::move_to(const Vector2d &to)
-{
+void DrawingCallback::move_to(const Vector2d &to) {
 	if (this->outline.vertices.size() > 0) {
 		this->polygon->addOutline(this->outline);
 		this->outline.vertices.clear();
@@ -89,33 +81,28 @@ void DrawingCallback::move_to(const Vector2d &to)
 	pen = to;
 }
 
-void DrawingCallback::line_to(const Vector2d &to)
-{
+void DrawingCallback::line_to(const Vector2d &to) {
 	add_vertex(to);
 	pen = to;
 }
 
 // Quadric Bezier curve
-void DrawingCallback::curve_to(const Vector2d &c1, const Vector2d &to)
-{
-	for (unsigned long idx = 1;idx <= fn;idx++) {
+void DrawingCallback::curve_to(const Vector2d &c1, const Vector2d &to) {
+	for (unsigned long idx = 1; idx <= fn; idx++) {
 		const double a = idx * (1.0 / (double)fn);
-		add_vertex(pen * pow(1-a, 2) + 
-							 c1 * 2 * pow(1-a, 1) * a + 
-							 to * pow(a, 2));
+		add_vertex(pen * pow(1 - a, 2) + c1 * 2 * pow(1 - a, 1) * a +
+		           to * pow(a, 2));
 	}
 	pen = to;
 }
 
 // Cubic Bezier curve
-void DrawingCallback::curve_to(const Vector2d &c1, const Vector2d &c2, const Vector2d &to)
-{
-	for (unsigned long idx = 1;idx <= fn;idx++) {
+void DrawingCallback::curve_to(const Vector2d &c1, const Vector2d &c2,
+                               const Vector2d &to) {
+	for (unsigned long idx = 1; idx <= fn; idx++) {
 		const double a = idx * (1.0 / (double)fn);
-		add_vertex(pen * pow(1-a, 3) + 
-							 c1 * 3 * pow(1-a, 2) * a + 
-							 c2 * 3 * pow(1-a, 1) * pow(a, 2) + 
-							 to * pow(a, 3));
+		add_vertex(pen * pow(1 - a, 3) + c1 * 3 * pow(1 - a, 2) * a +
+		           c2 * 3 * pow(1 - a, 1) * pow(a, 2) + to * pow(a, 3));
 	}
 	pen = to;
 }

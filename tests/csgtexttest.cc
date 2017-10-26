@@ -24,29 +24,29 @@
  *
  */
 
-#include "tests-common.h"
-#include "CSGTextRenderer.h"
 #include "CSGTextCache.h"
+#include "CSGTextRenderer.h"
+#include "ModuleInstantiation.h"
+#include "PlatformUtils.h"
+#include "Tree.h"
+#include "builtin.h"
+#include "export.h"
+#include "modcontext.h"
+#include "module.h"
+#include "node.h"
 #include "openscad.h"
 #include "parsersettings.h"
-#include "node.h"
-#include "module.h"
-#include "ModuleInstantiation.h"
-#include "modcontext.h"
-#include "value.h"
-#include "export.h"
-#include "builtin.h"
-#include "Tree.h"
-#include "PlatformUtils.h"
 #include "stackcheck.h"
+#include "tests-common.h"
+#include "value.h"
 
 #ifndef _MSC_VER
 #include <getopt.h>
 #endif
 #include <assert.h>
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -55,14 +55,12 @@ namespace fs = boost::filesystem;
 std::string commandline_commands;
 std::string currentdir;
 
-void csgTree(CSGTextCache &cache, const AbstractNode &root)
-{
+void csgTree(CSGTextCache &cache, const AbstractNode &root) {
 	CSGTextRenderer renderer(cache);
 	renderer.traverse(root);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	if (argc != 3) {
 		fprintf(stderr, "Usage: %s <file.scad> <output.txt>\n", argv[0]);
 		exit(1);
@@ -80,7 +78,8 @@ int main(int argc, char **argv)
 
 	currentdir = fs::current_path().generic_string();
 
-	std::string applicationpath = fs::path(argv[0]).branch_path().generic_string();
+	std::string applicationpath =
+	    fs::path(argv[0]).branch_path().generic_string();
 	PlatformUtils::registerApplicationPath(applicationpath);
 	parser_init();
 
@@ -108,7 +107,7 @@ int main(int argc, char **argv)
 	CSGTextCache csgcache(tree);
 
 	csgTree(csgcache, *root_node);
-// 	std::cout << tree.getString(*root_node) << "\n";
+	// 	std::cout << tree.getString(*root_node) << "\n";
 
 	current_path(original_path);
 	std::ofstream outfile;

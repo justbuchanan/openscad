@@ -16,12 +16,11 @@ projection, Perspective and Orthogonal.
 
 */
 
-#include "linalg.h"
-#include <vector>
 #include <Eigen/Geometry>
+#include <vector>
+#include "linalg.h"
 
-class Camera
-{
+class Camera {
 public:
 	enum class CameraType { NONE, GIMBAL, VECTOR } type;
 	enum class ProjectionType { ORTHOGONAL, PERSPECTIVE } projection;
@@ -37,15 +36,15 @@ public:
 
 	// Vectorcam
 	Eigen::Vector3d eye;
-	Eigen::Vector3d center; // (aka 'target')
-	Eigen::Vector3d up; // not used currently
+	Eigen::Vector3d center;  // (aka 'target')
+	Eigen::Vector3d up;      // not used currently
 
 	// Gimbalcam
 	Eigen::Vector3d object_trans;
 	Eigen::Vector3d object_rot;
 
 	// Perspective settings
-	double fov; // Field of view
+	double fov;  // Field of view
 
 	// true if camera should try to view everything in a given
 	// bounding box.
@@ -59,8 +58,8 @@ public:
 	unsigned int pixel_height;
 
 protected:
-        // Perspective settings
+	// Perspective settings
 	double viewer_distance;
 	// Orthographic settings
-	double height; // world-space height of viewport
+	double height;  // world-space height of viewport
 };

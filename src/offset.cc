@@ -26,31 +26,33 @@
 
 #include "offsetnode.h"
 
-#include "module.h"
 #include "ModuleInstantiation.h"
-#include "evalcontext.h"
-#include "printutils.h"
-#include "fileutils.h"
 #include "builtin.h"
 #include "calc.h"
+#include "evalcontext.h"
+#include "fileutils.h"
+#include "module.h"
 #include "polyset.h"
+#include "printutils.h"
 
-#include <sstream>
 #include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
+#include <sstream>
+using namespace boost::assign;  // bring 'operator+=()' into scope
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-class OffsetModule : public AbstractModule
-{
+class OffsetModule : public AbstractModule {
 public:
-	OffsetModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	OffsetModule() {}
+	virtual AbstractNode *instantiate(const Context *ctx,
+	                                  const ModuleInstantiation *inst,
+	                                  EvalContext *evalctx) const;
 };
 
-AbstractNode *OffsetModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
-{
+AbstractNode *OffsetModule::instantiate(const Context *ctx,
+                                        const ModuleInstantiation *inst,
+                                        EvalContext *evalctx) const {
 	auto node = new OffsetNode(inst);
 
 	AssignmentList args{Assignment("r")};
@@ -71,7 +73,7 @@ AbstractNode *OffsetModule::instantiate(const Context *ctx, const ModuleInstanti
 	const auto r = c.lookup_variable("r", true);
 	const auto delta = c.lookup_variable("delta", true);
 	const auto chamfer = c.lookup_variable("chamfer", true);
-	
+
 	if (r->isDefinedAs(Value::ValueType::NUMBER)) {
 		r->getDouble(node->delta);
 	} else if (delta->isDefinedAs(Value::ValueType::NUMBER)) {
@@ -82,32 +84,28 @@ AbstractNode *OffsetModule::instantiate(const Context *ctx, const ModuleInstanti
 			node->join_type = ClipperLib::jtSquare;
 		}
 	}
-	
+
 	auto instantiatednodes = inst->instantiateChildren(evalctx);
-	node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
+	node->children.insert(node->children.end(), instantiatednodes.begin(),
+	                      instantiatednodes.end());
 
 	return node;
 }
 
-std::string OffsetNode::toString() const
-{
+std::string OffsetNode::toString() const {
 	std::stringstream stream;
 
 	bool isRadius = this->join_type == ClipperLib::jtRound;
 	auto var = isRadius ? "(r = " : "(delta = ";
 
-	stream  << this->name() << var << std::dec << this->delta;
+	stream << this->name() << var << std::dec << this->delta;
 	if (!isRadius) {
-	    stream << ", chamfer = " << (this->chamfer ? "true" : "false");
+		stream << ", chamfer = " << (this->chamfer ? "true" : "false");
 	}
-	stream  << ", $fn = " << this->fn
-		<< ", $fa = " << this->fa
-		<< ", $fs = " << this->fs << ")";
+	stream << ", $fn = " << this->fn << ", $fa = " << this->fa
+	       << ", $fs = " << this->fs << ")";
 
 	return stream.str();
 }
 
-void register_builtin_offset()
-{
-	Builtins::init("offset", new OffsetModule());
-}
+void register_builtin_offset() { Builtins::init("offset", new OffsetModule()); }

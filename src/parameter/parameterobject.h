@@ -1,15 +1,22 @@
 #pragma once
 
-#include "value.h"
 #include "Assignment.h"
 #include "expression.h"
+#include "value.h"
 
 #include <QString>
 
-class ParameterObject
-{
+class ParameterObject {
 public:
-	typedef enum { UNDEFINED, COMBOBOX, SLIDER, CHECKBOX, TEXT, NUMBER, VECTOR } parameter_type_t;
+	typedef enum {
+		UNDEFINED,
+		COMBOBOX,
+		SLIDER,
+		CHECKBOX,
+		TEXT,
+		NUMBER,
+		VECTOR
+	} parameter_type_t;
 
 	ValuePtr value;
 	ValuePtr values;
@@ -25,13 +32,14 @@ public:
 private:
 	Value::ValueType vt;
 	void checkVectorWidget();
-	
+
 public:
 	ParameterObject();
-	void setAssignment(Context *context, const Assignment *assignment, const ValuePtr defaultValue);
+	void setAssignment(Context *context, const Assignment *assignment,
+	                   const ValuePtr defaultValue);
 	void applyParameter(Assignment &assignment);
 	bool operator==(const ParameterObject &second);
-	
+
 protected:
 	int setValue(const ValuePtr defaultValue, const ValuePtr values);
 };

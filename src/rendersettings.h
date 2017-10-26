@@ -3,8 +3,7 @@
 #include <map>
 #include "linalg.h"
 
-class RenderSettings
-{
+class RenderSettings {
 public:
 	static RenderSettings *inst(bool erase = false);
 
@@ -13,6 +12,7 @@ public:
 	unsigned int img_height;
 	double far_gl_clip_limit;
 	std::string colorscheme;
+
 private:
 	RenderSettings();
 	~RenderSettings() {}

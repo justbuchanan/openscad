@@ -1,9 +1,7 @@
 #include "ProgressWidget.h"
 #include <QTimer>
 
-ProgressWidget::ProgressWidget(QWidget *parent)
-	:QWidget(parent)
-{
+ProgressWidget::ProgressWidget(QWidget *parent) : QWidget(parent) {
 	setupUi(this);
 	setRange(0, 1000);
 	setValue(0);
@@ -14,35 +12,21 @@ ProgressWidget::ProgressWidget(QWidget *parent)
 	QTimer::singleShot(1000, this, SIGNAL(requestShow()));
 }
 
-bool ProgressWidget::wasCanceled() const
-{
-	return this->wascanceled;
-}
+bool ProgressWidget::wasCanceled() const { return this->wascanceled; }
 
 /*!
-	Returns milliseconds since this widget was created
+    Returns milliseconds since this widget was created
 */
-int ProgressWidget::elapsedTime() const
-{
-	return this->starttime.elapsed();
-}
+int ProgressWidget::elapsedTime() const { return this->starttime.elapsed(); }
 
-void ProgressWidget::cancel()
-{
-	this->wascanceled = true;
-}
+void ProgressWidget::cancel() { this->wascanceled = true; }
 
-void ProgressWidget::setRange(int minimum, int maximum)
-{
+void ProgressWidget::setRange(int minimum, int maximum) {
 	this->progressBar->setRange(minimum, maximum);
 }
 
-void ProgressWidget::setValue(int progress)
-{
+void ProgressWidget::setValue(int progress) {
 	this->progressBar->setValue(progress);
 }
 
-int ProgressWidget::value() const
-{
-	return this->progressBar->value();
-}
+int ProgressWidget::value() const { return this->progressBar->value(); }

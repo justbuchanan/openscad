@@ -23,24 +23,24 @@
  *
  */
 
-#include "myqhash.h"
-#include "openscad.h"
-#include "node.h"
-#include "module.h"
-#include "context.h"
-#include "value.h"
-#include "export.h"
-#include "builtin.h"
-#include "Tree.h"
 #include "CGALRenderer.h"
 #include "PolySetCGALRenderer.h"
+#include "Tree.h"
+#include "builtin.h"
+#include "context.h"
+#include "export.h"
+#include "module.h"
+#include "myqhash.h"
+#include "node.h"
+#include "openscad.h"
+#include "value.h"
 
+#include <getopt.h>
 #include <QApplication>
-#include <QFile>
 #include <QDir>
+#include <QFile>
 #include <QSet>
 #include <QTextStream>
-#include <getopt.h>
 #include <iostream>
 
 QString commandline_commands;
@@ -52,24 +52,24 @@ QString librarydir;
 
 using std::string;
 
-void handle_dep(QString filename)
-{
+void handle_dep(QString filename) {
 	if (filename.startsWith("/"))
 		dependencies.insert(filename);
 	else
 		dependencies.insert(QDir::currentPath() + QString("/") + filename);
 	if (!QFile(filename).exists() && make_command) {
 		char buffer[4096];
-		snprintf(buffer, 4096, "%s '%s'", make_command, filename.replace("'", "'\\''").toUtf8().data());
-		system(buffer); // FIXME: Handle error
+		snprintf(buffer, 4096, "%s '%s'", make_command,
+		         filename.replace("'", "'\\''").toUtf8().data());
+		system(buffer);  // FIXME: Handle error
 	}
 }
 
-// FIXME: enforce some maximum cache size (old version had 100K vertices as limit)
+// FIXME: enforce some maximum cache size (old version had 100K vertices as
+// limit)
 QHash<std::string, CGAL_Nef_polyhedron> cache;
 
-void cgalTree(Tree &tree)
-{
+void cgalTree(Tree &tree) {
 	assert(tree.root());
 
 	CGALRenderer renderer(cache, tree);
@@ -77,8 +77,7 @@ void cgalTree(Tree &tree)
 	render.execute();
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	if (argc != 2) {
 		fprintf(stderr, "Usage: %s <file.scad>\n", argv[0]);
 		exit(1);
@@ -98,16 +97,14 @@ int main(int argc, char **argv)
 
 	QDir libdir(QApplication::instance()->applicationDirPath());
 #ifdef Q_WS_MAC
-	libdir.cd("../Resources"); // Libraries can be bundled
+	libdir.cd("../Resources");  // Libraries can be bundled
 	if (!libdir.exists("libraries")) libdir.cd("../../..");
 #elif defined(Q_OS_UNIX)
 	if (libdir.cd("../share/openscad/libraries")) {
 		librarydir = libdir.path();
-	} else
-	if (libdir.cd("../../share/openscad/libraries")) {
+	} else if (libdir.cd("../../share/openscad/libraries")) {
 		librarydir = libdir.path();
-	} else
-	if (libdir.cd("../../libraries")) {
+	} else if (libdir.cd("../../libraries")) {
 		librarydir = libdir.path();
 	} else
 #endif
@@ -131,7 +128,6 @@ int main(int argc, char **argv)
 	root_ctx.set_variable("$vpt", zero3);
 	root_ctx.set_variable("$vpr", zero3);
 
-
 	AbstractModule *root_module;
 	ModuleInstantiation root_inst;
 	AbstractNode *root_node;
@@ -151,8 +147,9 @@ int main(int argc, char **argv)
 			text += buffer;
 		}
 		fclose(fp);
-		if(!parse(root_module, (text+commandline_commands).toAscii().data(), fileInfo.absolutePath().toLocal8Bit(), false)) {
-			delete root_module; // parse failed
+		if (!parse(root_module, (text + commandline_commands).toAscii().data(),
+		           fileInfo.absolutePath().toLocal8Bit(), false)) {
+			delete root_module;  // parse failed
 			root_module = NULL;
 		}
 		if (!root_module) {

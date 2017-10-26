@@ -1,39 +1,38 @@
 #include <QFileInfo>
 #include <QListWidgetItem>
 
-#include "openscad.h"
-#include "launchingscreen.h"
-#include "ui_launchingscreen.h"
 #include "QSettingsCached.h"
+#include "launchingscreen.h"
+#include "openscad.h"
+#include "ui_launchingscreen.h"
 
 #include "UIUtils.h"
 
 LaunchingScreen *LaunchingScreen::inst = nullptr;
 
-LaunchingScreen *LaunchingScreen::getDialog() {
-	return LaunchingScreen::inst;
-}
+LaunchingScreen *LaunchingScreen::getDialog() { return LaunchingScreen::inst; }
 
 // Called (possibly multiple times) by EventFilter on MacOS, e.g.
 // when the user opens files from Finder.
-void LaunchingScreen::openFile(const QString &filename)
-{
+void LaunchingScreen::openFile(const QString &filename) {
 	QVariant v(filename);
 	this->checkOpen(v);
 	this->done(QDialog::Accepted);
 }
 
-LaunchingScreen::LaunchingScreen(QWidget *parent) : QDialog(parent)
-{
+LaunchingScreen::LaunchingScreen(QWidget *parent) : QDialog(parent) {
 	LaunchingScreen::inst = this;
 	setupUi(this);
 
-	this->setStyleSheet("QDialog {background-image:url(':/icons/background.png')} QPushButton {color:white;}");
+	this->setStyleSheet(
+	    "QDialog {background-image:url(':/icons/background.png')} QPushButton "
+	    "{color:white;}");
 
-	this->versionNumberLabel->setText("OpenSCAD " + QString::fromStdString(openscad_displayversionnumber));
+	this->versionNumberLabel->setText(
+	    "OpenSCAD " + QString::fromStdString(openscad_displayversionnumber));
 
 	QStringList recentFiles = UIUtils::recentFiles();
-	for (const auto& recentFile : recentFiles) {
+	for (const auto &recentFile : recentFiles) {
 		QFileInfo fileInfo(recentFile);
 		auto item = new QListWidgetItem(fileInfo.fileName());
 		item->setData(Qt::ToolTipRole, fileInfo.canonicalPath());
@@ -43,49 +42,57 @@ LaunchingScreen::LaunchingScreen(QWidget *parent) : QDialog(parent)
 
 	for (const auto &category : UIUtils::exampleCategories()) {
 		auto examples = UIUtils::exampleFiles(category);
-		auto categoryItem = new QTreeWidgetItem(QStringList(gettext(category.toStdString().c_str())));
+		auto categoryItem = new QTreeWidgetItem(
+		    QStringList(gettext(category.toStdString().c_str())));
 
-		for (const auto &example : examples)	{
-	    auto exampleItem = new QTreeWidgetItem(QStringList(example.fileName()));
-	    exampleItem->setData(0, Qt::UserRole, example.canonicalFilePath());
-	    categoryItem->addChild(exampleItem);
+		for (const auto &example : examples) {
+			auto exampleItem =
+			    new QTreeWidgetItem(QStringList(example.fileName()));
+			exampleItem->setData(0, Qt::UserRole, example.canonicalFilePath());
+			categoryItem->addChild(exampleItem);
 		}
-	
+
 		this->treeWidget->addTopLevelItem(categoryItem);
 	}
 
 	connect(this->pushButtonNew, SIGNAL(clicked()), this, SLOT(accept()));
-	connect(this->pushButtonOpen, SIGNAL(clicked()), this, SLOT(openUserFile()));
-	connect(this->pushButtonHelp, SIGNAL(clicked()), this, SLOT(openUserManualURL()));
-	connect(this->recentList->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(enableRecentButton(const QModelIndex &, const QModelIndex &)));
+	connect(this->pushButtonOpen, SIGNAL(clicked()), this,
+	        SLOT(openUserFile()));
+	connect(this->pushButtonHelp, SIGNAL(clicked()), this,
+	        SLOT(openUserManualURL()));
+	connect(this->recentList->selectionModel(),
+	        SIGNAL(currentRowChanged(const QModelIndex &, const QModelIndex &)),
+	        this,
+	        SLOT(enableRecentButton(const QModelIndex &, const QModelIndex &)));
 
-	connect(this->recentList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(openRecent()));
-	connect(this->treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(enableExampleButton(QTreeWidgetItem *, QTreeWidgetItem *)));
+	connect(this->recentList, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
+	        this, SLOT(openRecent()));
+	connect(this->treeWidget,
+	        SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
+	        this,
+	        SLOT(enableExampleButton(QTreeWidgetItem *, QTreeWidgetItem *)));
 
-	connect(this->treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *,int)), this, SLOT(openExample()));
-	connect(this->openRecentButton, SIGNAL(clicked()), this, SLOT(openRecent()));
-	connect(this->openExampleButton, SIGNAL(clicked()), this, SLOT(openExample()));
-	connect(this->checkBox, SIGNAL(toggled(bool)), this, SLOT(checkboxState(bool)));	
+	connect(this->treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)),
+	        this, SLOT(openExample()));
+	connect(this->openRecentButton, SIGNAL(clicked()), this,
+	        SLOT(openRecent()));
+	connect(this->openExampleButton, SIGNAL(clicked()), this,
+	        SLOT(openExample()));
+	connect(this->checkBox, SIGNAL(toggled(bool)), this,
+	        SLOT(checkboxState(bool)));
 }
 
-LaunchingScreen::~LaunchingScreen()
-{
-	LaunchingScreen::inst = nullptr;
-}
+LaunchingScreen::~LaunchingScreen() { LaunchingScreen::inst = nullptr; }
 
-QStringList LaunchingScreen::selectedFiles() const
-{
-	return this->files;
-}
+QStringList LaunchingScreen::selectedFiles() const { return this->files; }
 
-void LaunchingScreen::enableRecentButton(const QModelIndex &, const QModelIndex &)
-{
+void LaunchingScreen::enableRecentButton(const QModelIndex &,
+                                         const QModelIndex &) {
 	this->openRecentButton->setEnabled(true);
 	this->openRecentButton->setDefault(true);
 }
 
-void LaunchingScreen::openRecent()
-{
+void LaunchingScreen::openRecent() {
 	QListWidgetItem *item = this->recentList->currentItem();
 	if (item == nullptr) {
 		return;
@@ -94,15 +101,14 @@ void LaunchingScreen::openRecent()
 	checkOpen(item->data(Qt::UserRole));
 }
 
-void LaunchingScreen::enableExampleButton(QTreeWidgetItem *current, QTreeWidgetItem *)
-{
-  const bool enable = current->childCount() == 0;
-  this->openExampleButton->setEnabled(enable);
-  this->openExampleButton->setDefault(true);
+void LaunchingScreen::enableExampleButton(QTreeWidgetItem *current,
+                                          QTreeWidgetItem *) {
+	const bool enable = current->childCount() == 0;
+	this->openExampleButton->setEnabled(enable);
+	this->openExampleButton->setDefault(true);
 }
 
-void LaunchingScreen::openExample()
-{
+void LaunchingScreen::openExample() {
 	QTreeWidgetItem *item = this->treeWidget->currentItem();
 	if (item == nullptr) {
 		return;
@@ -111,19 +117,17 @@ void LaunchingScreen::openExample()
 	checkOpen(item->data(0, Qt::UserRole));
 }
 
-void LaunchingScreen::checkOpen(const QVariant &data)
-{
+void LaunchingScreen::checkOpen(const QVariant &data) {
 	const QString path = data.toString();
 	if (path.isEmpty()) {
 		return;
 	}
-    
+
 	this->files.append(path);
 	accept();
 }
 
-void LaunchingScreen::openUserFile()
-{
+void LaunchingScreen::openUserFile() {
 	QFileInfo fileInfo = UIUtils::openFile(this);
 	if (fileInfo.exists()) {
 		this->files.append(fileInfo.canonicalFilePath());
@@ -131,13 +135,11 @@ void LaunchingScreen::openUserFile()
 	}
 }
 
-void LaunchingScreen::checkboxState(bool state) const
-{
+void LaunchingScreen::checkboxState(bool state) const {
 	QSettingsCached settings;
 	settings.setValue("launcher/showOnStartup", !state);
 }
 
-void LaunchingScreen::openUserManualURL() const
-{
+void LaunchingScreen::openUserManualURL() const {
 	UIUtils::openUserManualURL();
 }

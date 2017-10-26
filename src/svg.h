@@ -1,8 +1,8 @@
 #pragma once
 
-#include "cgal.h"
 #include <boost/algorithm/string.hpp>
 #include <map>
+#include "cgal.h"
 
 namespace OpenSCAD {
 
@@ -21,4 +21,4 @@ std::string svg_axes();
 std::string dump_svg(const CGAL_Nef_polyhedron2 &N);
 std::string dump_svg(const CGAL_Nef_polyhedron3 &N);
 
-} // namespace
+}  // namespace

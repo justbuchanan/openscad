@@ -2,14 +2,13 @@
 
 #include "parametervirtualwidget.h"
 
-class ParameterSlider : public ParameterVirtualWidget
-{
+class ParameterSlider : public ParameterVirtualWidget {
 	Q_OBJECT
 public:
 	ParameterSlider(ParameterObject *parameterobject, bool showDescription);
 	void setValue();
 	void setParameterFocus();
-	
+
 private:
 	double step;
 	bool pressed;

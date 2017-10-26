@@ -27,43 +27,38 @@
 #include <QClipboard>
 #include <QSortFilterProxyModel>
 
-#include "qtgettext.h"
-#include "FontListDialog.h"
 #include "FontCache.h"
+#include "FontListDialog.h"
+#include "qtgettext.h"
 
-FontListDialog::FontListDialog()
-{
+FontListDialog::FontListDialog() {
 	model = nullptr;
 	proxy = nullptr;
 	setupUi(this);
 	connect(this->okButton, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
-FontListDialog::~FontListDialog()
-{
-}
+FontListDialog::~FontListDialog() {}
 
-void FontListDialog::on_copyButton_clicked()
-{
+void FontListDialog::on_copyButton_clicked() {
 	font_selected(selection);
-	
+
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setText(selection);
 }
 
-void FontListDialog::on_filterLineEdit_textChanged(const QString &text)
-{
+void FontListDialog::on_filterLineEdit_textChanged(const QString &text) {
 	proxy->setFilterWildcard(text);
 }
 
-void FontListDialog::selection_changed(const QItemSelection &current, const QItemSelection &)
-{
+void FontListDialog::selection_changed(const QItemSelection &current,
+                                       const QItemSelection &) {
 	if (current.count() == 0) {
 		copyButton->setEnabled(false);
 		tableView->setDragText("");
 		return;
 	}
-	
+
 	const QModelIndex &idx = proxy->mapToSource(current.indexes().at(0));
 	const QString name = model->item(idx.row(), 0)->text();
 	const QString style = model->item(idx.row(), 1)->text();
@@ -72,8 +67,7 @@ void FontListDialog::selection_changed(const QItemSelection &current, const QIte
 	tableView->setDragText(selection);
 }
 
-void FontListDialog::update_font_list()
-{
+void FontListDialog::update_font_list() {
 	copyButton->setEnabled(false);
 
 	if (proxy) {
@@ -84,38 +78,47 @@ void FontListDialog::update_font_list()
 		delete model;
 		model = nullptr;
 	}
-	
+
 	FontInfoList *list = FontCache::instance()->list_fonts();
 	model = new QStandardItemModel(list->size(), 3, this);
 	model->setHorizontalHeaderItem(0, new QStandardItem(QString("Font name")));
 	model->setHorizontalHeaderItem(1, new QStandardItem(QString("Font style")));
 	model->setHorizontalHeaderItem(2, new QStandardItem(QString("Filename")));
-	
+
 	int idx = 0;
-	for (FontInfoList::iterator it = list->begin();it != list->end();it++, idx++) {
+	for (FontInfoList::iterator it = list->begin(); it != list->end();
+	     it++, idx++) {
 		FontInfo font_info = (*it);
-		QStandardItem *family = new QStandardItem(QString(font_info.get_family().c_str()));
+		QStandardItem *family =
+		    new QStandardItem(QString(font_info.get_family().c_str()));
 		family->setEditable(false);
 		model->setItem(idx, 0, family);
-		QStandardItem *style = new QStandardItem(QString(font_info.get_style().c_str()));
+		QStandardItem *style =
+		    new QStandardItem(QString(font_info.get_style().c_str()));
 		style->setEditable(false);
 		model->setItem(idx, 1, style);
-		QStandardItem *file = new QStandardItem(QString(font_info.get_file().c_str()));
+		QStandardItem *file =
+		    new QStandardItem(QString(font_info.get_file().c_str()));
 		file->setEditable(false);
 		model->setItem(idx, 2, file);
 	}
-	
-        proxy = new QSortFilterProxyModel(this);
-        proxy->setSourceModel(model);
+
+	proxy = new QSortFilterProxyModel(this);
+	proxy->setSourceModel(model);
 	proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	
+
 	this->tableView->setModel(proxy);
 	this->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
 	this->tableView->sortByColumn(0, Qt::AscendingOrder);
 	this->tableView->resizeColumnsToContents();
 	this->tableView->setSortingEnabled(true);
-	
-	connect(tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this, SLOT(selection_changed(const QItemSelection &, const QItemSelection &)));
+
+	connect(tableView->selectionModel(),
+	        SIGNAL(selectionChanged(const QItemSelection &,
+	                                const QItemSelection &)),
+	        this,
+	        SLOT(selection_changed(const QItemSelection &,
+	                               const QItemSelection &)));
 
 	delete list;
 }
@@ -133,14 +136,13 @@ void FontListDialog::update_font_list()
  * @param text unquoted string
  * @return quoted text
  */
-QString FontListDialog::quote(const QString& text)
-{
+QString FontListDialog::quote(const QString &text) {
 	QString result = text;
 	result.replace('\\', "\\\\\\\\")
-		.replace('-', "\\\\-")
-		.replace(':', "\\\\:")
-		.replace(',', "\\\\,")
-		.replace('=', "\\\\=")
-		.replace('_', "\\\\_");
+	    .replace('-', "\\\\-")
+	    .replace(':', "\\\\:")
+	    .replace(',', "\\\\,")
+	    .replace('=', "\\\\=")
+	    .replace('_', "\\\\_");
 	return result;
 }

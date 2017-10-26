@@ -1,5 +1,5 @@
 #ifndef LIBSVG_POLYGON_H
-#define	LIBSVG_POLYGON_H
+#define LIBSVG_POLYGON_H
 
 #include "shape.h"
 
@@ -7,20 +7,19 @@ namespace libsvg {
 
 class polygon : public shape {
 private:
-    std::string points;
+	std::string points;
 
 public:
-    polygon();
-    polygon(const polygon& orig);
-    virtual ~polygon();
+	polygon();
+	polygon(const polygon& orig);
+	virtual ~polygon();
 
-    virtual void set_attrs(attr_map_t& attrs);
-    const std::string& get_name() const { return polygon::name; };
+	virtual void set_attrs(attr_map_t& attrs);
+	const std::string& get_name() const { return polygon::name; };
 
-    static const std::string name;
+	static const std::string name;
 };
 
-}
+}  // namespace libsvg
 
-#endif	/* LIBSVG_POLYGON_H */
-
+#endif /* LIBSVG_POLYGON_H */

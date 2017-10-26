@@ -1,10 +1,9 @@
 #include "builtin.h"
+#include "expression.h"
 #include "function.h"
 #include "module.h"
-#include "expression.h"
 
-Builtins *Builtins::instance(bool erase)
-{
+Builtins *Builtins::instance(bool erase) {
 	static Builtins *s_builtins = new Builtins;
 	if (erase) {
 		delete s_builtins;
@@ -13,8 +12,7 @@ Builtins *Builtins::instance(bool erase)
 	return s_builtins;
 }
 
-void Builtins::init(const char *name, class AbstractModule *module)
-{
+void Builtins::init(const char *name, class AbstractModule *module) {
 #ifndef ENABLE_EXPERIMENTAL
 	if (module->is_experimental()) {
 		return;
@@ -23,8 +21,7 @@ void Builtins::init(const char *name, class AbstractModule *module)
 	Builtins::instance()->globalscope.modules[name] = module;
 }
 
-void Builtins::init(const char *name, class AbstractFunction *function)
-{
+void Builtins::init(const char *name, class AbstractFunction *function) {
 #ifndef ENABLE_EXPERIMENTAL
 	if (function->is_experimental()) {
 		return;
@@ -52,11 +49,10 @@ extern void register_builtin_text();
 extern void initialize_builtin_dxf_dim();
 
 /*!
-	Registers all builtin functions.
-	Call once for the whole app.
+    Registers all builtin functions.
+    Call once for the whole app.
 */
-void Builtins::initialize()
-{
+void Builtins::initialize() {
 	register_builtin_functions();
 	initialize_builtin_dxf_dim();
 
@@ -84,32 +80,38 @@ void Builtins::initialize()
 	this->deprecations["assign"] = "a regular assignment";
 }
 
-std::string Builtins::isDeprecated(const std::string &name)
-{
+std::string Builtins::isDeprecated(const std::string &name) {
 	if (this->deprecations.find(name) != this->deprecations.end()) {
 		return this->deprecations[name];
 	}
 	return std::string();
 }
 
-Builtins::Builtins()
-{
-	this->globalscope.assignments.push_back(Assignment("$fn", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
-	this->globalscope.assignments.push_back(Assignment("$fs", shared_ptr<Expression>(new Literal(ValuePtr(2.0)))));
-	this->globalscope.assignments.push_back(Assignment("$fa", shared_ptr<Expression>(new Literal(ValuePtr(12.0)))));
-	this->globalscope.assignments.push_back(Assignment("$t", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
-	this->globalscope.assignments.push_back(Assignment("$preview", shared_ptr<Expression>(new Literal(ValuePtr())))); //undef as should always be overwritten.
+Builtins::Builtins() {
+	this->globalscope.assignments.push_back(
+	    Assignment("$fn", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
+	this->globalscope.assignments.push_back(
+	    Assignment("$fs", shared_ptr<Expression>(new Literal(ValuePtr(2.0)))));
+	this->globalscope.assignments.push_back(
+	    Assignment("$fa", shared_ptr<Expression>(new Literal(ValuePtr(12.0)))));
+	this->globalscope.assignments.push_back(
+	    Assignment("$t", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
+	this->globalscope.assignments.push_back(Assignment(
+	    "$preview",
+	    shared_ptr<Expression>(new Literal(
+	        ValuePtr()))));  // undef as should always be overwritten.
 
 	Value::VectorType zero3;
 	zero3.push_back(ValuePtr(0.0));
 	zero3.push_back(ValuePtr(0.0));
 	zero3.push_back(ValuePtr(0.0));
 	ValuePtr zero3val(zero3);
-	this->globalscope.assignments.push_back(Assignment("$vpt", shared_ptr<Expression>(new Literal(zero3val))));
-	this->globalscope.assignments.push_back(Assignment("$vpr", shared_ptr<Expression>(new Literal(zero3val))));
-	this->globalscope.assignments.push_back(Assignment("$vpd", shared_ptr<Expression>(new Literal(ValuePtr(500)))));
+	this->globalscope.assignments.push_back(
+	    Assignment("$vpt", shared_ptr<Expression>(new Literal(zero3val))));
+	this->globalscope.assignments.push_back(
+	    Assignment("$vpr", shared_ptr<Expression>(new Literal(zero3val))));
+	this->globalscope.assignments.push_back(
+	    Assignment("$vpd", shared_ptr<Expression>(new Literal(ValuePtr(500)))));
 }
 
-Builtins::~Builtins()
-{
-}
+Builtins::~Builtins() {}

@@ -24,31 +24,34 @@
  *
  */
 
-#include "calc.h"
-#include "module.h"
-#include "evalcontext.h"
-#include "printutils.h"
 #include "builtin.h"
+#include "calc.h"
+#include "evalcontext.h"
+#include "module.h"
+#include "printutils.h"
 
-#include "textnode.h"
 #include "FreetypeRenderer.h"
 #include "Polygon2d.h"
+#include "textnode.h"
 
 #include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
+using namespace boost::assign;  // bring 'operator+=()' into scope
 
-class TextModule : public AbstractModule
-{
+class TextModule : public AbstractModule {
 public:
-	TextModule() : AbstractModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	TextModule() : AbstractModule() {}
+	virtual AbstractNode *instantiate(const Context *ctx,
+	                                  const ModuleInstantiation *inst,
+	                                  EvalContext *evalctx) const;
 };
 
-AbstractNode *TextModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
-{
+AbstractNode *TextModule::instantiate(const Context *ctx,
+                                      const ModuleInstantiation *inst,
+                                      EvalContext *evalctx) const {
 	auto node = new TextNode(inst);
 
-	AssignmentList args{Assignment("text"), Assignment("size"), Assignment("font")};
+	AssignmentList args{Assignment("text"), Assignment("size"),
+	                    Assignment("font")};
 
 	Context c(ctx);
 	c.setVariables(args, evalctx);
@@ -72,13 +75,19 @@ AbstractNode *TextModule::instantiate(const Context *ctx, const ModuleInstantiat
 	node->params.set_size(size);
 	node->params.set_segments(text_segments);
 	node->params.set_text(lookup_string_variable_with_default(c, "text", ""));
-	node->params.set_spacing(lookup_double_variable_with_default(c, "spacing", 1.0));
+	node->params.set_spacing(
+	    lookup_double_variable_with_default(c, "spacing", 1.0));
 	node->params.set_font(lookup_string_variable_with_default(c, "font", ""));
-	node->params.set_direction(lookup_string_variable_with_default(c, "direction", ""));
-	node->params.set_language(lookup_string_variable_with_default(c, "language", "en"));
-	node->params.set_script(lookup_string_variable_with_default(c, "script", ""));
-	node->params.set_halign(lookup_string_variable_with_default(c, "halign", "left"));
-	node->params.set_valign(lookup_string_variable_with_default(c, "valign", "baseline"));
+	node->params.set_direction(
+	    lookup_string_variable_with_default(c, "direction", ""));
+	node->params.set_language(
+	    lookup_string_variable_with_default(c, "language", "en"));
+	node->params.set_script(
+	    lookup_string_variable_with_default(c, "script", ""));
+	node->params.set_halign(
+	    lookup_string_variable_with_default(c, "halign", "left"));
+	node->params.set_valign(
+	    lookup_string_variable_with_default(c, "valign", "baseline"));
 
 	FreetypeRenderer renderer;
 	renderer.detect_properties(node->params);
@@ -86,25 +95,17 @@ AbstractNode *TextModule::instantiate(const Context *ctx, const ModuleInstantiat
 	return node;
 }
 
-std::vector<const Geometry *> TextNode::createGeometryList() const
-{
+std::vector<const Geometry *> TextNode::createGeometryList() const {
 	FreetypeRenderer renderer;
 	return renderer.render(this->get_params());
 }
 
-FreetypeRenderer::Params TextNode::get_params() const
-{
-	return params;
-}
+FreetypeRenderer::Params TextNode::get_params() const { return params; }
 
-std::string TextNode::toString() const
-{
+std::string TextNode::toString() const {
 	std::stringstream stream;
 	stream << name() << "(" << this->params << ")";
 	return stream.str();
 }
 
-void register_builtin_text()
-{
-	Builtins::init("text", new TextModule());
-}
+void register_builtin_text() { Builtins::init("text", new TextModule()); }

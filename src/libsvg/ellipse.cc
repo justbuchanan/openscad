@@ -5,25 +5,18 @@
 
 namespace libsvg {
 
-const std::string ellipse::name("ellipse"); 
+const std::string ellipse::name("ellipse");
 
-ellipse::ellipse()
-{
-}
+ellipse::ellipse() {}
 
-ellipse::ellipse(const ellipse& orig) : shape(orig)
-{
+ellipse::ellipse(const ellipse& orig) : shape(orig) {
 	rx = orig.rx;
 	ry = orig.ry;
 }
 
-ellipse::~ellipse()
-{
-}
+ellipse::~ellipse() {}
 
-void
-ellipse::set_attrs(attr_map_t& attrs)
-{
+void ellipse::set_attrs(attr_map_t& attrs) {
 	shape::set_attrs(attrs);
 	this->x = parse_double(attrs["cx"]);
 	this->y = parse_double(attrs["cy"]);
@@ -35,15 +28,9 @@ ellipse::set_attrs(attr_map_t& attrs)
 	path_list.push_back(path);
 }
 
-void
-ellipse::dump()
-{
-	std::cout << get_name()
-		<< ": x = " << this->x
-		<< ": y = " << this->y
-		<< ": rx = " << this->rx
-		<< ": ry = " << this->ry
-		<< std::endl;
+void ellipse::dump() {
+	std::cout << get_name() << ": x = " << this->x << ": y = " << this->y
+	          << ": rx = " << this->rx << ": ry = " << this->ry << std::endl;
 }
 
-}
+}  // namespace libsvg

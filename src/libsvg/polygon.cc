@@ -4,27 +4,18 @@
 
 namespace libsvg {
 
-const std::string polygon::name("polygon"); 
+const std::string polygon::name("polygon");
 
-polygon::polygon()
-{
-}
+polygon::polygon() {}
 
-polygon::polygon(const polygon& orig) : shape(orig)
-{
-	points = orig.points;
-}
+polygon::polygon(const polygon& orig) : shape(orig) { points = orig.points; }
 
-polygon::~polygon()
-{
-}
+polygon::~polygon() {}
 
-void
-polygon::set_attrs(attr_map_t& attrs)
-{
+void polygon::set_attrs(attr_map_t& attrs) {
 	shape::set_attrs(attrs);
 	this->points = attrs["points"];
-	
+
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep(" ,");
 	tokenizer tokens(this->points, sep);
@@ -32,10 +23,10 @@ polygon::set_attrs(attr_map_t& attrs)
 	double x = 0.0;
 	path_t path;
 	bool first = true;
-	for (tokenizer::iterator it = tokens.begin();it != tokens.end();++it) {
+	for (tokenizer::iterator it = tokens.begin(); it != tokens.end(); ++it) {
 		std::string v = (*it);
 		double p = parse_double(v);
-		
+
 		if (first) {
 			x = p;
 		} else {
@@ -49,4 +40,4 @@ polygon::set_attrs(attr_map_t& attrs)
 	path_list.push_back(path);
 }
 
-}
+}  // namespace libsvg

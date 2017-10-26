@@ -2,12 +2,11 @@
 #include "printutils.h"
 
 #ifdef ENABLE_CGAL
+#include <CGAL/IO/Nef_polyhedron_iostream_3.h>
 #include "CGAL_Nef_polyhedron.h"
 #include "cgal.h"
-#include <CGAL/IO/Nef_polyhedron_iostream_3.h>
 
-CGAL_Nef_polyhedron *import_nef3(const std::string &filename)
-{
+CGAL_Nef_polyhedron *import_nef3(const std::string &filename) {
 	CGAL_Nef_polyhedron *N = new CGAL_Nef_polyhedron;
 
 	// Open file and position at the end

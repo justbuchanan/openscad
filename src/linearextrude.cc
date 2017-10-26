@@ -26,36 +26,41 @@
 
 #include "linearextrudenode.h"
 
-#include "module.h"
 #include "ModuleInstantiation.h"
-#include "evalcontext.h"
-#include "printutils.h"
-#include "fileutils.h"
 #include "builtin.h"
 #include "calc.h"
-#include "polyset.h"
+#include "evalcontext.h"
+#include "fileutils.h"
 #include "handle_dep.h"
+#include "module.h"
+#include "polyset.h"
+#include "printutils.h"
 
+#include <boost/assign/std/vector.hpp>
 #include <cmath>
 #include <sstream>
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
+using namespace boost::assign;  // bring 'operator+=()' into scope
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-class LinearExtrudeModule : public AbstractModule
-{
+class LinearExtrudeModule : public AbstractModule {
 public:
-	LinearExtrudeModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	LinearExtrudeModule() {}
+	virtual AbstractNode *instantiate(const Context *ctx,
+	                                  const ModuleInstantiation *inst,
+	                                  EvalContext *evalctx) const;
 };
 
-AbstractNode *LinearExtrudeModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
-{
+AbstractNode *LinearExtrudeModule::instantiate(const Context *ctx,
+                                               const ModuleInstantiation *inst,
+                                               EvalContext *evalctx) const {
 	auto node = new LinearExtrudeNode(inst);
 
-	AssignmentList args{Assignment("file"), Assignment("layer"), Assignment("height"), Assignment("origin"), Assignment("scale"), Assignment("center"), Assignment("twist"), Assignment("slices")};
+	AssignmentList args{Assignment("file"),   Assignment("layer"),
+	                    Assignment("height"), Assignment("origin"),
+	                    Assignment("scale"),  Assignment("center"),
+	                    Assignment("twist"),  Assignment("slices")};
 
 	Context c(ctx);
 	c.setVariables(args, evalctx);
@@ -76,17 +81,19 @@ AbstractNode *LinearExtrudeModule::instantiate(const Context *ctx, const ModuleI
 	auto slices = c.lookup_variable("slices", true);
 
 	if (!file->isUndefined() && file->type() == Value::ValueType::STRING) {
-		printDeprecation("Support for reading files in linear_extrude will be removed in future releases. Use a child import() instead.");
-		auto filename = lookup_file(file->toString(), inst->path(), c.documentPath());
+		printDeprecation(
+		    "Support for reading files in linear_extrude will be removed in "
+		    "future releases. Use a child import() instead.");
+		auto filename =
+		    lookup_file(file->toString(), inst->path(), c.documentPath());
 		node->filename = filename;
 		handle_dep(filename);
 	}
 
 	// if height not given, and first argument is a number,
 	// then assume it should be the height.
-	if (c.lookup_variable("height")->isUndefined() &&
-			evalctx->numArgs() > 0 &&
-			evalctx->getArgName(0) == "") {
+	if (c.lookup_variable("height")->isUndefined() && evalctx->numArgs() > 0 &&
+	    evalctx->getArgName(0) == "") {
 		auto val = evalctx->getArgValue(0);
 		if (val->type() == Value::ValueType::NUMBER) height = val;
 	}
@@ -106,8 +113,7 @@ AbstractNode *LinearExtrudeModule::instantiate(const Context *ctx, const ModuleI
 
 	if (node->height <= 0) node->height = 0;
 
-	if (node->convexity <= 0)
-		node->convexity = 1;
+	if (node->convexity <= 0) node->convexity = 1;
 
 	if (node->scale_x < 0) node->scale_x = 0;
 	if (node->scale_y < 0) node->scale_y = 0;
@@ -120,7 +126,10 @@ AbstractNode *LinearExtrudeModule::instantiate(const Context *ctx, const ModuleI
 	twist->getFiniteDouble(node->twist);
 	if (node->twist != 0.0) {
 		if (node->slices == 0) {
-			node->slices = static_cast<int>(fmax(2, fabs(Calc::get_fragments_from_r(node->height, node->fn, node->fs, node->fa) * node->twist / 360)));
+			node->slices = static_cast<int>(
+			    fmax(2, fabs(Calc::get_fragments_from_r(node->height, node->fn,
+			                                            node->fs, node->fa) *
+			                 node->twist / 360)));
 		}
 		node->has_twist = true;
 	}
@@ -128,31 +137,37 @@ AbstractNode *LinearExtrudeModule::instantiate(const Context *ctx, const ModuleI
 
 	if (node->filename.empty()) {
 		auto instantiatednodes = inst->instantiateChildren(evalctx);
-		node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
+		node->children.insert(node->children.end(), instantiatednodes.begin(),
+		                      instantiatednodes.end());
 	}
 
 	return node;
 }
 
-std::string LinearExtrudeNode::toString() const
-{
+std::string LinearExtrudeNode::toString() const {
 	std::stringstream stream;
 
 	stream << this->name() << "(";
-	if (!this->filename.empty()) { // Ignore deprecated parameters if empty 
+	if (!this->filename.empty()) {  // Ignore deprecated parameters if empty
 		fs::path path((std::string)this->filename);
-		stream <<
-			"file = " << this->filename << ", "
-			"layer = " << QuotedString(this->layername) << ", "
-			"origin = [" << this->origin_x << ", " << this->origin_y << "], "
-			<< "timestamp = " << (fs::exists(path) ? fs::last_write_time(path) : 0) << ", "
-			;
+		stream << "file = " << this->filename
+		       << ", "
+		          "layer = "
+		       << QuotedString(this->layername)
+		       << ", "
+		          "origin = ["
+		       << this->origin_x << ", " << this->origin_y << "], "
+		       << "timestamp = "
+		       << (fs::exists(path) ? fs::last_write_time(path) : 0) << ", ";
 	}
-	stream <<
-		"height = " << std::dec << this->height << ", "
-		"center = " << (this->center?"true":"false") << ", "
-		"convexity = " << this->convexity;
-	
+	stream << "height = " << std::dec << this->height
+	       << ", "
+	          "center = "
+	       << (this->center ? "true" : "false")
+	       << ", "
+	          "convexity = "
+	       << this->convexity;
+
 	if (this->has_twist) {
 		stream << ", twist = " << this->twist;
 	}
@@ -160,13 +175,13 @@ std::string LinearExtrudeNode::toString() const
 		stream << ", slices = " << this->slices;
 	}
 	stream << ", scale = [" << this->scale_x << ", " << this->scale_y << "]";
-	stream << ", $fn = " << this->fn << ", $fa = " << this->fa << ", $fs = " << this->fs << ")";
-	
+	stream << ", $fn = " << this->fn << ", $fa = " << this->fa
+	       << ", $fs = " << this->fs << ")";
+
 	return stream.str();
 }
 
-void register_builtin_dxf_linear_extrude()
-{
+void register_builtin_dxf_linear_extrude() {
 	Builtins::init("dxf_linear_extrude", new LinearExtrudeModule());
 	Builtins::init("linear_extrude", new LinearExtrudeModule());
 }

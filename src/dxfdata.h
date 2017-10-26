@@ -1,15 +1,14 @@
 #pragma once
 
-#include "linalg.h"
 #include <vector>
+#include "linalg.h"
 
-class DxfData
-{
+class DxfData {
 public:
 	struct Path {
-		std::vector<int> indices; // indices into DxfData::points
+		std::vector<int> indices;  // indices into DxfData::points
 		bool is_closed, is_inner;
-		Path() : is_closed(false), is_inner(false) { }
+		Path() : is_closed(false), is_inner(false) {}
 	};
 	struct Dim {
 		unsigned int type;
@@ -19,8 +18,7 @@ public:
 		std::string name;
 		Dim() {
 			for (int i = 0; i < 7; i++)
-			for (int j = 0; j < 2; j++)
-				coords[i][j] = 0;
+				for (int j = 0; j < 2; j++) coords[i][j] = 0;
 			type = 0;
 			angle = 0;
 			length = 0;
@@ -32,9 +30,9 @@ public:
 	std::vector<Dim> dims;
 
 	DxfData();
-	DxfData(double fn, double fs, double fa, 
-					const std::string &filename, const std::string &layername = "",
-					double xorigin = 0.0, double yorigin = 0.0, double scale = 1.0);
+	DxfData(double fn, double fs, double fa, const std::string &filename,
+	        const std::string &layername = "", double xorigin = 0.0,
+	        double yorigin = 0.0, double scale = 1.0);
 
 	int addPoint(double x, double y);
 

@@ -1,16 +1,15 @@
 #pragma once
 
-#include <QString>
 #include <QObject>
+#include <QString>
 
-class AutoUpdater : public QObject
-{
+class AutoUpdater : public QObject {
 	Q_OBJECT;
 
 public:
 	AutoUpdater() : updateAction(nullptr) {}
 	virtual ~AutoUpdater() {}
-	
+
 	virtual void setAutomaticallyChecksForUpdates(bool on) = 0;
 	virtual bool automaticallyChecksForUpdates() = 0;
 	virtual void setEnableSnapshots(bool on) = 0;
@@ -23,7 +22,6 @@ public:
 
 public slots:
 	virtual void checkForUpdates() = 0;
-
 
 public:
 	class QAction *updateAction;

@@ -1,16 +1,16 @@
 #pragma once
 
-#include <QObject>
 #include <QFileOpenEvent>
+#include <QObject>
 #include "OpenSCADApp.h"
 #include "launchingscreen.h"
 
-class EventFilter : public QObject
-{
+class EventFilter : public QObject {
 	Q_OBJECT;
-	
+
 public:
 	EventFilter(QObject *parent) : QObject(parent) {}
+
 protected:
 	bool eventFilter(QObject *obj, QEvent *event) {
 		// Handle Apple event for opening files, only available on OS X
@@ -21,9 +21,8 @@ protected:
 				// We need to invoke the method since, apparently, we receive
 				// this event in another thread.
 				QMetaObject::invokeMethod(ls, "openFile", Qt::QueuedConnection,
-																	Q_ARG(QString, filename));
-			}
-			else {
+				                          Q_ARG(QString, filename));
+			} else {
 				scadApp->requestOpenFile(filename);
 			}
 			return true;

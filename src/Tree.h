@@ -2,14 +2,14 @@
 
 #include "nodecache.h"
 
-/*!  
-	For now, just an abstraction of the node tree which keeps a dump
-	cache based on node indices around.
+/*!
+    For now, just an abstraction of the node tree which keeps a dump
+    cache based on node indices around.
 
-	Note that since node trees don't survive a recompilation, the tree cannot either.
+    Note that since node trees don't survive a recompilation, the tree cannot
+   either.
  */
-class Tree
-{
+class Tree {
 public:
 	Tree(const AbstractNode *root = nullptr) : root_node(root) {}
 	~Tree();
@@ -22,6 +22,6 @@ public:
 
 private:
 	const AbstractNode *root_node;
-  mutable NodeCache nodecache;
-  mutable NodeCache nodeidcache;
+	mutable NodeCache nodecache;
+	mutable NodeCache nodeidcache;
 };

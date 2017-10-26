@@ -24,26 +24,26 @@
  *
  */
 
-#include "tests-common.h"
+#include "ModuleInstantiation.h"
+#include "Tree.h"
+#include "builtin.h"
+#include "export.h"
+#include "modcontext.h"
+#include "module.h"
+#include "node.h"
 #include "openscad.h"
 #include "parsersettings.h"
-#include "node.h"
-#include "module.h"
-#include "ModuleInstantiation.h"
-#include "modcontext.h"
-#include "value.h"
-#include "export.h"
-#include "builtin.h"
-#include "Tree.h"
 #include "stackcheck.h"
+#include "tests-common.h"
+#include "value.h"
 
 #ifndef _MSC_VER
 #include <getopt.h>
 #endif
 #include <assert.h>
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -54,10 +54,9 @@ std::string currentdir;
 
 using std::string;
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 #ifdef _MSC_VER
-  _set_output_format(_TWO_DIGIT_EXPONENT);
+	_set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
 	if (argc != 3) {
 		fprintf(stderr, "Usage: %s <file.scad> <output.txt>\n", argv[0]);
@@ -76,7 +75,8 @@ int main(int argc, char **argv)
 
 	currentdir = fs::current_path().generic_string();
 
-	PlatformUtils::registerApplicationPath(fs::path(argv[0]).branch_path().generic_string());
+	PlatformUtils::registerApplicationPath(
+	    fs::path(argv[0]).branch_path().generic_string());
 	parser_init();
 
 	ModuleContext top_ctx;

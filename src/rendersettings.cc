@@ -1,8 +1,7 @@
 #include "rendersettings.h"
 #include "printutils.h"
 
-RenderSettings *RenderSettings::inst(bool erase)
-{
+RenderSettings *RenderSettings::inst(bool erase) {
 	static auto instance = new RenderSettings;
 	if (erase) {
 		delete instance;
@@ -11,8 +10,7 @@ RenderSettings *RenderSettings::inst(bool erase)
 	return instance;
 }
 
-RenderSettings::RenderSettings()
-{
+RenderSettings::RenderSettings() {
 	openCSGTermLimit = 100000;
 	far_gl_clip_limit = 100000.0;
 	img_width = 512;

@@ -3,8 +3,7 @@
 #include "node.h"
 #include "value.h"
 
-class LinearExtrudeNode : public AbstractPolyNode
-{
+class LinearExtrudeNode : public AbstractPolyNode {
 public:
 	VISITABLE();
 	LinearExtrudeNode(const ModuleInstantiation *mi) : AbstractPolyNode(mi) {

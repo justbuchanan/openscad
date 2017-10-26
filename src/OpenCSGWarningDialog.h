@@ -3,9 +3,9 @@
 #include "qtgettext.h"
 #include "ui_OpenCSGWarningDialog.h"
 
-class OpenCSGWarningDialog : public QDialog, public Ui::OpenCSGWarningDialog
-{
+class OpenCSGWarningDialog : public QDialog, public Ui::OpenCSGWarningDialog {
 	Q_OBJECT;
+
 public:
 	OpenCSGWarningDialog(QWidget *parent);
 

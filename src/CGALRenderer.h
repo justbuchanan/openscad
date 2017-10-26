@@ -1,10 +1,9 @@
 #pragma once
 
-#include "renderer.h"
 #include "CGAL_Nef_polyhedron.h"
+#include "renderer.h"
 
-class CGALRenderer : public Renderer
-{
+class CGALRenderer : public Renderer {
 public:
 	CGALRenderer(shared_ptr<const class Geometry> geom);
 	~CGALRenderer();

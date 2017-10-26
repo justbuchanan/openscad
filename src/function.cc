@@ -28,21 +28,20 @@
 #include "evalcontext.h"
 #include "expression.h"
 
-AbstractFunction::~AbstractFunction()
-{
-}
+AbstractFunction::~AbstractFunction() {}
 
-UserFunction::UserFunction(const char *name, AssignmentList &definition_arguments, shared_ptr<Expression> expr, const Location &loc)
-	: ASTNode(loc), name(name), definition_arguments(definition_arguments), expr(expr)
-{
-}
+UserFunction::UserFunction(const char *name,
+                           AssignmentList &definition_arguments,
+                           shared_ptr<Expression> expr, const Location &loc)
+    : ASTNode(loc),
+      name(name),
+      definition_arguments(definition_arguments),
+      expr(expr) {}
 
-UserFunction::~UserFunction()
-{
-}
+UserFunction::~UserFunction() {}
 
-ValuePtr UserFunction::evaluate(const Context *ctx, const EvalContext *evalctx) const
-{
+ValuePtr UserFunction::evaluate(const Context *ctx,
+                                const EvalContext *evalctx) const {
 	if (!expr) return ValuePtr::undefined;
 	Context c(ctx);
 	c.setVariables(definition_arguments, evalctx);
@@ -51,11 +50,11 @@ ValuePtr UserFunction::evaluate(const Context *ctx, const EvalContext *evalctx) 
 	return result;
 }
 
-std::string UserFunction::dump(const std::string &indent, const std::string &name) const
-{
+std::string UserFunction::dump(const std::string &indent,
+                               const std::string &name) const {
 	std::stringstream dump;
 	dump << indent << "function " << name << "(";
-	for (size_t i=0; i < definition_arguments.size(); i++) {
+	for (size_t i = 0; i < definition_arguments.size(); i++) {
 		const Assignment &arg = definition_arguments[i];
 		if (i > 0) dump << ", ";
 		dump << arg.name;
@@ -65,8 +64,7 @@ std::string UserFunction::dump(const std::string &indent, const std::string &nam
 	return dump.str();
 }
 
-class FunctionTailRecursion : public UserFunction
-{
+class FunctionTailRecursion : public UserFunction {
 private:
 	bool invert;
 	shared_ptr<TernaryOp> op;
@@ -74,67 +72,79 @@ private:
 	shared_ptr<Expression> endexpr;
 
 public:
-	FunctionTailRecursion(const char *name, AssignmentList &definition_arguments,
-												shared_ptr<TernaryOp> expr, shared_ptr<FunctionCall> call,
-												shared_ptr<Expression> endexpr, bool invert,
-												const Location &loc)
-		: UserFunction(name, definition_arguments, expr, loc),
-			invert(invert), op(expr), call(call), endexpr(endexpr) {
-	}
+	FunctionTailRecursion(const char *name,
+	                      AssignmentList &definition_arguments,
+	                      shared_ptr<TernaryOp> expr,
+	                      shared_ptr<FunctionCall> call,
+	                      shared_ptr<Expression> endexpr, bool invert,
+	                      const Location &loc)
+	    : UserFunction(name, definition_arguments, expr, loc),
+	      invert(invert),
+	      op(expr),
+	      call(call),
+	      endexpr(endexpr) {}
 
-	virtual ~FunctionTailRecursion() { }
+	virtual ~FunctionTailRecursion() {}
 
-	virtual ValuePtr evaluate(const Context *ctx, const EvalContext *evalctx) const {
+	virtual ValuePtr evaluate(const Context *ctx,
+	                          const EvalContext *evalctx) const {
 		if (!expr) return ValuePtr::undefined;
-		
+
 		Context c(ctx);
 		c.setVariables(definition_arguments, evalctx);
-		
+
 		EvalContext ec(&c, call->arguments);
 		Context tmp(&c);
 		unsigned int counter = 0;
 		while (invert ^ this->op->cond->evaluate(&c)) {
 			tmp.setVariables(definition_arguments, &ec);
 			c.apply_variables(tmp);
-			
-			if (counter++ == 1000000) throw RecursionException::create("function", this->name);
+
+			if (counter++ == 1000000)
+				throw RecursionException::create("function", this->name);
 		}
-		
+
 		ValuePtr result = endexpr->evaluate(&c);
-		
+
 		return result;
 	}
 };
 
-UserFunction *UserFunction::create(const char *name, AssignmentList &definition_arguments, shared_ptr<Expression> expr, const Location &loc)
-{
+UserFunction *UserFunction::create(const char *name,
+                                   AssignmentList &definition_arguments,
+                                   shared_ptr<Expression> expr,
+                                   const Location &loc) {
 	if (shared_ptr<TernaryOp> ternary = dynamic_pointer_cast<TernaryOp>(expr)) {
-		shared_ptr<FunctionCall> ifcall = dynamic_pointer_cast<FunctionCall>(ternary->ifexpr);
-		shared_ptr<FunctionCall> elsecall = dynamic_pointer_cast<FunctionCall>(ternary->elseexpr);
+		shared_ptr<FunctionCall> ifcall =
+		    dynamic_pointer_cast<FunctionCall>(ternary->ifexpr);
+		shared_ptr<FunctionCall> elsecall =
+		    dynamic_pointer_cast<FunctionCall>(ternary->elseexpr);
 		if (ifcall && !elsecall) {
 			if (name == ifcall->name) {
-				return new FunctionTailRecursion(name, definition_arguments, ternary, ifcall, ternary->elseexpr, false, loc);
+				return new FunctionTailRecursion(name, definition_arguments,
+				                                 ternary, ifcall,
+				                                 ternary->elseexpr, false, loc);
 			}
 		} else if (elsecall && !ifcall) {
 			if (name == elsecall->name) {
-				return new FunctionTailRecursion(name, definition_arguments, ternary, elsecall, ternary->ifexpr, true, loc);
+				return new FunctionTailRecursion(name, definition_arguments,
+				                                 ternary, elsecall,
+				                                 ternary->ifexpr, true, loc);
 			}
 		}
 	}
 	return new UserFunction(name, definition_arguments, expr, loc);
 }
 
-BuiltinFunction::~BuiltinFunction()
-{
-}
+BuiltinFunction::~BuiltinFunction() {}
 
-ValuePtr BuiltinFunction::evaluate(const Context *ctx, const EvalContext *evalctx) const
-{
+ValuePtr BuiltinFunction::evaluate(const Context *ctx,
+                                   const EvalContext *evalctx) const {
 	return eval_func(ctx, evalctx);
 }
 
-std::string BuiltinFunction::dump(const std::string &indent, const std::string &name) const
-{
+std::string BuiltinFunction::dump(const std::string &indent,
+                                  const std::string &name) const {
 	std::stringstream dump;
 	dump << indent << "builtin function " << name << "();\n";
 	return dump.str();
