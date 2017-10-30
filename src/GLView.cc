@@ -6,6 +6,7 @@
 #include "printutils.h"
 #include "renderer.h"
 #include <cmath>
+#include <array>
 
 #ifdef _WIN32
 #include <GL/wglew.h>
@@ -539,11 +540,21 @@ void GLView::showScalemarkers(const Color4f &col)
 			// every 2 minor ticks. We can detect that very few major ticks are visible
 			// by checking if the viewport size is larger than the adjusted scale by
 			// only a small ratio.
-			const double more_labels_threshold = 3;
-			// draw additional labels every 2 minor ticks
-			const int more_labels_freq = 2;
-			if (line_cnt > 0 && line_cnt % more_labels_freq == 0 && l / l_adjusted < more_labels_threshold) {
-				GLView::decodeMarkerValue(i, l, size_div_sm);    // print number
+
+			// List of <label frequency, min threshold, max threshold> pairs for extra labels to show.
+			static std::array<std::tuple<int, float, float>, 2> extra_labels_config{
+				std::make_tuple(2, 1.0, 3.0),  // labels every two tick marks
+				std::make_tuple(5, 3.01, 8.0), // labels every five tick marks
+			};
+
+			const float scale_ratio = l / l_adjusted;
+			std::cout << "scale_ratio: " << scale_ratio << std::endl; // TODO: remove
+			if (line_cnt > 0) {
+				for (auto& cfg : extra_labels_config) {
+					if (line_cnt % std::get<0>(cfg) == 0 && scale_ratio > std::get<1>(cfg) && scale_ratio < std::get<2>(cfg)) {
+						GLView::decodeMarkerValue(i, l, size_div_sm);    // print number
+					}
+				}
 			}
 		}
 		line_cnt++;
