@@ -9,7 +9,7 @@
 CGALWorker::CGALWorker()
 {
 	this->thread = new QThread();
-	if (this->thread->stackSize() < 1024*1024) this->thread->setStackSize(1024*1024);
+	if (this->thread->stackSize() < 1024 * 1024) this->thread->setStackSize(1024 * 1024);
 	connect(this->thread, SIGNAL(started()), this, SLOT(work()));
 	moveToThread(this->thread);
 }
@@ -31,8 +31,7 @@ void CGALWorker::work()
 	try {
 		GeometryEvaluator evaluator(*this->tree);
 		root_geom = evaluator.evaluateGeometry(*this->tree->root(), true);
-	}
-	catch (const ProgressCancelException &e) {
+	} catch (const ProgressCancelException &e) {
 		PRINT("Rendering cancelled.");
 	}
 

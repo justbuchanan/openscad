@@ -1,8 +1,7 @@
 #include "ProgressWidget.h"
 #include <QTimer>
 
-ProgressWidget::ProgressWidget(QWidget *parent)
-	:QWidget(parent)
+ProgressWidget::ProgressWidget(QWidget *parent) : QWidget(parent)
 {
 	setupUi(this);
 	setRange(0, 1000);

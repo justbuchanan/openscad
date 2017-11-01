@@ -13,6 +13,7 @@ public:
 	unsigned int img_height;
 	double far_gl_clip_limit;
 	std::string colorscheme;
+
 private:
 	RenderSettings();
 	~RenderSettings() {}

@@ -38,11 +38,13 @@ class CsgModule : public AbstractModule
 {
 public:
 	OpenSCADOperator type;
-	CsgModule(OpenSCADOperator type) : type(type) { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	CsgModule(OpenSCADOperator type) : type(type) {}
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																		EvalContext *evalctx) const;
 };
 
-AbstractNode *CsgModule::instantiate(const Context*, const ModuleInstantiation *inst, EvalContext *evalctx) const
+AbstractNode *CsgModule::instantiate(const Context *, const ModuleInstantiation *inst,
+																		 EvalContext *evalctx) const
 {
 	inst->scope.apply(*evalctx);
 	auto node = new CsgOpNode(inst, type);
@@ -80,4 +82,3 @@ void register_builtin_csgops()
 	Builtins::init("difference", new CsgModule(OpenSCADOperator::DIFFERENCE));
 	Builtins::init("intersection", new CsgModule(OpenSCADOperator::INTERSECTION));
 }
-

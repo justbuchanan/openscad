@@ -37,23 +37,19 @@
 #include <boost/assign/std/vector.hpp>
 using namespace boost::assign; // bring 'operator+=()' into scope
 
-enum class transform_type_e {
-	SCALE,
-	ROTATE,
-	MIRROR,
-	TRANSLATE,
-	MULTMATRIX
-};
+enum class transform_type_e { SCALE, ROTATE, MIRROR, TRANSLATE, MULTMATRIX };
 
 class TransformModule : public AbstractModule
 {
 public:
 	transform_type_e type;
-	TransformModule(transform_type_e type) : type(type) { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	TransformModule(transform_type_e type) : type(type) {}
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																		EvalContext *evalctx) const;
 };
 
-AbstractNode *TransformModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
+AbstractNode *TransformModule::instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																					 EvalContext *evalctx) const
 {
 	auto node = new TransformNode(inst);
 
@@ -91,8 +87,7 @@ AbstractNode *TransformModule::instantiate(const Context *ctx, const ModuleInsta
 			if (v->getDouble(num)) scalevec.setConstant(num);
 		}
 		node->matrix.scale(scalevec);
-	}
-	else if (this->type == transform_type_e::ROTATE) {
+	} else if (this->type == transform_type_e::ROTATE) {
 		auto val_a = c.lookup_variable("a");
 		if (val_a->type() == Value::ValueType::VECTOR) {
 			Eigen::AngleAxisd rotx(0, Vector3d::UnitX());
@@ -101,19 +96,18 @@ AbstractNode *TransformModule::instantiate(const Context *ctx, const ModuleInsta
 			double a;
 			if (val_a->toVector().size() > 0) {
 				val_a->toVector()[0]->getDouble(a);
-				rotx = Eigen::AngleAxisd(a*M_PI/180, Vector3d::UnitX());
+				rotx = Eigen::AngleAxisd(a * M_PI / 180, Vector3d::UnitX());
 			}
 			if (val_a->toVector().size() > 1) {
 				val_a->toVector()[1]->getDouble(a);
-				roty = Eigen::AngleAxisd(a*M_PI/180, Vector3d::UnitY());
+				roty = Eigen::AngleAxisd(a * M_PI / 180, Vector3d::UnitY());
 			}
 			if (val_a->toVector().size() > 2) {
 				val_a->toVector()[2]->getDouble(a);
-				rotz = Eigen::AngleAxisd(a*M_PI/180, Vector3d::UnitZ());
+				rotz = Eigen::AngleAxisd(a * M_PI / 180, Vector3d::UnitZ());
 			}
 			node->matrix.rotate(rotz * roty * rotx);
-		}
-		else {
+		} else {
 			auto val_v = c.lookup_variable("v");
 			double a = 0.0;
 
@@ -125,49 +119,46 @@ AbstractNode *TransformModule::instantiate(const Context *ctx, const ModuleInsta
 			}
 
 			if (axis.squaredNorm() > 0) {
-				node->matrix = Eigen::AngleAxisd(a*M_PI/180, axis);
+				node->matrix = Eigen::AngleAxisd(a * M_PI / 180, axis);
 			}
 		}
-	}
-	else if (this->type == transform_type_e::MIRROR) {
+	} else if (this->type == transform_type_e::MIRROR) {
 		auto val_v = c.lookup_variable("v");
 		double x = 1.0, y = 0.0, z = 0.0;
-	
+
 		if (val_v->getVec3(x, y, z)) {
 			if (x != 0.0 || y != 0.0 || z != 0.0) {
-				double sn = 1.0 / sqrt(x*x + y*y + z*z);
+				double sn = 1.0 / sqrt(x * x + y * y + z * z);
 				x *= sn, y *= sn, z *= sn;
 			}
 		}
 
-		if (x != 0.0 || y != 0.0 || z != 0.0)	{
+		if (x != 0.0 || y != 0.0 || z != 0.0) {
 			Matrix4d m;
-			m << 1-2*x*x, -2*y*x, -2*z*x, 0,
-				-2*x*y, 1-2*y*y, -2*z*y, 0,
-				-2*x*z, -2*y*z, 1-2*z*z, 0,
-				0, 0, 0, 1;
+			m << 1 - 2 * x * x, -2 * y * x, -2 * z * x, 0, -2 * x * y, 1 - 2 * y * y, -2 * z * y, 0,
+					-2 * x * z, -2 * y * z, 1 - 2 * z * z, 0, 0, 0, 0, 1;
 			node->matrix = m;
 		}
-	}
-	else if (this->type == transform_type_e::TRANSLATE)	{
+	} else if (this->type == transform_type_e::TRANSLATE) {
 		auto v = c.lookup_variable("v");
-		Vector3d translatevec(0,0,0);
+		Vector3d translatevec(0, 0, 0);
 		v->getVec3(translatevec[0], translatevec[1], translatevec[2]);
 		node->matrix.translate(translatevec);
-	}
-	else if (this->type == transform_type_e::MULTMATRIX) {
+	} else if (this->type == transform_type_e::MULTMATRIX) {
 		auto v = c.lookup_variable("m");
 		if (v->type() == Value::ValueType::VECTOR) {
 			Matrix4d rawmatrix{Matrix4d::Identity()};
 			for (int i = 0; i < 16; i++) {
 				size_t x = i / 4, y = i % 4;
-				if (y < v->toVector().size() && v->toVector()[y]->type() == 
-						Value::ValueType::VECTOR && x < v->toVector()[y]->toVector().size())
+				if (y < v->toVector().size() && v->toVector()[y]->type() == Value::ValueType::VECTOR &&
+						x < v->toVector()[y]->toVector().size())
 					v->toVector()[y]->toVector()[x]->getDouble(rawmatrix(y, x));
 			}
-			double w = rawmatrix(3,3);
-			if (w != 1.0) node->matrix = rawmatrix / w;
-			else node->matrix = rawmatrix;
+			double w = rawmatrix(3, 3);
+			if (w != 1.0)
+				node->matrix = rawmatrix / w;
+			else
+				node->matrix = rawmatrix;
 		}
 	}
 
@@ -182,9 +173,9 @@ std::string TransformNode::toString() const
 	std::stringstream stream;
 
 	stream << "multmatrix([";
-	for (int j=0;j<4;j++) {
+	for (int j = 0; j < 4; j++) {
 		stream << "[";
-		for (int i=0;i<4;i++) {
+		for (int i = 0; i < 4; i++) {
 			Value v(this->matrix(j, i));
 			stream << v;
 			if (i != 3) stream << ", ";
@@ -197,7 +188,8 @@ std::string TransformNode::toString() const
 	return stream.str();
 }
 
-TransformNode::TransformNode(const ModuleInstantiation *mi) : AbstractNode(mi), matrix(Transform3d::Identity())
+TransformNode::TransformNode(const ModuleInstantiation *mi)
+	: AbstractNode(mi), matrix(Transform3d::Identity())
 {
 }
 

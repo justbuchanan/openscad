@@ -11,15 +11,14 @@ ParameterSlider::ParameterSlider(ParameterObject *parameterobject, bool showDesc
 	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(onChanged(int)));
 	if (showDescription == true) {
 		setDescription(object->description);
-	}
-	else {
+	} else {
 		slider->setToolTip(object->description);
 	}
 }
 
 void ParameterSlider::onChanged(int)
 {
-	double v = slider->value()*step;
+	double v = slider->value() * step;
 	this->labelSliderValue->setText(QString::number(v, 'f', decimalPrecision));
 	if (this->pressed) {
 		object->focus = true;
@@ -39,7 +38,8 @@ void ParameterSlider::onPressed()
 	this->pressed = false;
 }
 
-void ParameterSlider::onReleased(){
+void ParameterSlider::onReleased()
+{
 	this->pressed = true;
 	onChanged(0);
 }
@@ -53,11 +53,11 @@ void ParameterSlider::setValue()
 		decimalPrecision = 1;
 		step = 1;
 	}
-	int min = object->values->toRange().begin_value()/step;
-	int max=object->values->toRange().end_value()/step;
-	int current=object->value->toDouble()/step;
+	int min = object->values->toRange().begin_value() / step;
+	int max = object->values->toRange().end_value() / step;
+	int current = object->value->toDouble() / step;
 	this->stackedWidget->setCurrentWidget(this->pageSlider);
-	this->slider->setRange(min,max);
+	this->slider->setRange(min, max);
 	this->slider->setValue(current);
-	this->labelSliderValue->setText(QString::number(current*step, 'f',decimalPrecision));
+	this->labelSliderValue->setText(QString::number(current * step, 'f', decimalPrecision));
 }

@@ -35,9 +35,7 @@
 
 size_t AbstractNode::idx_counter;
 
-AbstractNode::AbstractNode(const ModuleInstantiation *mi) : modinst(mi), idx(idx_counter++)
-{
-}
+AbstractNode::AbstractNode(const ModuleInstantiation *mi) : modinst(mi), idx(idx_counter++) {}
 
 AbstractNode::~AbstractNode()
 {
@@ -66,14 +64,15 @@ std::string AbstractIntersectionNode::toString() const
 
 std::string AbstractIntersectionNode::name() const
 {
-  // We write intersection here since the module will have to be evaluated
+	// We write intersection here since the module will have to be evaluated
 	// before we get here and it will not longer retain the intersection_for parameters
 	return "intersection";
 }
 
 void AbstractNode::progress_prepare()
 {
-	std::for_each(this->children.begin(), this->children.end(), std::mem_fun(&AbstractNode::progress_prepare));
+	std::for_each(this->children.begin(), this->children.end(),
+								std::mem_fun(&AbstractNode::progress_prepare));
 	this->progress_mark = ++progress_report_count;
 }
 
@@ -91,9 +90,9 @@ std::ostream &operator<<(std::ostream &stream, const AbstractNode &node)
 // Do we have an explicit root node (! modifier)?
 AbstractNode *find_root_tag(AbstractNode *n)
 {
-	std::vector<AbstractNode*> rootTags;
+	std::vector<AbstractNode *> rootTags;
 
-	std::function <void (AbstractNode *n)> find_root_tags = [&](AbstractNode *n) {
+	std::function<void(AbstractNode * n)> find_root_tags = [&](AbstractNode *n) {
 		for (auto v : n->children) {
 			if (v->modinst->tag_root) rootTags.push_back(v);
 			find_root_tags(v);
@@ -104,8 +103,9 @@ AbstractNode *find_root_tag(AbstractNode *n)
 
 	if (rootTags.size() == 0) return nullptr;
 	if (rootTags.size() > 1) {
-		for (const auto& rootTag : rootTags) {
-			PRINTB("WARNING: Root Modifier (!) Added At Line%d \n", rootTag->modinst->location().firstLine());
+		for (const auto &rootTag : rootTags) {
+			PRINTB("WARNING: Root Modifier (!) Added At Line%d \n",
+						 rootTag->modinst->location().firstLine());
 		}
 	}
 	return rootTags.front();

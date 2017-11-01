@@ -6,7 +6,7 @@
 class Package : public ASTNode
 {
 public:
-  Package() {}
+	Package() {}
 	virtual ~Package() {}
 
 	void setPath(const std::string &path) { this->_path = path; }
@@ -15,6 +15,7 @@ public:
 	LocalScope scope;
 	typedef std::unordered_set<std::string> ModuleContainer;
 	ModuleContainer usedlibs;
+
 private:
 	std::string _path;
 };

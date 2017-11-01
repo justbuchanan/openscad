@@ -8,8 +8,7 @@ ParameterComboBox::ParameterComboBox(ParameterObject *parameterobject, bool show
 	connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onChanged(int)));
 	if (showDescription == true) {
 		setDescription(object->description);
-	}
-	else{
+	} else {
 		comboBox->setToolTip(object->description);
 	}
 }
@@ -37,16 +36,14 @@ void ParameterComboBox::setValue()
 {
 	this->stackedWidget->setCurrentWidget(this->pageComboBox);
 	comboBox->clear();
-	const Value::VectorType& vec = object->values->toVector();
-	for (Value::VectorType::const_iterator it = vec.begin(); it != vec.end(); it++)	{
+	const Value::VectorType &vec = object->values->toVector();
+	for (Value::VectorType::const_iterator it = vec.begin(); it != vec.end(); it++) {
 		if ((*it)->toVector().size() > 1) {
 			comboBox->addItem(QString::fromStdString((*it)->toVector()[1]->toString()),
 												QVariant(QString::fromStdString((*it)->toVector()[0]->toString())));
-		}
-		else {
+		} else {
 			comboBox->addItem(QString::fromStdString((*it)->toString()),
 												QVariant(QString::fromStdString((*it)->toString())));
-			
 		}
 	}
 	QString defaultText = QString::fromStdString(object->value->toString());

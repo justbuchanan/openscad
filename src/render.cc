@@ -38,11 +38,13 @@ using namespace boost::assign; // bring 'operator+=()' into scope
 class RenderModule : public AbstractModule
 {
 public:
-	RenderModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	RenderModule() {}
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																		EvalContext *evalctx) const;
 };
 
-AbstractNode *RenderModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
+AbstractNode *RenderModule::instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																				EvalContext *evalctx) const
 {
 	auto node = new RenderNode(inst);
 

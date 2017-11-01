@@ -31,9 +31,7 @@
 #include "qtgettext.h"
 #include "FontListDialog.h"
 
-FontListTableView::FontListTableView(QWidget *parent) : QTableView(parent)
-{
-}
+FontListTableView::FontListTableView(QWidget *parent) : QTableView(parent) {}
 
 void FontListTableView::setDragText(const QString &text)
 {

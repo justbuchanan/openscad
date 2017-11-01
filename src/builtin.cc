@@ -94,22 +94,29 @@ std::string Builtins::isDeprecated(const std::string &name)
 
 Builtins::Builtins()
 {
-	this->globalscope.assignments.push_back(Assignment("$fn", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
-	this->globalscope.assignments.push_back(Assignment("$fs", shared_ptr<Expression>(new Literal(ValuePtr(2.0)))));
-	this->globalscope.assignments.push_back(Assignment("$fa", shared_ptr<Expression>(new Literal(ValuePtr(12.0)))));
-	this->globalscope.assignments.push_back(Assignment("$t", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
-	this->globalscope.assignments.push_back(Assignment("$preview", shared_ptr<Expression>(new Literal(ValuePtr())))); //undef as should always be overwritten.
+	this->globalscope.assignments.push_back(
+			Assignment("$fn", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
+	this->globalscope.assignments.push_back(
+			Assignment("$fs", shared_ptr<Expression>(new Literal(ValuePtr(2.0)))));
+	this->globalscope.assignments.push_back(
+			Assignment("$fa", shared_ptr<Expression>(new Literal(ValuePtr(12.0)))));
+	this->globalscope.assignments.push_back(
+			Assignment("$t", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
+	this->globalscope.assignments.push_back(Assignment(
+			"$preview",
+			shared_ptr<Expression>(new Literal(ValuePtr())))); // undef as should always be overwritten.
 
 	Value::VectorType zero3;
 	zero3.push_back(ValuePtr(0.0));
 	zero3.push_back(ValuePtr(0.0));
 	zero3.push_back(ValuePtr(0.0));
 	ValuePtr zero3val(zero3);
-	this->globalscope.assignments.push_back(Assignment("$vpt", shared_ptr<Expression>(new Literal(zero3val))));
-	this->globalscope.assignments.push_back(Assignment("$vpr", shared_ptr<Expression>(new Literal(zero3val))));
-	this->globalscope.assignments.push_back(Assignment("$vpd", shared_ptr<Expression>(new Literal(ValuePtr(500)))));
+	this->globalscope.assignments.push_back(
+			Assignment("$vpt", shared_ptr<Expression>(new Literal(zero3val))));
+	this->globalscope.assignments.push_back(
+			Assignment("$vpr", shared_ptr<Expression>(new Literal(zero3val))));
+	this->globalscope.assignments.push_back(
+			Assignment("$vpd", shared_ptr<Expression>(new Literal(ValuePtr(500)))));
 }
 
-Builtins::~Builtins()
-{
-}
+Builtins::~Builtins() {}

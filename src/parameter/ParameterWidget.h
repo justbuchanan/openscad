@@ -32,7 +32,10 @@
 #include "groupwidget.h"
 #include "parameterset.h"
 
-class ParameterWidget : public QWidget, public Ui::ParameterWidget, public ParameterExtractor, public ParameterSet
+class ParameterWidget : public QWidget,
+												public Ui::ParameterWidget,
+												public ParameterExtractor,
+												public ParameterSet
 {
 	Q_OBJECT
 private:
@@ -42,11 +45,11 @@ private:
 		bool inList;
 	};
 	std::vector<std::string> groupPos;
-	typedef std::map<std::string,groupInst > group_map;
+	typedef std::map<std::string, groupInst> group_map;
 	group_map groupMap;
 	QTimer autoPreviewTimer;
 	bool descriptionShow;
-	QVBoxLayout * anyLayout;
+	QVBoxLayout *anyLayout;
 	std::string jsonFile;
 	bool anyfocused;
 	ParameterVirtualWidget *entryToFocus;
@@ -56,7 +59,7 @@ public:
 	virtual ~ParameterWidget();
 	void readFile(QString scadFile);
 	void writeFile(QString scadFile);
-																
+
 protected slots:
 	void onValueChanged();
 	void onPreviewTimerElapsed();
@@ -65,10 +68,10 @@ protected slots:
 	void onSetAdd();
 	void onSetDelete();
 	void resetParameter();
-	
+
 signals:
 	void previewRequested();
-	
+
 protected:
 	void connectWidget();
 	void begin();
@@ -80,4 +83,3 @@ protected:
 	void applyParameterSet(std::string setName);
 	void updateParameterSet(std::string setName);
 };
-

@@ -17,7 +17,7 @@ class ImportNode : public LeafNode
 {
 public:
 	VISITABLE();
-	ImportNode(const ModuleInstantiation *mi, ImportType type) : LeafNode(mi), type(type) { }
+	ImportNode(const ModuleInstantiation *mi, ImportType type) : LeafNode(mi), type(type) {}
 	virtual std::string toString() const;
 	virtual std::string name() const;
 

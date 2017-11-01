@@ -30,4 +30,3 @@ inline QString _(const char *msgid, const char *disambiguation)
 }
 
 #endif
-

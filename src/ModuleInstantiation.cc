@@ -4,13 +4,9 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-ModuleInstantiation::~ModuleInstantiation()
-{
-}
+ModuleInstantiation::~ModuleInstantiation() {}
 
-IfElseModuleInstantiation::~IfElseModuleInstantiation()
-{
-}
+IfElseModuleInstantiation::~IfElseModuleInstantiation() {}
 
 /*!
 	Returns the absolute path to the given filename, unless it's empty.
@@ -22,8 +18,7 @@ std::string ModuleInstantiation::getAbsolutePath(const std::string &filename) co
 {
 	if (!filename.empty() && !fs::path(filename).is_absolute()) {
 		return fs::absolute(fs::path(this->modpath) / filename).string();
-	}
-	else {
+	} else {
 		return filename;
 	}
 }
@@ -33,7 +28,7 @@ std::string ModuleInstantiation::dump(const std::string &indent) const
 	std::stringstream dump;
 	dump << indent;
 	dump << modname + "(";
-	for (size_t i=0; i < this->arguments.size(); i++) {
+	for (size_t i = 0; i < this->arguments.size(); i++) {
 		const Assignment &arg = this->arguments[i];
 		if (i > 0) dump << ", ";
 		if (!arg.name.empty()) dump << arg.name << " = ";
@@ -61,8 +56,7 @@ std::string IfElseModuleInstantiation::dump(const std::string &indent) const
 		dump << indent << "else ";
 		if (else_scope.numElements() == 1) {
 			dump << else_scope.dump("");
-		}
-		else {
+		} else {
 			dump << "{\n";
 			dump << else_scope.dump(indent + "\t");
 			dump << indent << "}\n";
@@ -84,13 +78,13 @@ AbstractNode *ModuleInstantiation::evaluate(const Context *ctx) const
 	return node;
 }
 
-std::vector<AbstractNode*> ModuleInstantiation::instantiateChildren(const Context *evalctx) const
+std::vector<AbstractNode *> ModuleInstantiation::instantiateChildren(const Context *evalctx) const
 {
 	return this->scope.instantiateChildren(evalctx);
 }
 
-std::vector<AbstractNode*> IfElseModuleInstantiation::instantiateElseChildren(const Context *evalctx) const
+std::vector<AbstractNode *> IfElseModuleInstantiation::instantiateElseChildren(
+		const Context *evalctx) const
 {
 	return this->else_scope.instantiateChildren(evalctx);
 }
-

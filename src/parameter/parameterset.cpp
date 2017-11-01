@@ -36,23 +36,22 @@ boost::optional<pt::ptree &> ParameterSet::getParameterSet(const std::string &se
 	}
 
 	pt::ptree::assoc_iterator set = sets.get().find(pt::ptree::key_type(setName));
-	if(set!=sets.get().not_found()) {
+	if (set != sets.get().not_found()) {
 		return set->second;
 	}
 	return sets;
 }
 
-void ParameterSet::addParameterSet(const std::string setName, const pt::ptree & set)
+void ParameterSet::addParameterSet(const std::string setName, const pt::ptree &set)
 {
 	boost::optional<pt::ptree &> sets = parameterSets();
 	if (sets.is_initialized()) {
 		sets.get().erase(pt::ptree::key_type(setName));
-		sets.get().push_back(pt::ptree::value_type(setName,set));
-	}
-	else {
+		sets.get().push_back(pt::ptree::value_type(setName, set));
+	} else {
 		pt::ptree child;
-		child.push_back(pt::ptree::value_type(setName,set));
-		root.push_back(pt::ptree::value_type(ParameterSet::parameterSetsKey,child));
+		child.push_back(pt::ptree::value_type(setName, set));
+		root.push_back(pt::ptree::value_type(ParameterSet::parameterSetsKey, child));
 	}
 }
 
@@ -64,15 +63,14 @@ bool ParameterSet::readParameterSet(const std::string &filename)
 	try {
 		pt::read_json(filename, this->root);
 
-		//check whether file is read-only
+		// check whether file is read-only
 		std::fstream file;
 		file.open(filename, std::ios::app);
 		if (file.is_open()) {
 			file.close();
 			return true;
 		}
-	}
-	catch (const pt::json_parser_error &e) {
+	} catch (const pt::json_parser_error &e) {
 		PRINTB("ERROR: Cannot open Parameter Set '%s': %s", filename % e.what());
 	}
 	return false;
@@ -84,8 +82,7 @@ void ParameterSet::writeParameterSet(const std::string &filename)
 	root.put<std::string>(fileFormatVersionKey, fileFormatVersionValue);
 	try {
 		pt::write_json(filename, this->root);
-	}
-	catch (const pt::json_parser_error &e) {
+	} catch (const pt::json_parser_error &e) {
 		PRINTB("ERROR: Cannot write Parameter Set '%s': %s", filename % e.what());
 	}
 }
@@ -102,9 +99,9 @@ void ParameterSet::applyParameterSet(FileModule *fileModule, const std::string &
 					const ValuePtr defaultValue = assignment.expr->evaluate(&ctx);
 					if (defaultValue->type() == Value::ValueType::STRING) {
 						assignment.expr = shared_ptr<Expression>(new Literal(ValuePtr(v.second.data())));
-					}
-					else if (defaultValue->type() == Value::ValueType::BOOL) {
-						assignment.expr = shared_ptr<Expression>(new Literal(ValuePtr(v.second.get_value<bool>())));
+					} else if (defaultValue->type() == Value::ValueType::BOOL) {
+						assignment.expr =
+								shared_ptr<Expression>(new Literal(ValuePtr(v.second.get_value<bool>())));
 					} else {
 						shared_ptr<Expression> params = CommentParser::parser(v.second.data().c_str());
 						if (!params) continue;
@@ -116,9 +113,7 @@ void ParameterSet::applyParameterSet(FileModule *fileModule, const std::string &
 				}
 			}
 		}
-	}
-	catch (std::exception const& e) {
+	} catch (std::exception const &e) {
 		PRINTB("ERROR: Cannot apply parameter Set: %s", e.what());
 	}
 }
-

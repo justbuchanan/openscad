@@ -24,7 +24,7 @@
  *
  */
 
-#ifdef _MSC_VER 
+#ifdef _MSC_VER
 // Boost conflicts with MPFR under MSVC (google it)
 #include <mpfr.h>
 #endif
@@ -47,16 +47,14 @@ CGALRenderer::CGALRenderer(shared_ptr<const class Geometry> geom)
 	if (auto ps = dynamic_pointer_cast<const PolySet>(geom)) {
 		assert(ps->getDimension() == 3);
 		// We need to tessellate here, in case the generated PolySet contains concave polygons
-    // See testdata/scad/3D/features/polyhedron-concave-test.scad
+		// See testdata/scad/3D/features/polyhedron-concave-test.scad
 		auto ps_tri = new PolySet(3, ps->convexValue());
 		ps_tri->setConvexity(ps->getConvexity());
 		PolysetUtils::tessellate_faces(*ps, *ps_tri);
 		this->polyset.reset(ps_tri);
-	}
-	else if (auto poly = dynamic_pointer_cast<const Polygon2d>(geom)) {
+	} else if (auto poly = dynamic_pointer_cast<const Polygon2d>(geom)) {
 		this->polyset.reset(poly->tessellate());
-	}
-	else if (auto new_N = dynamic_pointer_cast<const CGAL_Nef_polyhedron>(geom)) {
+	} else if (auto new_N = dynamic_pointer_cast<const CGAL_Nef_polyhedron>(geom)) {
 		assert(new_N->getDimension() == 3);
 		if (!new_N->isEmpty()) {
 			this->N = new_N;
@@ -64,9 +62,7 @@ CGALRenderer::CGALRenderer(shared_ptr<const class Geometry> geom)
 	}
 }
 
-CGALRenderer::~CGALRenderer()
-{
-}
+CGALRenderer::~CGALRenderer() {}
 
 shared_ptr<class CGAL_OGL_Polyhedron> CGALRenderer::getPolyhedron() const
 {
@@ -78,7 +74,8 @@ void CGALRenderer::buildPolyhedron() const
 {
 	PRINTD("buildPolyhedron");
 	this->polyhedron.reset(new CGAL_OGL_Polyhedron(*this->colorscheme));
-	CGAL::OGL::Nef3_Converter<CGAL_Nef_polyhedron3>::convert_to_OGLPolyhedron(*this->N->p3, this->polyhedron.get());
+	CGAL::OGL::Nef3_Converter<CGAL_Nef_polyhedron3>::convert_to_OGLPolyhedron(*this->N->p3,
+																																						this->polyhedron.get());
 	// CGAL_NEF3_MARKED_FACET_COLOR <- CGAL_FACE_BACK_COLOR
 	// CGAL_NEF3_UNMARKED_FACET_COLOR <- CGAL_FACE_FRONT_COLOR
 	this->polyhedron->init();
@@ -102,40 +99,40 @@ void CGALRenderer::draw(bool showfaces, bool showedges) const
 		if (this->polyset->getDimension() == 2) {
 			// Draw 2D polygons
 			glDisable(GL_LIGHTING);
-// FIXME:		const QColor &col = Preferences::inst()->color(Preferences::CGAL_FACE_2D_COLOR);
+			// FIXME:		const QColor &col = Preferences::inst()->color(Preferences::CGAL_FACE_2D_COLOR);
 			glColor3f(0.0f, 0.75f, 0.60f);
 
-			for (size_t i=0; i < this->polyset->polygons.size(); i++) {
+			for (size_t i = 0; i < this->polyset->polygons.size(); i++) {
 				glBegin(GL_POLYGON);
-				for (size_t j=0; j < this->polyset->polygons[i].size(); j++) {
+				for (size_t j = 0; j < this->polyset->polygons[i].size(); j++) {
 					const auto &p = this->polyset->polygons[i][j];
 					glVertex3d(p[0], p[1], 0);
 				}
 				glEnd();
 			}
-		
+
 			// Draw 2D edges
 			glDisable(GL_DEPTH_TEST);
 
 			glLineWidth(2);
-// FIXME:		const QColor &col2 = Preferences::inst()->color(Preferences::CGAL_EDGE_2D_COLOR);
+			// FIXME:		const QColor &col2 = Preferences::inst()->color(Preferences::CGAL_EDGE_2D_COLOR);
 			glColor3f(1.0f, 0.0f, 0.0f);
 			this->polyset->render_edges(CSGMODE_NONE);
 			glEnable(GL_DEPTH_TEST);
-		}
-		else {
+		} else {
 			// Draw 3D polygons
-			const Color4f c(-1,-1,-1,-1);	
+			const Color4f c(-1, -1, -1, -1);
 			setColor(ColorMode::MATERIAL, c.data(), nullptr);
 			this->polyset->render_surface(CSGMODE_NORMAL, Transform3d::Identity(), nullptr);
 		}
-	}
-	else {
+	} else {
 		auto polyhedron = getPolyhedron();
 		if (polyhedron) {
 			PRINTD("draw() polyhedron");
-			if (showfaces) polyhedron->set_style(SNC_BOUNDARY);
-			else polyhedron->set_style(SNC_SKELETON);
+			if (showfaces)
+				polyhedron->set_style(SNC_BOUNDARY);
+			else
+				polyhedron->set_style(SNC_SKELETON);
 			polyhedron->draw(showfaces && showedges);
 		}
 	}
@@ -148,14 +145,12 @@ BoundingBox CGALRenderer::getBoundingBox() const
 
 	if (this->polyset) {
 		bbox = this->polyset->getBoundingBox();
-	}
-	else {
+	} else {
 		auto polyhedron = getPolyhedron();
 		if (polyhedron) {
 			auto cgalbbox = polyhedron->bbox();
-			bbox = BoundingBox(
-				Vector3d(cgalbbox.xmin(), cgalbbox.ymin(), cgalbbox.zmin()),
-				Vector3d(cgalbbox.xmax(), cgalbbox.ymax(), cgalbbox.zmax()));
+			bbox = BoundingBox(Vector3d(cgalbbox.xmin(), cgalbbox.ymin(), cgalbbox.zmin()),
+												 Vector3d(cgalbbox.xmax(), cgalbbox.ymax(), cgalbbox.zmax()));
 		}
 	}
 	return bbox;

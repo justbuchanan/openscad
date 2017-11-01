@@ -25,8 +25,7 @@ const std::string &Tree::getString(const AbstractNode &node) const
 		this->nodeidcache.clear();
 		NodeDumper dumper(this->nodecache, false);
 		dumper.traverse(*this->root_node);
-		assert(this->nodecache.contains(*this->root_node) &&
-					 "NodeDumper failed to create a cache");
+		assert(this->nodecache.contains(*this->root_node) && "NodeDumper failed to create a cache");
 	}
 	return this->nodecache[node];
 }
@@ -54,7 +53,7 @@ const std::string &Tree::getIdString(const AbstractNode &node) const
 		PRINTDB("Id Cache MISS: %s", result);
 		return result;
 	} else {
-		const auto & result = this->nodeidcache[node];
+		const auto &result = this->nodeidcache[node];
 		PRINTDB("Id Cache HIT:  %s", result);
 		return result;
 	}
@@ -65,6 +64,6 @@ const std::string &Tree::getIdString(const AbstractNode &node) const
  */
 void Tree::setRoot(const AbstractNode *root)
 {
-	this->root_node = root; 
+	this->root_node = root;
 	this->nodecache.clear();
 }

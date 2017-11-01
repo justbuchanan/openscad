@@ -30,7 +30,8 @@
 #include "builtin.h"
 #include "evalcontext.h"
 
-AbstractNode *GroupModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
+AbstractNode *GroupModule::instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																			 EvalContext *evalctx) const
 {
 	(void)ctx; // avoid unusued parameter warning
 

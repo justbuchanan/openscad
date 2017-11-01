@@ -39,9 +39,7 @@ namespace fs = boost::filesystem;
 #include "FontCache.h"
 #include <sys/stat.h>
 
-FileModule::~FileModule()
-{
-}
+FileModule::~FileModule() {}
 
 std::string FileModule::dump(const std::string &indent, const std::string & /*name*/) const
 {
@@ -52,7 +50,7 @@ void FileModule::registerUse(const std::string path)
 {
 	auto extraw = fs::path(path).extension().generic_string();
 	auto ext = boost::algorithm::to_lower_copy(extraw);
-	
+
 	if ((ext == ".otf") || (ext == ".ttf")) {
 		if (fs::is_regular(path)) {
 			FontCache::instance()->register_font_file(path);
@@ -86,7 +84,7 @@ time_t FileModule::include_modified(const IncludeFile &inc) const
 	if (StatCache::stat(inc.filename.c_str(), &st) == 0) {
 		return st.st_mtime;
 	}
-	
+
 	return 0;
 }
 
@@ -99,7 +97,7 @@ time_t FileModule::handleDependencies()
 	if (this->is_handling_dependencies) return 0;
 	this->is_handling_dependencies = true;
 
-	std::vector<std::pair<std::string,std::string>> updates;
+	std::vector<std::pair<std::string, std::string>> updates;
 
 	// If a lib in usedlibs was previously missing, we need to relocate it
 	// by searching the applicable paths. We can identify a previously missing module
@@ -117,8 +115,7 @@ time_t FileModule::handleDependencies()
 			if (!fullpath.empty()) {
 				updates.emplace_back(filename, fullpath.generic_string());
 				filename = fullpath.generic_string();
-			}
-			else {
+			} else {
 				found = false;
 			}
 		}
@@ -134,8 +131,7 @@ time_t FileModule::handleDependencies()
 			// on compile errors (FIXME: Is this correct behavior?)
 			if (changed) {
 				PRINTDB("  %s: %p -> %p", filename % oldmodule % newmodule);
-			}
-			else {
+			} else {
 				PRINTDB("  %s: %p", filename % oldmodule);
 			}
 			// Only print warning if we're not part of an automatic reload
@@ -146,7 +142,7 @@ time_t FileModule::handleDependencies()
 	}
 
 	// Relative filenames which were located are reinserted as absolute filenames
-	typedef std::pair<std::string,std::string> stringpair;
+	typedef std::pair<std::string, std::string> stringpair;
 	for (const auto &files : updates) {
 		this->usedlibs.erase(files.first);
 		this->usedlibs.insert(files.second);
@@ -159,24 +155,24 @@ AbstractNode *FileModule::instantiate(const Context *ctx, const ModuleInstantiat
 																			EvalContext *evalctx) const
 {
 	assert(evalctx == nullptr);
-	
+
 	FileContext context(ctx);
 	return this->instantiateWithFileContext(&context, inst, evalctx);
 }
 
-AbstractNode *FileModule::instantiateWithFileContext(FileContext *ctx, const ModuleInstantiation *inst,
+AbstractNode *FileModule::instantiateWithFileContext(FileContext *ctx,
+																										 const ModuleInstantiation *inst,
 																										 EvalContext *evalctx) const
 {
 	assert(evalctx == nullptr);
-	
+
 	auto node = new RootNode(inst);
 	try {
 		ctx->initializeModule(*this); // May throw an ExperimentalFeatureException
 		// FIXME: Set document path to the path of the module
 		auto instantiatednodes = this->scope.instantiateChildren(ctx);
 		node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
-	}
-	catch (EvaluationException &e) {
+	} catch (EvaluationException &e) {
 		PRINT(e.what());
 	}
 

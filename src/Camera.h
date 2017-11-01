@@ -38,7 +38,7 @@ public:
 	// Vectorcam
 	Eigen::Vector3d eye;
 	Eigen::Vector3d center; // (aka 'target')
-	Eigen::Vector3d up; // not used currently
+	Eigen::Vector3d up;     // not used currently
 
 	// Gimbalcam
 	Eigen::Vector3d object_trans;
@@ -59,7 +59,7 @@ public:
 	unsigned int pixel_height;
 
 protected:
-        // Perspective settings
+	// Perspective settings
 	double viewer_distance;
 	// Orthographic settings
 	double height; // world-space height of viewport

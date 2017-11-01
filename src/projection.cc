@@ -40,11 +40,13 @@ using namespace boost::assign; // bring 'operator+=()' into scope
 class ProjectionModule : public AbstractModule
 {
 public:
-	ProjectionModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	ProjectionModule() {}
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																		EvalContext *evalctx) const;
 };
 
-AbstractNode *ProjectionModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
+AbstractNode *ProjectionModule::instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																						EvalContext *evalctx) const
 {
 	auto node = new ProjectionNode(inst);
 

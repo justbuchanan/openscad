@@ -37,7 +37,8 @@ public:
 	const Tree &getTree() const { return this->tree; }
 
 private:
-	class ResultObject {
+	class ResultObject
+	{
 	public:
 		ResultObject() : is_const(true) {}
 		ResultObject(const Geometry *g) : is_const(true), const_pointer(g) {}
@@ -45,10 +46,16 @@ private:
 		ResultObject(Geometry *g) : is_const(false), pointer(g) {}
 		ResultObject(shared_ptr<Geometry> &g) : is_const(false), pointer(g) {}
 		bool isConst() const { return is_const; }
-		shared_ptr<Geometry> ptr() { assert(!is_const); return pointer; }
-		shared_ptr<const Geometry> constptr() const { 
+		shared_ptr<Geometry> ptr()
+		{
+			assert(!is_const);
+			return pointer;
+		}
+		shared_ptr<const Geometry> constptr() const
+		{
 			return is_const ? const_pointer : static_pointer_cast<const Geometry>(pointer);
 		}
+
 	private:
 		bool is_const;
 		shared_ptr<Geometry> pointer;
@@ -63,11 +70,13 @@ private:
 	Polygon2d *applyMinkowski2D(const AbstractNode &node);
 	Polygon2d *applyHull2D(const AbstractNode &node);
 	Geometry *applyHull3D(const AbstractNode &node);
-	void applyResize3D(class CGAL_Nef_polyhedron &N, const Vector3d &newsize, const Eigen::Matrix<bool,3,1> &autosize);
+	void applyResize3D(class CGAL_Nef_polyhedron &N, const Vector3d &newsize,
+										 const Eigen::Matrix<bool, 3, 1> &autosize);
 	Polygon2d *applyToChildren2D(const AbstractNode &node, OpenSCADOperator op);
 	ResultObject applyToChildren3D(const AbstractNode &node, OpenSCADOperator op);
 	ResultObject applyToChildren(const AbstractNode &node, OpenSCADOperator op);
-	void addToParent(const State &state, const AbstractNode &node, const shared_ptr<const Geometry> &geom);
+	void addToParent(const State &state, const AbstractNode &node,
+									 const shared_ptr<const Geometry> &geom);
 
 	std::map<int, Geometry::Geometries> visitedchildren;
 	const Tree &tree;

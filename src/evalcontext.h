@@ -4,7 +4,7 @@
 #include "Assignment.h"
 
 /*!
-  This hold the evaluation context (the parameters actually sent
+	This hold the evaluation context (the parameters actually sent
 	when calling a module or function, including the children).
 */
 class EvalContext : public Context
@@ -12,14 +12,14 @@ class EvalContext : public Context
 public:
 	typedef std::vector<class ModuleInstantiation *> InstanceList;
 
-	EvalContext(const Context *parent, 
-							const AssignmentList &args, const class LocalScope *const scope = nullptr);
+	EvalContext(const Context *parent, const AssignmentList &args,
+							const class LocalScope *const scope = nullptr);
 	virtual ~EvalContext() {}
 
 	size_t numArgs() const { return this->eval_arguments.size(); }
 	const std::string &getArgName(size_t i) const;
 	ValuePtr getArgValue(size_t i, const Context *ctx = nullptr) const;
-	const AssignmentList & getArgs() const { return this->eval_arguments; }
+	const AssignmentList &getArgs() const { return this->eval_arguments; }
 
 	AssignmentMap resolveArguments(const AssignmentList &args) const;
 

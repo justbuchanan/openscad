@@ -11,14 +11,16 @@
 class Context
 {
 public:
-	typedef std::vector<const Context*> Stack;
+	typedef std::vector<const Context *> Stack;
 
 	Context(const Context *parent = nullptr);
 	virtual ~Context();
 
 	const Context *getParent() const { return this->parent; }
-	virtual ValuePtr evaluate_function(const std::string &name, const class EvalContext *evalctx) const;
-	virtual class AbstractNode *instantiate_module(const class ModuleInstantiation &inst, EvalContext *evalctx) const;
+	virtual ValuePtr evaluate_function(const std::string &name,
+																		 const class EvalContext *evalctx) const;
+	virtual class AbstractNode *instantiate_module(const class ModuleInstantiation &inst,
+																								 EvalContext *evalctx) const;
 
 	void setVariables(const AssignmentList &args, const class EvalContext *evalctx = nullptr);
 
@@ -34,9 +36,8 @@ public:
 	void setDocumentPath(const std::string &path) { this->document_path = path; }
 	const std::string &documentPath() const { return this->document_path; }
 	std::string getAbsolutePath(const std::string &filename) const;
-        
-public:
 
+public:
 protected:
 	const Context *parent;
 	Stack *ctx_stack;

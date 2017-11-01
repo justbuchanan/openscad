@@ -15,9 +15,11 @@ public:
 	FileModule() : is_handling_dependencies(false) {}
 	virtual ~FileModule();
 
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx = nullptr) const;
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																		EvalContext *evalctx = nullptr) const;
 	virtual std::string dump(const std::string &indent, const std::string &name) const;
-	AbstractNode *instantiateWithFileContext(class FileContext *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	AbstractNode *instantiateWithFileContext(class FileContext *ctx, const ModuleInstantiation *inst,
+																					 EvalContext *evalctx) const;
 
 	void setModulePath(const std::string &path) { this->path = path; }
 	const std::string &modulePath() const { return this->path; }
@@ -32,6 +34,7 @@ public:
 	LocalScope scope;
 	typedef std::unordered_set<std::string> ModuleContainer;
 	ModuleContainer usedlibs;
+
 private:
 	struct IncludeFile {
 		std::string filename;

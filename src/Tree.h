@@ -2,7 +2,7 @@
 
 #include "nodecache.h"
 
-/*!  
+/*!
 	For now, just an abstraction of the node tree which keeps a dump
 	cache based on node indices around.
 
@@ -22,6 +22,6 @@ public:
 
 private:
 	const AbstractNode *root_node;
-  mutable NodeCache nodecache;
-  mutable NodeCache nodeidcache;
+	mutable NodeCache nodecache;
+	mutable NodeCache nodeidcache;
 };

@@ -8,10 +8,9 @@ ParameterText::ParameterText(ParameterObject *parameterobject, bool showDescript
 	setName(QString::fromStdString(object->name));
 	setValue();
 	connect(lineEdit, SIGNAL(textChanged(QString)), this, SLOT(onChanged(QString)));
-	if (showDescription == true){
+	if (showDescription == true) {
 		setDescription(object->description);
-	}
-	else{
+	} else {
 		lineEdit->setToolTip(object->description);
 	}
 }
@@ -20,8 +19,7 @@ void ParameterText::onChanged(QString)
 {
 	if (object->dvt == Value::ValueType::STRING) {
 		object->value = ValuePtr(lineEdit->text().toStdString());
-	}
-	else {
+	} else {
 		ModuleContext ctx;
 		shared_ptr<Expression> params = CommentParser::parser(lineEdit->text().toStdString().c_str());
 		if (!params) return;

@@ -5,13 +5,9 @@
 
 StackCheck *StackCheck::self = nullptr;
 
-StackCheck::StackCheck() : ptr(nullptr)
-{
-}
+StackCheck::StackCheck() : ptr(nullptr) {}
 
-StackCheck::~StackCheck()
-{
-}
+StackCheck::~StackCheck() {}
 
 void StackCheck::init()
 {
