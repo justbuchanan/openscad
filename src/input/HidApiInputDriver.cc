@@ -43,37 +43,49 @@ using namespace std;
 // http://www.linux-usb.org/usb.ids
 // http://www.3dconnexion.eu/nc/service/faq/show_faq/7ece50ed-0b39-b57e-d3b2-4afd9420604e.html
 static const struct device_id device_ids[] = {
-    { 0x046d, 0xc603, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Spacemouse Plus XT"},
-    { 0x046d, 0xc605, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion CADman"},
-    { 0x046d, 0xc606, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Spacemouse Classic"},
-    { 0x046d, 0xc621, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Spaceball 5000"},
-    { 0x046d, 0xc623, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Traveller 3D Mouse"},
-    { 0x046d, 0xc625, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Pilot 3D Mouse"},
-    { 0x046d, 0xc626, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Navigator 3D Mouse"},
-    { 0x046d, 0xc627, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Explorer 3D Mouse"},
-    { 0x046d, 0xc628, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Navigator for Notebooks"},
-    { 0x046d, 0xc629, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion SpacePilot Pro 3D Mouse"},
-    { 0x046d, 0xc62b, &HidApiInputDriver::hidapi_decode_axis1, &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Mouse Pro"},
-    { 0x256f, 0xc62e, &HidApiInputDriver::hidapi_decode_axis2, &HidApiInputDriver::hidapi_decode_button2, "3Dconnexion Space Mouse Wireless (cabled)"},
-    { 0x256f, 0xc62f, &HidApiInputDriver::hidapi_decode_axis2, &HidApiInputDriver::hidapi_decode_button2, "3Dconnexion Space Mouse Wireless"},
-    { 0x256f, 0xc631, &HidApiInputDriver::hidapi_decode_axis2, &HidApiInputDriver::hidapi_decode_button2, "3Dconnexion Space Mouse Pro Wireless (cabled)"},
-    { 0x256f, 0xc632, &HidApiInputDriver::hidapi_decode_axis2, &HidApiInputDriver::hidapi_decode_button2, "3Dconnexion Space Mouse Pro Wireless"},
-    { -1, -1, NULL, NULL, NULL},
+		{0x046d, 0xc603, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Spacemouse Plus XT"},
+		{0x046d, 0xc605, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion CADman"},
+		{0x046d, 0xc606, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Spacemouse Classic"},
+		{0x046d, 0xc621, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Spaceball 5000"},
+		{0x046d, 0xc623, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Traveller 3D Mouse"},
+		{0x046d, 0xc625, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Pilot 3D Mouse"},
+		{0x046d, 0xc626, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Navigator 3D Mouse"},
+		{0x046d, 0xc627, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Explorer 3D Mouse"},
+		{0x046d, 0xc628, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Navigator for Notebooks"},
+		{0x046d, 0xc629, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion SpacePilot Pro 3D Mouse"},
+		{0x046d, 0xc62b, &HidApiInputDriver::hidapi_decode_axis1,
+		 &HidApiInputDriver::hidapi_decode_button1, "3Dconnexion Space Mouse Pro"},
+		{0x256f, 0xc62e, &HidApiInputDriver::hidapi_decode_axis2,
+		 &HidApiInputDriver::hidapi_decode_button2, "3Dconnexion Space Mouse Wireless (cabled)"},
+		{0x256f, 0xc62f, &HidApiInputDriver::hidapi_decode_axis2,
+		 &HidApiInputDriver::hidapi_decode_button2, "3Dconnexion Space Mouse Wireless"},
+		{0x256f, 0xc631, &HidApiInputDriver::hidapi_decode_axis2,
+		 &HidApiInputDriver::hidapi_decode_button2, "3Dconnexion Space Mouse Pro Wireless (cabled)"},
+		{0x256f, 0xc632, &HidApiInputDriver::hidapi_decode_axis2,
+		 &HidApiInputDriver::hidapi_decode_button2, "3Dconnexion Space Mouse Pro Wireless"},
+		{-1, -1, NULL, NULL, NULL},
 };
 
 HidApiInputDriver::HidApiInputDriver() : buttons(0), hid_dev(0), dev(0)
 {
-    name = "HidApiInputDriver";
+	name = "HidApiInputDriver";
 }
 
-HidApiInputDriver::~HidApiInputDriver()
-{
-
-}
+HidApiInputDriver::~HidApiInputDriver() {}
 
 void HidApiInputDriver::run()
 {
-    hidapi_input(hid_dev);
+	hidapi_input(hid_dev);
 }
 
 /*
@@ -81,27 +93,27 @@ void HidApiInputDriver::run()
  */
 void HidApiInputDriver::hidapi_decode_axis1(const unsigned char *buf, unsigned int len)
 {
-    if ((buf[ 0] == 1 || buf[ 0] == 2) && len == 7) {
-        // Values are in the range -10..10 at min. speed and -2595..2595 at max. speed.
-        int16_t x_value = buf[ 1] | buf[ 2] << 8;
-        int16_t y_value = buf[ 3] | buf[ 4] << 8;
-        int16_t z_value = buf[ 5] | buf[ 6] << 8;
-        if (x_value == 0 && y_value == 0 && z_value == 0) {
-            return;
-        }
-        double x = x_value/350.0;
-        double y = y_value/350.0;
-        double z = z_value/350.0;
-        if (buf[ 0] == 1) {
-            InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(0, x));
-            InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(1, y));
-            InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(2, z)); 
-        } else {
-            InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(3, x));
-            InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(4, y));
-            InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(5, z));
-        }
-    }
+	if ((buf[0] == 1 || buf[0] == 2) && len == 7) {
+		// Values are in the range -10..10 at min. speed and -2595..2595 at max. speed.
+		int16_t x_value = buf[1] | buf[2] << 8;
+		int16_t y_value = buf[3] | buf[4] << 8;
+		int16_t z_value = buf[5] | buf[6] << 8;
+		if (x_value == 0 && y_value == 0 && z_value == 0) {
+			return;
+		}
+		double x = x_value / 350.0;
+		double y = y_value / 350.0;
+		double z = z_value / 350.0;
+		if (buf[0] == 1) {
+			InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(0, x));
+			InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(1, y));
+			InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(2, z));
+		} else {
+			InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(3, x));
+			InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(4, y));
+			InputDriverManager::instance()->sendEvent(new InputEventAxisChanged(5, z));
+		}
+	}
 }
 
 /*
@@ -109,22 +121,22 @@ void HidApiInputDriver::hidapi_decode_axis1(const unsigned char *buf, unsigned i
  */
 void HidApiInputDriver::hidapi_decode_button1(const unsigned char *buf, unsigned int len)
 {
-    if (buf[0] == 3 && len == 3) {
-        // Is either 0, 1 or 2 on MacOS.
-        uint16_t bitmask = buf[1] | buf[2] << 8;
-        uint16_t down = bitmask;
-        uint16_t up = 0;
-        if (bitmask == 0) {
-            up = buttons;
-            buttons = 0;
-        } else {
-            buttons |= bitmask;
-        }
-        if (down != 0 || up != 0) {
-            InputEvent *event = new InputEventButtonChanged(down, up);
-            InputDriverManager::instance()->sendEvent(event);
-        }
-    }
+	if (buf[0] == 3 && len == 3) {
+		// Is either 0, 1 or 2 on MacOS.
+		uint16_t bitmask = buf[1] | buf[2] << 8;
+		uint16_t down = bitmask;
+		uint16_t up = 0;
+		if (bitmask == 0) {
+			up = buttons;
+			buttons = 0;
+		} else {
+			buttons |= bitmask;
+		}
+		if (down != 0 || up != 0) {
+			InputEvent *event = new InputEventButtonChanged(down, up);
+			InputDriverManager::instance()->sendEvent(event);
+		}
+	}
 }
 
 /*
@@ -134,18 +146,18 @@ void HidApiInputDriver::hidapi_decode_button1(const unsigned char *buf, unsigned
  */
 void HidApiInputDriver::hidapi_decode_axis2(const unsigned char *buf, unsigned int len)
 {
-    if ((buf[0] != 1) || (len != 13)) {
-        return;
-    }
+	if ((buf[0] != 1) || (len != 13)) {
+		return;
+	}
 
-    for (int a = 0;a < 6;a++) {
-        int16_t i = buf[2 * a + 1] | (buf[2 * a + 2] << 8);
-        double val = (double)i / 350.0;
-        if (fabs(val) > 0.01) {
-            InputEvent *event = new InputEventAxisChanged(a, val);
-            InputDriverManager::instance()->sendEvent(event);
-        }
-    }
+	for (int a = 0; a < 6; a++) {
+		int16_t i = buf[2 * a + 1] | (buf[2 * a + 2] << 8);
+		double val = (double)i / 350.0;
+		if (fabs(val) > 0.01) {
+			InputEvent *event = new InputEventAxisChanged(a, val);
+			InputDriverManager::instance()->sendEvent(event);
+		}
+	}
 }
 
 /*
@@ -155,65 +167,59 @@ void HidApiInputDriver::hidapi_decode_axis2(const unsigned char *buf, unsigned i
  */
 void HidApiInputDriver::hidapi_decode_button2(const unsigned char *buf, unsigned int len)
 {
-    if ((buf[0] != 3) || (len < 3)) {
-        return;
-    }
+	if ((buf[0] != 3) || (len < 3)) {
+		return;
+	}
 
-    unsigned int current = buf[1];
-    unsigned int changed = buttons ^ current;
+	unsigned int current = buf[1];
+	unsigned int changed = buttons ^ current;
 
-    for (int idx = 0;idx < 2;idx++) {
-        if (changed & (1 << idx)) {
-            InputEvent *event = new InputEventButtonChanged(idx, current & (1 << idx));
-            InputDriverManager::instance()->sendEvent(event);
-        }
-    }
+	for (int idx = 0; idx < 2; idx++) {
+		if (changed & (1 << idx)) {
+			InputEvent *event = new InputEventButtonChanged(idx, current & (1 << idx));
+			InputDriverManager::instance()->sendEvent(event);
+		}
+	}
 
-    buttons = current;
+	buttons = current;
 }
 
-void HidApiInputDriver::hidapi_input(hid_device* hid_dev)
+void HidApiInputDriver::hidapi_input(hid_device *hid_dev)
 {
-    unsigned char buf[BUFLEN];
-    unsigned int len;
-    while ((len = hid_read(hid_dev, buf, BUFLEN)) > 0) {
-        (this->*(dev->axis_decoder))(buf, len);
-        (this->*(dev->button_decoder))(buf, len);
-    }
-    hid_close(hid_dev);
+	unsigned char buf[BUFLEN];
+	unsigned int len;
+	while ((len = hid_read(hid_dev, buf, BUFLEN)) > 0) {
+		(this->*(dev->axis_decoder))(buf, len);
+		(this->*(dev->button_decoder))(buf, len);
+	}
+	hid_close(hid_dev);
 }
 
 bool HidApiInputDriver::open()
 {
-    if (hid_init() < 0) {
-        PRINTD("Can't hid_init().\n");
-        return false;
-    }
+	if (hid_init() < 0) {
+		PRINTD("Can't hid_init().\n");
+		return false;
+	}
 
-    for (int idx = 0;device_ids[idx].name != NULL;idx++) {
-        hid_dev = hid_open(device_ids[idx].vendor_id, device_ids[idx].product_id, NULL);
-        if (hid_dev != NULL) {
-            dev = &device_ids[idx];
-            std::stringstream sstream;
-            sstream << std::setfill('0') << std::setw(4) << std::hex
-                << "HidApiInputDriver ("
-                << dev->vendor_id << ":" << dev->product_id
-                 << " - " << dev->name
-                << ")";
-            name = sstream.str();
-            start();
-            return true;
-        }
-    }
-    return false;
+	for (int idx = 0; device_ids[idx].name != NULL; idx++) {
+		hid_dev = hid_open(device_ids[idx].vendor_id, device_ids[idx].product_id, NULL);
+		if (hid_dev != NULL) {
+			dev = &device_ids[idx];
+			std::stringstream sstream;
+			sstream << std::setfill('0') << std::setw(4) << std::hex << "HidApiInputDriver ("
+							<< dev->vendor_id << ":" << dev->product_id << " - " << dev->name << ")";
+			name = sstream.str();
+			start();
+			return true;
+		}
+	}
+	return false;
 }
 
-void HidApiInputDriver::close()
-{
+void HidApiInputDriver::close() {}
 
-}
-
-const std::string & HidApiInputDriver::get_name() const
+const std::string &HidApiInputDriver::get_name() const
 {
-    return name;
+	return name;
 }

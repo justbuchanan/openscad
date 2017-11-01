@@ -8,8 +8,8 @@
 #include "localscope.h"
 #include "exceptions.h"
 
-EvalContext::EvalContext(const Context *parent, 
-												 const AssignmentList &args, const class LocalScope *const scope)
+EvalContext::EvalContext(const Context *parent, const AssignmentList &args,
+												 const class LocalScope *const scope)
 	: Context(parent), eval_arguments(args), scope(scope)
 {
 }
@@ -32,24 +32,25 @@ ValuePtr EvalContext::getArgValue(size_t i, const Context *ctx) const
 }
 
 /*!
-  Resolves arguments specified by evalctx, using args to lookup positional arguments.
-  Returns an AssignmentMap (string -> Expression*)
+	Resolves arguments specified by evalctx, using args to lookup positional arguments.
+	Returns an AssignmentMap (string -> Expression*)
 */
 AssignmentMap EvalContext::resolveArguments(const AssignmentList &args) const
 {
-  AssignmentMap resolvedArgs;
-  size_t posarg = 0;
-  // Iterate over positional args
-  for (size_t i=0; i<this->numArgs(); i++) {
-    const auto &name = this->getArgName(i); // name is optional
-    const auto expr = this->getArgs()[i].expr.get();
-    if (!name.empty()) {
-      resolvedArgs[name] = expr;
-    }
-    // If positional, find name of arg with this position
-    else if (posarg < args.size()) resolvedArgs[args[posarg++].name] = expr;
-  }
-  return resolvedArgs;
+	AssignmentMap resolvedArgs;
+	size_t posarg = 0;
+	// Iterate over positional args
+	for (size_t i = 0; i < this->numArgs(); i++) {
+		const auto &name = this->getArgName(i); // name is optional
+		const auto expr = this->getArgs()[i].expr.get();
+		if (!name.empty()) {
+			resolvedArgs[name] = expr;
+		}
+		// If positional, find name of arg with this position
+		else if (posarg < args.size())
+			resolvedArgs[args[posarg++].name] = expr;
+	}
+	return resolvedArgs;
 }
 
 size_t EvalContext::numChildren() const
@@ -59,7 +60,7 @@ size_t EvalContext::numChildren() const
 
 ModuleInstantiation *EvalContext::getChild(size_t i) const
 {
-	return this->scope ? this->scope->children[i] : nullptr; 
+	return this->scope ? this->scope->children[i] : nullptr;
 }
 
 void EvalContext::assignTo(Context &target) const
@@ -68,7 +69,8 @@ void EvalContext::assignTo(Context &target) const
 		ValuePtr v;
 		if (assignment.expr) v = assignment.expr->evaluate(&target);
 		if (target.has_local_variable(assignment.name)) {
-			PRINTB("WARNING: Ignoring duplicate variable assignment %s = %s", assignment.name % v->toString());
+			PRINTB("WARNING: Ignoring duplicate variable assignment %s = %s",
+						 assignment.name % v->toString());
 		} else {
 			target.set_variable(assignment.name, v);
 		}
@@ -91,26 +93,27 @@ std::string EvalContext::dump(const AbstractModule *mod, const ModuleInstantiati
 {
 	std::stringstream s;
 	if (inst)
-		s << boost::format("EvalContext %p (%p) for %s inst (%p)") % this % this->parent % inst->name() % inst;
+		s << boost::format("EvalContext %p (%p) for %s inst (%p)") % this % this->parent %
+						 inst->name() % inst;
 	else
 		s << boost::format("Context: %p (%p)") % this % this->parent;
 	s << boost::format("  document path: %s") % this->document_path;
 
 	s << boost::format("  eval args:");
-	for (size_t i=0;i<this->eval_arguments.size();i++) {
+	for (size_t i = 0; i < this->eval_arguments.size(); i++) {
 		s << boost::format("    %s = %s") % this->eval_arguments[i].name % this->eval_arguments[i].expr;
 	}
 	if (this->scope && this->scope->children.size() > 0) {
 		s << boost::format("    children:");
-		for(const auto &ch : this->scope->children) {
+		for (const auto &ch : this->scope->children) {
 			s << boost::format("      %s") % ch->name();
 		}
 	}
 	if (mod) {
-		const UserModule *m = dynamic_cast<const UserModule*>(mod);
+		const UserModule *m = dynamic_cast<const UserModule *>(mod);
 		if (m) {
 			s << boost::format("  module args:");
-			for(const auto &arg : m->definition_arguments) {
+			for (const auto &arg : m->definition_arguments) {
 				s << boost::format("    %s = %s") % arg.name % *(variables[arg.name]);
 			}
 		}
@@ -118,4 +121,3 @@ std::string EvalContext::dump(const AbstractModule *mod, const ModuleInstantiati
 	return s.str();
 }
 #endif
-

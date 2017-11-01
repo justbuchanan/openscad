@@ -30,17 +30,17 @@
 
 class SpaceNavInputDriver : public InputDriver
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    SpaceNavInputDriver();
-    virtual ~SpaceNavInputDriver();
-    virtual void run();
-    virtual bool open();
-    virtual void close();
+	SpaceNavInputDriver();
+	virtual ~SpaceNavInputDriver();
+	virtual void run();
+	virtual bool open();
+	virtual void close();
 
-    virtual const std::string & get_name() const;
+	virtual const std::string &get_name() const;
 
 private:
-    bool spnav_input();
+	bool spnav_input();
 };

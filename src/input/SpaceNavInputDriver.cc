@@ -35,22 +35,16 @@
 #include <spnav.h>
 #include <unistd.h>
 
-SpaceNavInputDriver::SpaceNavInputDriver()
-{
+SpaceNavInputDriver::SpaceNavInputDriver() {}
 
-}
-
-SpaceNavInputDriver::~SpaceNavInputDriver()
-{
-
-}
+SpaceNavInputDriver::~SpaceNavInputDriver() {}
 
 void SpaceNavInputDriver::run()
 {
-    while (spnav_input()) {
-        QThread::msleep(20);
-        spnav_remove_events(SPNAV_EVENT_MOTION);
-    }
+	while (spnav_input()) {
+		QThread::msleep(20);
+		spnav_remove_events(SPNAV_EVENT_MOTION);
+	}
 }
 
 /*
@@ -60,63 +54,98 @@ void SpaceNavInputDriver::run()
  */
 bool SpaceNavInputDriver::spnav_input(void)
 {
-    spnav_event ev;
+	spnav_event ev;
 
-    if (spnav_wait_event(&ev) == 0) {
-        return false;
-    }
+	if (spnav_wait_event(&ev) == 0) {
+		return false;
+	}
 
-    do {
-        if (ev.type == SPNAV_EVENT_MOTION) {
-            if (true) {
-                // dominant axis only
-                int m=ev.motion.x;
-                if (abs(m) < abs(ev.motion.y)) m=ev.motion.y;
-                if (abs(m) < abs(ev.motion.z)) m=ev.motion.z;
-                if (abs(m) < abs(ev.motion.rx)) m=ev.motion.rx;
-                if (abs(m) < abs(ev.motion.ry)) m=ev.motion.ry;
-                if (abs(m) < abs(ev.motion.rz)) m=ev.motion.rz;
+	do {
+		if (ev.type == SPNAV_EVENT_MOTION) {
+			if (true) {
+				// dominant axis only
+				int m = ev.motion.x;
+				if (abs(m) < abs(ev.motion.y)) m = ev.motion.y;
+				if (abs(m) < abs(ev.motion.z)) m = ev.motion.z;
+				if (abs(m) < abs(ev.motion.rx)) m = ev.motion.rx;
+				if (abs(m) < abs(ev.motion.ry)) m = ev.motion.ry;
+				if (abs(m) < abs(ev.motion.rz)) m = ev.motion.rz;
 
-                if (ev.motion.x == m) {                ev.motion.y=0; ev.motion.z=0; ev.motion.rx=0; ev.motion.ry=0; ev.motion.rz=0; }
-                if (ev.motion.y == m) { ev.motion.x=0;                ev.motion.z=0; ev.motion.rx=0; ev.motion.ry=0; ev.motion.rz=0; }
-                if (ev.motion.z == m) { ev.motion.x=0; ev.motion.y=0;                ev.motion.rx=0; ev.motion.ry=0; ev.motion.rz=0; }
-                if (ev.motion.rx== m) { ev.motion.x=0; ev.motion.y=0; ev.motion.z=0;                 ev.motion.ry=0; ev.motion.rz=0; }
-                if (ev.motion.ry== m) { ev.motion.x=0; ev.motion.y=0; ev.motion.z=0; ev.motion.rx=0;                 ev.motion.rz=0; }
-                if (ev.motion.rz== m) { ev.motion.x=0; ev.motion.y=0; ev.motion.z=0; ev.motion.rx=0; ev.motion.ry=0;                 }
-            }
+				if (ev.motion.x == m) {
+					ev.motion.y = 0;
+					ev.motion.z = 0;
+					ev.motion.rx = 0;
+					ev.motion.ry = 0;
+					ev.motion.rz = 0;
+				}
+				if (ev.motion.y == m) {
+					ev.motion.x = 0;
+					ev.motion.z = 0;
+					ev.motion.rx = 0;
+					ev.motion.ry = 0;
+					ev.motion.rz = 0;
+				}
+				if (ev.motion.z == m) {
+					ev.motion.x = 0;
+					ev.motion.y = 0;
+					ev.motion.rx = 0;
+					ev.motion.ry = 0;
+					ev.motion.rz = 0;
+				}
+				if (ev.motion.rx == m) {
+					ev.motion.x = 0;
+					ev.motion.y = 0;
+					ev.motion.z = 0;
+					ev.motion.ry = 0;
+					ev.motion.rz = 0;
+				}
+				if (ev.motion.ry == m) {
+					ev.motion.x = 0;
+					ev.motion.y = 0;
+					ev.motion.z = 0;
+					ev.motion.rx = 0;
+					ev.motion.rz = 0;
+				}
+				if (ev.motion.rz == m) {
+					ev.motion.x = 0;
+					ev.motion.y = 0;
+					ev.motion.z = 0;
+					ev.motion.rx = 0;
+					ev.motion.ry = 0;
+				}
+			}
 
-            if (ev.motion.x != 0 || ev.motion.y != 0 || ev.motion.z != 0) {
-                InputEvent *event = new InputEventTranslate(0.1 * ev.motion.x, 0.1 * ev.motion.z, 0.1 * ev.motion.y);
-                InputDriverManager::instance()->sendEvent(event);
-            }
-            if (ev.motion.rx != 0 || ev.motion.ry != 0 || ev.motion.rz != 0) {
-                InputEvent *event = new InputEventRotate(0.01 * ev.motion.rx, 0.01 * ev.motion.rz, 0.01 * ev.motion.ry);
-                InputDriverManager::instance()->sendEvent(event);
-            }
-        } else if (ev.type == SPNAV_EVENT_BUTTON) {
-            InputEvent *event = new InputEventButtonChanged(ev.button.bnum, ev.button.press);
-            InputDriverManager::instance()->sendEvent(event);
-        }
-    } while (spnav_poll_event(&ev));
-    return true;
+			if (ev.motion.x != 0 || ev.motion.y != 0 || ev.motion.z != 0) {
+				InputEvent *event =
+						new InputEventTranslate(0.1 * ev.motion.x, 0.1 * ev.motion.z, 0.1 * ev.motion.y);
+				InputDriverManager::instance()->sendEvent(event);
+			}
+			if (ev.motion.rx != 0 || ev.motion.ry != 0 || ev.motion.rz != 0) {
+				InputEvent *event =
+						new InputEventRotate(0.01 * ev.motion.rx, 0.01 * ev.motion.rz, 0.01 * ev.motion.ry);
+				InputDriverManager::instance()->sendEvent(event);
+			}
+		} else if (ev.type == SPNAV_EVENT_BUTTON) {
+			InputEvent *event = new InputEventButtonChanged(ev.button.bnum, ev.button.press);
+			InputDriverManager::instance()->sendEvent(event);
+		}
+	} while (spnav_poll_event(&ev));
+	return true;
 }
 
 bool SpaceNavInputDriver::open()
 {
-    if (spnav_open() < 0) {
-        return false;
-    }
-    start();
-    return true;
+	if (spnav_open() < 0) {
+		return false;
+	}
+	start();
+	return true;
 }
 
-void SpaceNavInputDriver::close()
-{
+void SpaceNavInputDriver::close() {}
 
-}
-
-const std::string & SpaceNavInputDriver::get_name() const
+const std::string &SpaceNavInputDriver::get_name() const
 {
-    static std::string name = "SpaceNavInputDriver";
-    return name;
+	static std::string name = "SpaceNavInputDriver";
+	return name;
 }

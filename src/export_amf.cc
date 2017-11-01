@@ -34,20 +34,20 @@
 #include "cgal.h"
 #include "cgalutils.h"
 
-#define QUOTE(x__) # x__
+#define QUOTE(x__) #x__
 #define QUOTED(x__) QUOTE(x__)
 
 struct triangle {
-    std::string vs1;
-    std::string vs2;
-    std::string vs3;
+	std::string vs1;
+	std::string vs2;
+	std::string vs3;
 };
 
 static int objectid;
 
 /*!
-    Saves the current 3D CGAL Nef polyhedron as AMF to the given file.
-    The file must be open.
+		Saves the current 3D CGAL Nef polyhedron as AMF to the given file.
+		The file must be open.
  */
 static void append_amf(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
 {
@@ -120,7 +120,7 @@ static void append_amf(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
 		for (size_t i = 0; i < vertices.size(); i++) {
 			std::string s = vertices[i];
 			output << "    <vertex><coordinates>\r\n";
-			char* chrs = new char[s.length() + 1];
+			char *chrs = new char[s.length() + 1];
 			strcpy(chrs, s.c_str());
 			std::string coords = strtok(chrs, " ");
 			output << "     <x>" << coords << "</x>\r\n";
@@ -158,14 +158,12 @@ static void append_amf(const shared_ptr<const Geometry> &geom, std::ostream &out
 {
 	if (const CGAL_Nef_polyhedron *N = dynamic_cast<const CGAL_Nef_polyhedron *>(geom.get())) {
 		if (!N->isEmpty()) append_amf(*N, output);
-	}
-	else if (const PolySet *ps = dynamic_cast<const PolySet *>(geom.get())) {
+	} else if (const PolySet *ps = dynamic_cast<const PolySet *>(geom.get())) {
 		// FIXME: Implement this without creating a Nef polyhedron
 		CGAL_Nef_polyhedron *N = CGALUtils::createNefPolyhedronFromGeometry(*ps);
 		if (!N->isEmpty()) append_amf(*N, output);
 		delete N;
-	}
-	else if (dynamic_cast<const Polygon2d *>(geom.get())) {
+	} else if (dynamic_cast<const Polygon2d *>(geom.get())) {
 		assert(false && "Unsupported file format");
 	} else {
 		assert(false && "Not implemented");

@@ -21,7 +21,8 @@ void handle_dep(const std::string &filename)
 
 	if (make_command && !fs::exists(filepath)) {
 		std::stringstream buf;
-		buf << make_command << " '" << boost::regex_replace(filename, boost::regex("'"), "'\\''") << "'";
+		buf << make_command << " '" << boost::regex_replace(filename, boost::regex("'"), "'\\''")
+				<< "'";
 		system(buf.str().c_str()); // FIXME: Handle error
 	}
 }
@@ -35,7 +36,7 @@ bool write_deps(const std::string &filename, const std::string &output_file)
 	}
 	fprintf(fp, "%s:", output_file.c_str());
 
-	for(const auto &str : dependencies) {
+	for (const auto &str : dependencies) {
 		fprintf(fp, " \\\n\t%s", str.c_str());
 	}
 	fprintf(fp, "\n");

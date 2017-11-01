@@ -53,19 +53,15 @@ PolySet::PolySet(const Polygon2d &origin) : polygon(origin), dim(2), convex(unkn
 {
 }
 
-PolySet::~PolySet()
-{
-}
+PolySet::~PolySet() {}
 
 std::string PolySet::dump() const
 {
 	std::stringstream out;
 	out << "PolySet:"
-	  << "\n dimensions:" << this->dim
-	  << "\n convexity:" << this->convexity
-	  << "\n num polygons: " << polygons.size()
-			<< "\n num outlines: " << polygon.outlines().size()
-	  << "\n polygons data:";
+			<< "\n dimensions:" << this->dim << "\n convexity:" << this->convexity
+			<< "\n num polygons: " << polygons.size() << "\n num outlines: " << polygon.outlines().size()
+			<< "\n polygons data:";
 	for (size_t i = 0; i < polygons.size(); i++) {
 		out << "\n  polygon begin:";
 		const Polygon *poly = &polygons[i];
@@ -127,8 +123,8 @@ BoundingBox PolySet::getBoundingBox() const
 {
 	if (this->dirty) {
 		this->bbox.setNull();
-		for(const auto &poly : polygons) {
-			for(const auto &p : poly) {
+		for (const auto &poly : polygons) {
+			for (const auto &p : poly) {
 				this->bbox.extend(p);
 			}
 		}
@@ -140,7 +136,7 @@ BoundingBox PolySet::getBoundingBox() const
 size_t PolySet::memsize() const
 {
 	size_t mem = 0;
-	for(const auto &p : this->polygons) mem += p.size() * sizeof(Vector3d);
+	for (const auto &p : this->polygons) mem += p.size() * sizeof(Vector3d);
 	mem += this->polygon.memsize() - sizeof(this->polygon);
 	mem += sizeof(PolySet);
 	return mem;
@@ -159,8 +155,8 @@ void PolySet::transform(const Transform3d &mat)
 	// If mirroring transform, flip faces to avoid the object to end up being inside-out
 	bool mirrored = mat.matrix().determinant() < 0;
 
-	for(auto &p : this->polygons){
-		for(auto &v : p) {
+	for (auto &p : this->polygons) {
+		for (auto &v : p) {
 			v = mat * v;
 		}
 		if (mirrored) std::reverse(p.begin(), p.end());
@@ -168,35 +164,34 @@ void PolySet::transform(const Transform3d &mat)
 	this->dirty = true;
 }
 
-bool PolySet::is_convex() const {
+bool PolySet::is_convex() const
+{
 	if (convex || this->isEmpty()) return true;
 	if (!convex) return false;
 	return PolysetUtils::is_approximately_convex(*this);
 }
 
-void PolySet::resize(const Vector3d &newsize, const Eigen::Matrix<bool,3,1> &autosize)
+void PolySet::resize(const Vector3d &newsize, const Eigen::Matrix<bool, 3, 1> &autosize)
 {
 	BoundingBox bbox = this->getBoundingBox();
 
-  // Find largest dimension
+	// Find largest dimension
 	int maxdim = 0;
-	for (int i=1;i<3;i++) if (newsize[i] > newsize[maxdim]) maxdim = i;
+	for (int i = 1; i < 3; i++)
+		if (newsize[i] > newsize[maxdim]) maxdim = i;
 
 	// Default scale (scale with 1 if the new size is 0)
-	Vector3d scale(1,1,1);
-	for (int i=0;i<3;i++) if (newsize[i] > 0) scale[i] = newsize[i] / bbox.sizes()[i];
+	Vector3d scale(1, 1, 1);
+	for (int i = 0; i < 3; i++)
+		if (newsize[i] > 0) scale[i] = newsize[i] / bbox.sizes()[i];
 
-  // Autoscale where applicable 
+	// Autoscale where applicable
 	double autoscale = scale[maxdim];
 	Vector3d newscale;
-	for (int i=0;i<3;i++) newscale[i] = !autosize[i] || (newsize[i] > 0) ? scale[i] : autoscale;
-	
+	for (int i = 0; i < 3; i++) newscale[i] = !autosize[i] || (newsize[i] > 0) ? scale[i] : autoscale;
+
 	Transform3d t;
-	t.matrix() << 
-    newscale[0], 0, 0, 0,
-    0, newscale[1], 0, 0,
-    0, 0, newscale[2], 0,
-    0, 0, 0, 1;
+	t.matrix() << newscale[0], 0, 0, 0, 0, newscale[1], 0, 0, 0, 0, newscale[2], 0, 0, 0, 0, 1;
 
 	this->transform(t);
 }
@@ -210,15 +205,16 @@ void PolySet::quantizeVertices()
 {
 	Grid3d<int> grid(GRID_FINE);
 	std::vector<int> indices; // Vertex indices in one polygon
-	for (std::vector<Polygon>::iterator iter = this->polygons.begin(); iter != this->polygons.end();) {
+	for (std::vector<Polygon>::iterator iter = this->polygons.begin();
+			 iter != this->polygons.end();) {
 		Polygon &p = *iter;
 		indices.resize(p.size());
 		// Quantize all vertices. Build index list
-		for (unsigned int i=0;i<p.size();i++) indices[i] = grid.align(p[i]);
+		for (unsigned int i = 0; i < p.size(); i++) indices[i] = grid.align(p[i]);
 		// Remove consequtive duplicate vertices
 		Polygon::iterator currp = p.begin();
-		for (unsigned int i=0;i<indices.size();i++) {
-			if (indices[i] != indices[(i+1)%indices.size()]) {
+		for (unsigned int i = 0; i < indices.size(); i++) {
+			if (indices[i] != indices[(i + 1) % indices.size()]) {
 				(*currp++) = p[i];
 			}
 		}
@@ -226,10 +222,8 @@ void PolySet::quantizeVertices()
 		if (p.size() < 3) {
 			PRINTD("Removing collapsed polygon due to quantizing");
 			this->polygons.erase(iter);
-		}
-		else {
+		} else {
 			iter++;
 		}
 	}
 }
-

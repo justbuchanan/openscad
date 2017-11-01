@@ -4,9 +4,7 @@
 
 CGALCache *CGALCache::inst = nullptr;
 
-CGALCache::CGALCache(size_t limit) : cache(limit)
-{
-}
+CGALCache::CGALCache(size_t limit) : cache(limit) {}
 
 shared_ptr<const CGAL_Nef_polyhedron> CGALCache::get(const std::string &id) const
 {
@@ -21,8 +19,10 @@ bool CGALCache::insert(const std::string &id, const shared_ptr<const CGAL_Nef_po
 {
 	auto inserted = this->cache.insert(id, new cache_entry(N), N ? N->memsize() : 0);
 #ifdef DEBUG
-	if (inserted) PRINTB("CGAL Cache insert: %s (%d bytes)", id.substr(0, 40) % (N ? N->memsize() : 0));
-	else PRINTB("CGAL Cache insert failed: %s (%d bytes)", id.substr(0, 40) % (N ? N->memsize() : 0));
+	if (inserted)
+		PRINTB("CGAL Cache insert: %s (%d bytes)", id.substr(0, 40) % (N ? N->memsize() : 0));
+	else
+		PRINTB("CGAL Cache insert failed: %s (%d bytes)", id.substr(0, 40) % (N ? N->memsize() : 0));
 #endif
 	return inserted;
 }
@@ -48,8 +48,7 @@ void CGALCache::print()
 	PRINTB("CGAL cache size in bytes: %d", this->cache.totalCost());
 }
 
-CGALCache::cache_entry::cache_entry(const shared_ptr<const CGAL_Nef_polyhedron> &N)
-	: N(N)
+CGALCache::cache_entry::cache_entry(const shared_ptr<const CGAL_Nef_polyhedron> &N) : N(N)
 {
 	if (print_messages_stack.size() > 0) this->msg = print_messages_stack.back();
 }

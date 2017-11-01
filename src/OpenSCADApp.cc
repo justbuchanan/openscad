@@ -8,7 +8,7 @@
 #include <iostream>
 #include <boost/foreach.hpp>
 
-OpenSCADApp::OpenSCADApp(int &argc ,char **argv)
+OpenSCADApp::OpenSCADApp(int &argc, char **argv)
 	: QApplication(argc, argv), fontCacheDialog(nullptr)
 {
 #ifdef Q_OS_MAC
@@ -25,18 +25,19 @@ OpenSCADApp::~OpenSCADApp()
 
 bool OpenSCADApp::notify(QObject *object, QEvent *event)
 {
-	QString msg; 
+	QString msg;
 	try {
 		return QApplication::notify(object, event);
-	}
-	catch (const std::exception &e) {
+	} catch (const std::exception &e) {
 		msg = e.what();
-	}
-	catch (...) {
+	} catch (...) {
 		msg = _("Unknown error");
 	}
 	// This happens when an uncaught exception is thrown in a Qt event handler
-	QMessageBox::critical(nullptr, QString(_("Critical Error")), QString(_("A critical error was caught. The application may have become unstable:\n%1")).arg(QString(msg)));
+	QMessageBox::critical(
+			nullptr, QString(_("Critical Error")),
+			QString(_("A critical error was caught. The application may have become unstable:\n%1"))
+					.arg(QString(msg)));
 	return false;
 }
 
@@ -60,7 +61,8 @@ void OpenSCADApp::requestOpenFile(const QString &filename)
 void OpenSCADApp::showFontCacheDialog()
 {
 	if (!this->fontCacheDialog) this->fontCacheDialog = new QProgressDialog();
-	this->fontCacheDialog->setLabelText(_("Fontconfig needs to update its font cache.\nThis can take up to a couple of minutes."));
+	this->fontCacheDialog->setLabelText(
+			_("Fontconfig needs to update its font cache.\nThis can take up to a couple of minutes."));
 	this->fontCacheDialog->setMinimum(0);
 	this->fontCacheDialog->setMaximum(0);
 	this->fontCacheDialog->setCancelButton(0);

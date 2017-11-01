@@ -8,7 +8,8 @@
 #include <QWidget>
 #include <vector>
 
-class GroupWidget : public QWidget {
+class GroupWidget : public QWidget
+{
 	Q_OBJECT
 private:
 	QGridLayout mainLayout;
@@ -18,10 +19,12 @@ private:
 	QScrollArea contentArea;
 	int animationDuration;
 	bool *show;
+
 public:
-	explicit GroupWidget(bool &show,const QString & title = "", const int animationDuration = 0, QWidget *parent = 0);
-	void setContentLayout(QLayout & contentLayout);
-																								
+	explicit GroupWidget(bool &show, const QString &title = "", const int animationDuration = 0,
+											 QWidget *parent = 0);
+	void setContentLayout(QLayout &contentLayout);
+
 private slots:
 	void onclicked(bool);
 };

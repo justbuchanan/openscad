@@ -32,54 +32,54 @@
 
 class InputEventMapper : public QObject, public InputEventHandler
 {
-    Q_OBJECT
+	Q_OBJECT
 
 private:
-    const static int max_axis = 9;
-    const static int max_buttons = 16;
+	const static int max_axis = 9;
+	const static int max_buttons = 16;
 
-    QTimer *timer;
-    double axisRawValue[max_axis];
-    double axisTrimValue[max_axis];
-    double axisDeadzone[max_axis];
-    QString actions[max_buttons];
-    int translate[6];
-    int rotate[3];
-    int zoom;
-    volatile bool stopRequest;
+	QTimer *timer;
+	double axisRawValue[max_axis];
+	double axisTrimValue[max_axis];
+	double axisDeadzone[max_axis];
+	QString actions[max_buttons];
+	int translate[6];
+	int rotate[3];
+	int zoom;
+	volatile bool stopRequest;
 
-    double scale(double val);
-    double getAxisValue(int config);
-    int parseSettingValue(const std::string val);
-    bool button_state[max_buttons];
-    bool button_state_last[max_buttons];
-    
-    static InputEventMapper *self;
+	double scale(double val);
+	double getAxisValue(int config);
+	int parseSettingValue(const std::string val);
+	bool button_state[max_buttons];
+	bool button_state_last[max_buttons];
+
+	static InputEventMapper *self;
 
 public:
-    InputEventMapper();
-    virtual ~InputEventMapper();
+	InputEventMapper();
+	virtual ~InputEventMapper();
 
-    void stop();
+	void stop();
 
-    void onAxisChanged(class InputEventAxisChanged *event);
-    void onButtonChanged(class InputEventButtonChanged *event);
+	void onAxisChanged(class InputEventAxisChanged *event);
+	void onButtonChanged(class InputEventButtonChanged *event);
 
-    void onTranslateEvent(class InputEventTranslate *event);
-    void onRotateEvent(class InputEventRotate *event);
-    void onActionEvent(class InputEventAction *event);
-    void onZoomEvent(class InputEventZoom *event);
+	void onTranslateEvent(class InputEventTranslate *event);
+	void onRotateEvent(class InputEventRotate *event);
+	void onActionEvent(class InputEventAction *event);
+	void onZoomEvent(class InputEventZoom *event);
 
-    void onInputMappingUpdated();
-    void onInputCalibrationUpdated();
-    
-    void onAxisAutoTrim();
-    void onAxisTrimReset();
+	void onInputMappingUpdated();
+	void onInputCalibrationUpdated();
 
-    static InputEventMapper * instance();
-    static int getMaxButtons();
-    static int getMaxAxis();
+	void onAxisAutoTrim();
+	void onAxisTrimReset();
+
+	static InputEventMapper *instance();
+	static int getMaxButtons();
+	static int getMaxAxis();
 
 private slots:
-    void onTimer();
+	void onTimer();
 };

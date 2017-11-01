@@ -43,8 +43,8 @@ typedef CGAL::Polygon_with_holes_2<CGAL_ExactKernel2> CGAL_Poly2h;
 
 typedef CGAL::Gmpq NT3;
 typedef CGAL::Cartesian<NT3> CGAL_Kernel3;
-//typedef CGAL::Exact_predicates_exact_constructions_kernel::FT NT3;
-//typedef CGAL::Exact_predicates_exact_constructions_kernel CGAL_Kernel3;
+// typedef CGAL::Exact_predicates_exact_constructions_kernel::FT NT3;
+// typedef CGAL::Exact_predicates_exact_constructions_kernel CGAL_Kernel3;
 typedef CGAL::Nef_polyhedron_3<CGAL_Kernel3> CGAL_Nef_polyhedron3;
 typedef CGAL_Nef_polyhedron3::Aff_transformation_3 CGAL_Aff_transformation;
 
@@ -59,7 +59,6 @@ typedef std::vector<CGAL_Point_3> CGAL_Polygon_3;
 // CGAL_Kernel2::Point. Hence the suffix 'e'
 typedef CGAL_Nef_polyhedron2::Explorer::Point CGAL_Point_2e;
 typedef CGAL::Iso_rectangle_2<CGAL::Simple_cartesian<NT2>> CGAL_Iso_rectangle_2e;
-
 
 #ifdef PREV_NDEBUG
 #define NDEBUG PREV_NDEBUG

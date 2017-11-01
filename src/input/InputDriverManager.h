@@ -35,49 +35,49 @@
 
 class InputDriverManager : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 private:
-    typedef std::list<InputDriver *> drivers_t;
+	typedef std::list<InputDriver *> drivers_t;
 
-    drivers_t drivers;
+	drivers_t drivers;
 
-    QStringList actions;
+	QStringList actions;
 
-    InputEventMapper mapper;
+	InputEventMapper mapper;
 
-    MainWindow *currentWindow;
+	MainWindow *currentWindow;
 
-    QTimer *timer;
+	QTimer *timer;
 
-    volatile bool stopRequest;
+	volatile bool stopRequest;
 
-    static InputDriverManager *self;
+	static InputDriverManager *self;
 
-    void postEvent(InputEvent *event);
+	void postEvent(InputEvent *event);
 
 public:
-    InputDriverManager(void);
-    virtual ~InputDriverManager(void);
+	InputDriverManager(void);
+	virtual ~InputDriverManager(void);
 
-    void sendEvent(InputEvent *event);
+	void sendEvent(InputEvent *event);
 
-    void init();
-    std::string listDrivers();
-    void registerDriver(InputDriver *driver);
-    void unregisterDriver(InputDriver *driver);
-    void closeDrivers();
-    void registerActions(const QList<QAction *> &actions);
+	void init();
+	std::string listDrivers();
+	void registerDriver(InputDriver *driver);
+	void unregisterDriver(InputDriver *driver);
+	void closeDrivers();
+	void registerActions(const QList<QAction *> &actions);
 
-    static InputDriverManager * instance();
+	static InputDriverManager *instance();
 
 public slots:
-    void onInputMappingUpdated();
-    void onInputCalibrationUpdated();
+	void onInputMappingUpdated();
+	void onInputCalibrationUpdated();
 
 private slots:
-    void onTimeout();
-    void doOpen(bool firstOpen);
-    void onFocusChanged(QWidget *, QWidget *);
+	void onTimeout();
+	void doOpen(bool firstOpen);
+	void onFocusChanged(QWidget *, QWidget *);
 
-    friend class InputEventMapper;
+	friend class InputEventMapper;
 };

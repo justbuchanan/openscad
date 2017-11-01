@@ -29,30 +29,30 @@
 
 class DBusInputDriver : public InputDriver
 {
-    Q_OBJECT
+	Q_OBJECT
 
-    bool is_open;
+	bool is_open;
 
-    std::string name;
+	std::string name;
 
 public:
-    DBusInputDriver();
-    virtual ~DBusInputDriver();
-    virtual void run();
-    virtual bool open();
-    virtual void close();
-    virtual bool isOpen();
-    virtual bool openOnce();
+	DBusInputDriver();
+	virtual ~DBusInputDriver();
+	virtual void run();
+	virtual bool open();
+	virtual void close();
+	virtual bool isOpen();
+	virtual bool openOnce();
 
-    virtual const std::string & get_name() const;
+	virtual const std::string &get_name() const;
 
 private slots:
-    void zoom(double zoom);
-    void zoomTo(double zoom);
-    void rotate(double x, double y, double z);
-    void rotateTo(double x, double y, double z);
-    void translate(double x, double y, double z);
-    void translateTo(double x, double y, double z);
-    void action(QString action);
-    void buttonPress(uint idx);
+	void zoom(double zoom);
+	void zoomTo(double zoom);
+	void rotate(double x, double y, double z);
+	void rotateTo(double x, double y, double z);
+	void translate(double x, double y, double z);
+	void translateTo(double x, double y, double z);
+	void action(QString action);
+	void buttonPress(uint idx);
 };

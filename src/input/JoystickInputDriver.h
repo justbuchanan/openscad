@@ -30,18 +30,19 @@
 class JoystickInputDriver : public InputDriver
 {
 public:
-    JoystickInputDriver();
-    virtual ~JoystickInputDriver();
-    virtual void run();
-    virtual bool open();
-    virtual void close();
+	JoystickInputDriver();
+	virtual ~JoystickInputDriver();
+	virtual void run();
+	virtual bool open();
+	virtual void close();
 
-    virtual const std::string & get_name() const;
+	virtual const std::string &get_name() const;
+
 private:
-    int fd;
-    int version;
-    unsigned char axes;
-    unsigned char buttons;
-    char name[1024];
-    volatile bool stopRequest;
+	int fd;
+	int version;
+	unsigned char axes;
+	unsigned char buttons;
+	char name[1024];
+	volatile bool stopRequest;
 };

@@ -13,16 +13,16 @@ class Preferences : public QMainWindow, public Ui::Preferences
 
 public:
 	~Preferences();
-	
+
 	static void create(QStringList colorSchemes);
 	static Preferences *inst();
-	
+
 	QVariant getValue(const QString &key) const;
 	void init();
 	void apply() const;
 	void fireEditorConfigChanged() const;
-	void updateButtonState(int,bool) const;
-	void AxesChanged(int,double) const;
+	void updateButtonState(int, bool) const;
+	void AxesChanged(int, double) const;
 
 public slots:
 	void actionTriggered(class QAction *);
@@ -49,9 +49,9 @@ public slots:
 	void on_editorType_currentIndexChanged(const QString &);
 
 	void on_checkBoxShowWarningsIn3dView_toggled(bool);
-  //
+	//
 	// editor settings
-  //
+	//
 
 	// Indentation
 	void on_checkBoxAutoIndent_toggled(bool);
@@ -62,7 +62,7 @@ public slots:
 	void on_comboBoxTabKeyFunction_activated(int);
 	void on_comboBoxShowWhitespace_activated(int);
 	void on_spinBoxShowWhitespaceSize_valueChanged(int);
-	
+
 	// Line wrap
 	void on_comboBoxLineWrap_activated(int);
 	void on_comboBoxLineWrapIndentationStyle_activated(int);
@@ -76,35 +76,35 @@ public slots:
 	void on_checkBoxEnableLineNumbers_toggled(bool);
 
 	// Input Driver
-        void on_AxisTrim();
-        void on_AxisTrimReset();
-        void on_comboBoxTranslationX_activated(int val);
-        void on_comboBoxTranslationY_activated(int val);
-        void on_comboBoxTranslationZ_activated(int val);
-        void on_comboBoxTranslationXVPRel_activated(int val);
-        void on_comboBoxTranslationYVPRel_activated(int val);
-        void on_comboBoxTranslationZVPRel_activated(int val);
-        void on_comboBoxRotationX_activated(int val);
-        void on_comboBoxRotationY_activated(int val);
-        void on_comboBoxRotationZ_activated(int val);
-        void on_comboBoxZoom_activated(int val);
-        void on_comboBoxButton0_activated(int val);
-        void on_comboBoxButton1_activated(int val);
-        void on_comboBoxButton2_activated(int val);
-        void on_comboBoxButton3_activated(int val);
-        void on_comboBoxButton4_activated(int val);
-        void on_comboBoxButton5_activated(int val);
-        void on_comboBoxButton6_activated(int val);
-        void on_comboBoxButton7_activated(int val);
-        void on_comboBoxButton8_activated(int val);
-        void on_comboBoxButton9_activated(int val);
-        void on_comboBoxButton10_activated(int val);
-        void on_comboBoxButton11_activated(int val);
-        void on_comboBoxButton12_activated(int val);
-        void on_comboBoxButton13_activated(int val);
-        void on_comboBoxButton14_activated(int val);
-        void on_comboBoxButton15_activated(int val);
-        
+	void on_AxisTrim();
+	void on_AxisTrimReset();
+	void on_comboBoxTranslationX_activated(int val);
+	void on_comboBoxTranslationY_activated(int val);
+	void on_comboBoxTranslationZ_activated(int val);
+	void on_comboBoxTranslationXVPRel_activated(int val);
+	void on_comboBoxTranslationYVPRel_activated(int val);
+	void on_comboBoxTranslationZVPRel_activated(int val);
+	void on_comboBoxRotationX_activated(int val);
+	void on_comboBoxRotationY_activated(int val);
+	void on_comboBoxRotationZ_activated(int val);
+	void on_comboBoxZoom_activated(int val);
+	void on_comboBoxButton0_activated(int val);
+	void on_comboBoxButton1_activated(int val);
+	void on_comboBoxButton2_activated(int val);
+	void on_comboBoxButton3_activated(int val);
+	void on_comboBoxButton4_activated(int val);
+	void on_comboBoxButton5_activated(int val);
+	void on_comboBoxButton6_activated(int val);
+	void on_comboBoxButton7_activated(int val);
+	void on_comboBoxButton8_activated(int val);
+	void on_comboBoxButton9_activated(int val);
+	void on_comboBoxButton10_activated(int val);
+	void on_comboBoxButton11_activated(int val);
+	void on_comboBoxButton12_activated(int val);
+	void on_comboBoxButton13_activated(int val);
+	void on_comboBoxButton14_activated(int val);
+	void on_comboBoxButton15_activated(int val);
+
 	void on_doubleSpinBoxDeadzone0_valueChanged(double);
 	void on_doubleSpinBoxDeadzone1_valueChanged(double);
 	void on_doubleSpinBoxDeadzone2_valueChanged(double);
@@ -124,7 +124,7 @@ public slots:
 	void on_doubleSpinBoxTrim6_valueChanged(double);
 	void on_doubleSpinBoxTrim7_valueChanged(double);
 	void on_doubleSpinBoxTrim8_valueChanged(double);
-    
+
 signals:
 	void requestRedraw() const;
 	void updateMdiMode(bool mdi) const;
@@ -136,12 +136,12 @@ signals:
 	void syntaxHighlightChanged(const QString &s) const;
 	void editorTypeChanged(const QString &type);
 	void editorConfigChanged() const;
-	void ExperimentalChanged() const ;
-        void inputMappingChanged() const;
-        void inputCalibrationChanged() const;
+	void ExperimentalChanged() const;
+	void inputMappingChanged() const;
+	void inputCalibrationChanged() const;
 
 private:
-    Preferences(QWidget *parent = nullptr);
+	Preferences(QWidget *parent = nullptr);
 	void keyPressEvent(QKeyEvent *e);
 	void updateGUI();
 	void removeDefaultSettings();
@@ -150,14 +150,14 @@ private:
 	void addPrefPage(QActionGroup *group, QAction *action, QWidget *widget);
 
 	/** Initialize combobox list values from the settings range values */
-	void initComboBox(QComboBox *comboBox, const Settings::SettingsEntry& entry);
+	void initComboBox(QComboBox *comboBox, const Settings::SettingsEntry &entry);
 	/** Initialize spinbox min/max values from the settings range values */
-	void initSpinBox(QSpinBox *spinBox, const Settings::SettingsEntry& entry);
-	void initDoubleSpinBox(QDoubleSpinBox *spinBox, const Settings::SettingsEntry& entry);
+	void initSpinBox(QSpinBox *spinBox, const Settings::SettingsEntry &entry);
+	void initDoubleSpinBox(QDoubleSpinBox *spinBox, const Settings::SettingsEntry &entry);
 	/** Update combobox from current settings */
-	void updateComboBox(QComboBox *comboBox, const Settings::SettingsEntry& entry);
+	void updateComboBox(QComboBox *comboBox, const Settings::SettingsEntry &entry);
 	/** Set value from combobox to settings */
-	void applyComboBox(QComboBox *comboBox, int val, Settings::SettingsEntry& entry);
+	void applyComboBox(QComboBox *comboBox, int val, Settings::SettingsEntry &entry);
 
 	QSettings::SettingsMap defaultmap;
 	QHash<const QAction *, QWidget *> prefPages;
@@ -165,6 +165,6 @@ private:
 	static Preferences *instance;
 	static const char *featurePropertyName;
 
-	const QString EmptyString= QString("");
-	const QString ActiveStyleString= QString("font-weight: bold; color: red");
+	const QString EmptyString = QString("");
+	const QString ActiveStyleString = QString("font-weight: bold; color: red");
 };

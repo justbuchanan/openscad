@@ -6,10 +6,14 @@
 
 class GeometryCache
 {
-public:	
-	GeometryCache(size_t memorylimit = 100*1024*1024) : cache(memorylimit) {}
+public:
+	GeometryCache(size_t memorylimit = 100 * 1024 * 1024) : cache(memorylimit) {}
 
-	static GeometryCache *instance() { if (!inst) inst = new GeometryCache; return inst; }
+	static GeometryCache *instance()
+	{
+		if (!inst) inst = new GeometryCache;
+		return inst;
+	}
 
 	bool contains(const std::string &id) const { return this->cache.contains(id); }
 	shared_ptr<const class Geometry> get(const std::string &id) const;
@@ -26,7 +30,7 @@ private:
 		shared_ptr<const class Geometry> geom;
 		std::string msg;
 		cache_entry(const shared_ptr<const Geometry> &geom);
-		~cache_entry() { }
+		~cache_entry() {}
 	};
 
 	Cache<std::string, cache_entry> cache;

@@ -27,10 +27,8 @@ void NodeDumper::handleIndent(const State &state)
 {
 	if (state.isPrefix()) {
 		this->currindent += "\t";
-	}
-	else if (state.isPostfix()) {
-		this->currindent.erase((this->currindent.length() >= 1) ? 
-													 this->currindent.length() - 1 : 0);
+	} else if (state.isPostfix()) {
+		this->currindent.erase((this->currindent.length() >= 1) ? this->currindent.length() - 1 : 0);
 	}
 }
 
@@ -47,8 +45,7 @@ std::string NodeDumper::dumpChildBlock(const AbstractNode &node)
 		const auto &chstr = dumpChildren(node);
 		if (!chstr.empty()) dump << chstr << "\n";
 		dump << this->currindent << "}";
-	}
-	else {
+	} else {
 		dump << ";";
 	}
 	return dump.str();
@@ -119,8 +116,7 @@ void NodeDumper::handleVisitedChildren(const State &state, const AbstractNode &n
 		this->visitedchildren.erase(node.index());
 		if (!state.parent()) {
 			this->root = &node;
-		}
-		else {
+		} else {
 			this->visitedchildren[state.parent()->index()].push_back(&node);
 		}
 	}

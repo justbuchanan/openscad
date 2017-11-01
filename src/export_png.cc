@@ -26,7 +26,7 @@ bool export_png(const shared_ptr<const Geometry> &root_geom, Camera &cam, std::o
 	try {
 		glview = new OffscreenView(cam.pixel_width, cam.pixel_height);
 	} catch (int error) {
-		fprintf(stderr,"Can't create OpenGL OffscreenView. Code: %i.\n", error);
+		fprintf(stderr, "Can't create OpenGL OffscreenView. Code: %i.\n", error);
 		return false;
 	}
 	CGALRenderer cgalRenderer(root_geom);
@@ -50,7 +50,8 @@ enum class Previewer { OPENCSG, THROWNTOGETHER } previewer;
 #endif
 #include "ThrownTogetherRenderer.h"
 
-bool export_png_preview_common(Tree &tree, Camera &cam, std::ostream &output, Previewer previewer = Previewer::OPENCSG)
+bool export_png_preview_common(Tree &tree, Camera &cam, std::ostream &output,
+															 Previewer previewer = Previewer::OPENCSG)
 {
 	PRINTD("export_png_preview_common");
 	CsgInfo csgInfo = CsgInfo();
@@ -60,14 +61,16 @@ bool export_png_preview_common(Tree &tree, Camera &cam, std::ostream &output, Pr
 	try {
 		glview = new OffscreenView(cam.pixel_width, cam.pixel_height);
 	} catch (int error) {
-		fprintf(stderr,"Can't create OpenGL OffscreenView. Code: %i.\n", error);
+		fprintf(stderr, "Can't create OpenGL OffscreenView. Code: %i.\n", error);
 		return false;
 	}
 
 #ifdef ENABLE_OPENCSG
-	OpenCSGRenderer openCSGRenderer(csgInfo.root_products, csgInfo.highlights_products, csgInfo.background_products, glview->shaderinfo);
+	OpenCSGRenderer openCSGRenderer(csgInfo.root_products, csgInfo.highlights_products,
+																	csgInfo.background_products, glview->shaderinfo);
 #endif
-	ThrownTogetherRenderer thrownTogetherRenderer(csgInfo.root_products, csgInfo.highlights_products, csgInfo.background_products);
+	ThrownTogetherRenderer thrownTogetherRenderer(csgInfo.root_products, csgInfo.highlights_products,
+																								csgInfo.background_products);
 
 #ifdef ENABLE_OPENCSG
 	if (previewer == Previewer::OPENCSG)
@@ -95,7 +98,7 @@ bool export_png_with_opencsg(Tree &tree, Camera &cam, std::ostream &output)
 #ifdef ENABLE_OPENCSG
 	return export_png_preview_common(tree, cam, output, Previewer::OPENCSG);
 #else
-	fprintf(stderr,"This openscad was built without OpenCSG support\n");
+	fprintf(stderr, "This openscad was built without OpenCSG support\n");
 	return false;
 #endif
 }

@@ -17,7 +17,6 @@ void AutoUpdater::init()
 		this->connect(this->updateAction, SIGNAL(triggered()), this, SLOT(checkForUpdates()));
 
 		this->updateMenu->addAction(this->updateAction);
-
 	}
 #endif
 }

@@ -32,35 +32,35 @@
 
 class HidApiInputDriver : public InputDriver
 {
-    Q_OBJECT
+	Q_OBJECT
 
-    std::string name;
-    unsigned int buttons;
-    hid_device* hid_dev;
-    const struct device_id *dev;
+	std::string name;
+	unsigned int buttons;
+	hid_device *hid_dev;
+	const struct device_id *dev;
 
 public:
-    HidApiInputDriver();
-    virtual ~HidApiInputDriver();
-    virtual void run();
-    virtual bool open();
-    virtual void close();
+	HidApiInputDriver();
+	virtual ~HidApiInputDriver();
+	virtual void run();
+	virtual bool open();
+	virtual void close();
 
-    virtual const std::string & get_name() const;
+	virtual const std::string &get_name() const;
 
-    void hidapi_decode_axis1(const unsigned char *buf, unsigned int len);
-    void hidapi_decode_button1(const unsigned char *buf, unsigned int len);
-    void hidapi_decode_axis2(const unsigned char *buf, unsigned int len);
-    void hidapi_decode_button2(const unsigned char *buf, unsigned int len);
+	void hidapi_decode_axis1(const unsigned char *buf, unsigned int len);
+	void hidapi_decode_button1(const unsigned char *buf, unsigned int len);
+	void hidapi_decode_axis2(const unsigned char *buf, unsigned int len);
+	void hidapi_decode_button2(const unsigned char *buf, unsigned int len);
 
 private:
-    void hidapi_input(hid_device* hid_dev);
+	void hidapi_input(hid_device *hid_dev);
 };
 
 struct device_id {
-    int vendor_id;
-    int product_id;
-    void (HidApiInputDriver::*axis_decoder)(const unsigned char *buf, unsigned int len);
-    void (HidApiInputDriver::*button_decoder)(const unsigned char *buf, unsigned int len);
-    const char *name;
+	int vendor_id;
+	int product_id;
+	void (HidApiInputDriver::*axis_decoder)(const unsigned char *buf, unsigned int len);
+	void (HidApiInputDriver::*button_decoder)(const unsigned char *buf, unsigned int len);
+	const char *name;
 };

@@ -27,32 +27,20 @@
 
 const QEvent::Type InputEvent::eventType = static_cast<QEvent::Type>(QEvent::registerEventType());
 
-InputEvent::InputEvent(const bool activeOnly) : QEvent(eventType), activeOnly(activeOnly)
-{
+InputEvent::InputEvent(const bool activeOnly) : QEvent(eventType), activeOnly(activeOnly) {}
 
-}
+InputEvent::~InputEvent() {}
 
-InputEvent::~InputEvent()
-{
+InputDriver::InputDriver() {}
 
-}
-
-InputDriver::InputDriver()
-{
-
-}
-
-InputDriver::~InputDriver()
-{
-
-}
+InputDriver::~InputDriver() {}
 
 bool InputDriver::isOpen()
 {
-    return isRunning();
+	return isRunning();
 }
 
 bool InputDriver::openOnce()
 {
-    return false;
+	return false;
 }

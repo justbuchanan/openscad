@@ -24,30 +24,27 @@ a time, to avoid confusion.
 #define GMPMAJOR 5
 #define GMPMINOR 0
 #define GMPPATCH 0
-#define SYS_GMP_VER  (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL * 1)
+#define SYS_GMP_VER \
+	(__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL * 1)
 #if SYS_GMP_VER < GMPMAJOR * 10000 + GMPMINOR * 100 + GMPPATCH * 1
 #error GNU GMP library missing or version too old. See README.md. To force compile, run qmake CONFIG+=skip-version-check
 #else
 
-
 #include <mpfr.h>
-#if MPFR_VERSION < MPFR_VERSION_NUM( 3,0,0 )
+#if MPFR_VERSION < MPFR_VERSION_NUM(3, 0, 0)
 #error GNU MPFR library missing or version too old. See README.md. To force compile, run qmake CONFIG+=skip-version-check
 #else
 
-
 #include <Eigen/Core>
-#if not EIGEN_VERSION_AT_LEAST( 3,0,0 )
+#if not EIGEN_VERSION_AT_LEAST(3, 0, 0)
 #error eigen library missing or version too old. See README.md. To force compile, run qmake CONFIG+=skip-version-check
 #else
-
 
 #include <boost/version.hpp>
 // boost 1.3.5 = 103500
 #if BOOST_VERSION < 103500
 #error boost library missing or version too old. See README.md. To force compile, run qmake CONFIG+=skip-version-check
 #else
-
 
 #ifdef ENABLE_CGAL
 #include <CGAL/version.h>
@@ -72,7 +69,7 @@ a time, to avoid confusion.
 #error For Clang to work, CGAL must be >= 4.0.2
 #endif
 #endif // CGAL_VERSION_NR < 10400010000
-#endif //ENABLE_CGAL
+#endif // ENABLE_CGAL
 
 #ifdef ENABLE_OPENCSG
 #include <GL/glew.h>
@@ -80,7 +77,6 @@ a time, to avoid confusion.
 #ifndef GLEW_ARB_occlusion_query2
 #error GLEW library missing or version too old. See README.md. To force compile, run qmake CONFIG+=skip-version-check
 #else
-
 
 #include <opencsg.h>
 // 1.3.2 -> 0x0132
@@ -111,12 +107,9 @@ a time, to avoid confusion.
 #endif // GMP
 
 // see github issue #552
-#define GCC_VERSION (__GNUC__ * 10000 \
-                   + __GNUC_MINOR__ * 100 \
-                   + __GNUC_PATCHLEVEL__)
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #if GCC_VERSION == 40802
 #warning "gcc 4.8.2 contains a bug causing a crash in CGAL."
 #endif
 
 #endif // OPENSCAD_SKIP_VERSION_CHECK
-

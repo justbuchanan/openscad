@@ -24,7 +24,6 @@
  *
  */
 
-
 #include "annotation.h"
 #include "expression.h"
 #include "context.h"
@@ -34,16 +33,14 @@ Annotation::Annotation(const std::string &name, shared_ptr<class Expression> exp
 {
 }
 
-Annotation::~Annotation()
-{
-}
+Annotation::~Annotation() {}
 
 ValuePtr Annotation::evaluate(class Context *ctx) const
 {
 	return this->expr->evaluate(ctx);
 }
 
-const std::string & Annotation::getName() const
+const std::string &Annotation::getName() const
 {
 	return name;
 }

@@ -37,7 +37,8 @@
 
 std::deque<std::string> UserModule::module_stack;
 
-AbstractNode *UserModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
+AbstractNode *UserModule::instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																			EvalContext *evalctx) const
 {
 	if (StackCheck::inst()->check()) {
 		throw RecursionException::create("module", inst->name());
@@ -47,7 +48,7 @@ AbstractNode *UserModule::instantiate(const Context *ctx, const ModuleInstantiat
 	// At this point we know that nobody will modify the dependencies of the local scope
 	// passed to this instance, so we can populate the context
 	inst->scope.apply(*evalctx);
-    
+
 	ModuleContext c(ctx, evalctx);
 	// set $children first since we might have variables depending on it
 	c.set_variable("$children", ValuePtr(double(inst->scope.children.size())));
@@ -73,7 +74,7 @@ std::string UserModule::dump(const std::string &indent, const std::string &name)
 	std::string tab;
 	if (!name.empty()) {
 		dump << indent << "module " << name << "(";
-		for (size_t i=0; i < this->definition_arguments.size(); i++) {
+		for (size_t i = 0; i < this->definition_arguments.size(); i++) {
 			const Assignment &arg = this->definition_arguments[i];
 			if (i > 0) dump << ", ";
 			dump << arg.name;

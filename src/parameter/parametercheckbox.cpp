@@ -8,8 +8,7 @@ ParameterCheckBox::ParameterCheckBox(ParameterObject *parameterobject, bool show
 	connect(checkBox, SIGNAL(clicked()), this, SLOT(onChanged()));
 	if (showDescription == true) {
 		setDescription(object->description);
-	}
-	else {
+	} else {
 		checkBox->setToolTip(object->description);
 	}
 }
@@ -27,7 +26,8 @@ void ParameterCheckBox::setParameterFocus()
 	object->focus = false;
 }
 
-void ParameterCheckBox::setValue() {
+void ParameterCheckBox::setValue()
+{
 	this->stackedWidget->setCurrentWidget(this->pageCheckBox);
 	this->checkBox->setChecked(object->value->toBool());
 }

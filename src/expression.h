@@ -13,7 +13,7 @@ class Expression : public ASTNode
 public:
 	Expression(const Location &loc) : ASTNode(loc) {}
 	virtual ~Expression() {}
-    virtual bool isLiteral() const;
+	virtual bool isLiteral() const;
 	virtual ValuePtr evaluate(const class Context *context) const = 0;
 	virtual void print(std::ostream &stream) const = 0;
 };
@@ -23,11 +23,8 @@ std::ostream &operator<<(std::ostream &stream, const Expression &expr);
 class UnaryOp : public Expression
 {
 public:
-	enum class Op {
-		Not,
-		Negate
-	};
-    virtual bool isLiteral() const;
+	enum class Op { Not, Negate };
+	virtual bool isLiteral() const;
 	UnaryOp(Op op, Expression *expr, const Location &loc);
 	virtual ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
@@ -88,6 +85,7 @@ public:
 	ArrayLookup(Expression *array, Expression *index, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	shared_ptr<Expression> array;
 	shared_ptr<Expression> index;
@@ -99,7 +97,8 @@ public:
 	Literal(const ValuePtr &val, const Location &loc = Location::NONE);
 	ValuePtr evaluate(const class Context *) const;
 	virtual void print(std::ostream &stream) const;
-    virtual bool isLiteral() const { return true;}
+	virtual bool isLiteral() const { return true; }
+
 private:
 	ValuePtr value;
 };
@@ -112,6 +111,7 @@ public:
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
 	virtual bool isLiteral() const;
+
 private:
 	shared_ptr<Expression> begin;
 	shared_ptr<Expression> step;
@@ -125,7 +125,8 @@ public:
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
 	void push_back(Expression *expr);
-    virtual bool isLiteral() const ;
+	virtual bool isLiteral() const;
+
 private:
 	std::vector<shared_ptr<Expression>> children;
 };
@@ -136,6 +137,7 @@ public:
 	Lookup(const std::string &name, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	std::string name;
 };
@@ -146,6 +148,7 @@ public:
 	MemberLookup(Expression *expr, const std::string &member, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	shared_ptr<Expression> expr;
 	std::string member;
@@ -157,7 +160,9 @@ public:
 	FunctionCall(const std::string &funcname, const AssignmentList &arglist, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
-	static Expression * create(const std::string &funcname, const AssignmentList &arglist, Expression *expr, const Location &loc);
+	static Expression *create(const std::string &funcname, const AssignmentList &arglist,
+														Expression *expr, const Location &loc);
+
 public:
 	std::string name;
 	AssignmentList arguments;
@@ -169,6 +174,7 @@ public:
 	Assert(const AssignmentList &args, Expression *expr, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	AssignmentList arguments;
 	shared_ptr<Expression> expr;
@@ -180,6 +186,7 @@ public:
 	Echo(const AssignmentList &args, Expression *expr, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	AssignmentList arguments;
 	shared_ptr<Expression> expr;
@@ -191,6 +198,7 @@ public:
 	Let(const AssignmentList &args, Expression *expr, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	AssignmentList arguments;
 	shared_ptr<Expression> expr;
@@ -209,6 +217,7 @@ public:
 	LcIf(Expression *cond, Expression *ifexpr, Expression *elseexpr, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	shared_ptr<Expression> cond;
 	shared_ptr<Expression> ifexpr;
@@ -221,6 +230,7 @@ public:
 	LcFor(const AssignmentList &args, Expression *expr, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	AssignmentList arguments;
 	shared_ptr<Expression> expr;
@@ -229,9 +239,11 @@ private:
 class LcForC : public ListComprehension
 {
 public:
-	LcForC(const AssignmentList &args, const AssignmentList &incrargs, Expression *cond, Expression *expr, const Location &loc);
+	LcForC(const AssignmentList &args, const AssignmentList &incrargs, Expression *cond,
+				 Expression *expr, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	AssignmentList arguments;
 	AssignmentList incr_arguments;
@@ -245,6 +257,7 @@ public:
 	LcEach(Expression *expr, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	shared_ptr<Expression> expr;
 };
@@ -255,6 +268,7 @@ public:
 	LcLet(const AssignmentList &args, Expression *expr, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream) const;
+
 private:
 	AssignmentList arguments;
 	shared_ptr<Expression> expr;
