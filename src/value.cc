@@ -544,10 +544,10 @@ Value Value::multmatvec(const VectorType &matrixvec, const VectorType &vectorvec
     }
     double r_e = 0.0;
     for (size_t j = 0; j < matrixvec[i]->toVector().size(); j++) {
-      if (matrixvec[i]->toVector()[j]->type() != ValueType::NUMBER || vectorvec[j]->type() != ValueType::NUMBER) {
+      if (matrixvec[i]->toVector()[j] -> type() != ValueType::NUMBER || vectorvec[j] -> type() != ValueType::NUMBER) {
         return Value();
       }
-      r_e += matrixvec[i]->toVector()[j]->toDouble() * vectorvec[j]->toDouble();
+      r_e += matrixvec[i] -> toVector()[j] -> toDouble() *vectorvec[j] -> toDouble();
     }
     dstv.push_back(ValuePtr(r_e));
   }
@@ -559,15 +559,15 @@ Value Value::multvecmat(const VectorType &vectorvec, const VectorType &matrixvec
   assert(vectorvec.size() == matrixvec.size());
 // Vector * Matrix
   VectorType dstv;
-  for (size_t i = 0; i < matrixvec[0]->toVector().size(); i++) {
+  for (size_t i = 0; i < matrixvec[0] -> toVector().size(); i ++) {
     double r_e = 0.0;
-    for (size_t j = 0; j < vectorvec.size(); j++) {
-      if (matrixvec[j]->type() != ValueType::VECTOR ||
-          matrixvec[j]->toVector()[i]->type() != ValueType::NUMBER ||
-          vectorvec[j]->type() != ValueType::NUMBER) {
+    for (size_t j = 0; j < vectorvec.size(); j ++) {
+      if (matrixvec[j] -> type() != ValueType::VECTOR ||
+          matrixvec[j] -> toVector()[i] -> type() != ValueType::NUMBER ||
+          vectorvec[j] -> type() != ValueType::NUMBER) {
         return Value::undefined;
       }
-      r_e += vectorvec[j]->toDouble() * matrixvec[j]->toVector()[i]->toDouble();
+      r_e += vectorvec[j] -> toDouble() *matrixvec[j] -> toVector()[i] -> toDouble();
     }
     dstv.push_back(ValuePtr(r_e));
   }
@@ -577,7 +577,7 @@ Value Value::multvecmat(const VectorType &vectorvec, const VectorType &matrixvec
 Value Value::operator*(const Value &v) const
 {
   if (this->type() == ValueType::NUMBER && v.type() == ValueType::NUMBER) {
-    return {this->toDouble() * v.toDouble()};
+    return {this->toDouble() *v.toDouble()};
   }
   else if (this->type() == ValueType::VECTOR && v.type() == ValueType::NUMBER) {
     return multvecnum(*this, v);
@@ -590,11 +590,11 @@ Value Value::operator*(const Value &v) const
     const auto &vec2 = v.toVector();
     if (vec1.size() == 0 || vec2.size() == 0) return Value::undefined;
 
-    if (vec1[0]->type() == ValueType::NUMBER && vec2[0]->type() == ValueType::NUMBER &&
+    if (vec1[0] -> type() == ValueType::NUMBER && vec2[0] -> type() == ValueType::NUMBER &&
         vec1.size() == vec2.size()) {
       // Vector dot product.
       auto r = 0.0;
-      for (size_t i = 0; i < vec1.size(); i++) {
+      for (size_t i = 0; i < vec1.size(); i ++) {
         if (vec1[i]->type() != ValueType::NUMBER || vec2[i]->type() != ValueType::NUMBER) {
           return Value::undefined;
         }

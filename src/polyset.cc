@@ -210,7 +210,7 @@ void PolySet::quantizeVertices()
 {
   Grid3d<int> grid(GRID_FINE);
   std::vector<int> indices; // Vertex indices in one polygon
-  for (std::vector<Polygon>::iterator iter = this->polygons.begin(); iter != this->polygons.end(); ) {
+  for (std::vector<Polygon>::iterator iter = this->polygons.begin(); iter != this->polygons.end();) {
     Polygon &p = *iter;
     indices.resize(p.size());
     // Quantize all vertices. Build index list

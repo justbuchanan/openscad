@@ -203,7 +203,7 @@ void ParameterWidget::connectWidget()
     groupMap["Global"].parameterVector.clear();
   }
 
-  for (group_map::iterator it = groupMap.begin(); it != groupMap.end(); ) {
+  for (group_map::iterator it = groupMap.begin(); it != groupMap.end();) {
     std::vector<std::string> gr;
     gr = it->second.parameterVector;
     if (gr.empty() || it->first == "Hidden") {
@@ -246,7 +246,7 @@ void ParameterWidget::updateWidget()
 }
 
 void ParameterWidget::clear(){
-  for (entry_map_t::iterator it = entries.begin(); it != entries.end(); ) {
+  for (entry_map_t::iterator it = entries.begin(); it != entries.end();) {
     if (!(*it).second->set) {
       it = entries.erase(it);
     }

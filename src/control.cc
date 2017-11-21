@@ -200,7 +200,7 @@ AbstractNode *ControlModule::instantiate(const Context * /*ctx*/, const ModuleIn
     }
     return node;
   }
-                    break;
+  break;
 
   case Type::CHILDREN: {
     const EvalContext *modulectx = getLastModuleCtx(evalctx);
@@ -259,7 +259,7 @@ AbstractNode *ControlModule::instantiate(const Context * /*ctx*/, const ModuleIn
     }
     return nullptr;
   }
-                       break;
+  break;
 
   case Type::ECHO: {
     node = new GroupNode(inst);
@@ -267,7 +267,7 @@ AbstractNode *ControlModule::instantiate(const Context * /*ctx*/, const ModuleIn
     msg << "ECHO: " << *evalctx;
     PRINTB("%s", msg.str());
   }
-                   break;
+  break;
 
   case Type::ASSERT: {
     node = new GroupNode(inst);
@@ -277,7 +277,7 @@ AbstractNode *ControlModule::instantiate(const Context * /*ctx*/, const ModuleIn
     inst->scope.apply(c);
     node->children = inst->instantiateChildren(&c);
   }
-                     break;
+  break;
 
   case Type::LET: {
     node = new GroupNode(inst);
@@ -289,7 +289,7 @@ AbstractNode *ControlModule::instantiate(const Context * /*ctx*/, const ModuleIn
     std::vector<AbstractNode *> instantiatednodes = inst->instantiateChildren(&c);
     node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
   }
-                  break;
+  break;
 
   case Type::ASSIGN: {
     node = new GroupNode(inst);
@@ -304,7 +304,7 @@ AbstractNode *ControlModule::instantiate(const Context * /*ctx*/, const ModuleIn
     std::vector<AbstractNode *> instantiatednodes = inst->instantiateChildren(&c);
     node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
   }
-                     break;
+  break;
 
   case Type::FOR:
     node = new GroupNode(inst);
@@ -330,7 +330,7 @@ AbstractNode *ControlModule::instantiate(const Context * /*ctx*/, const ModuleIn
       node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
     }
   }
-                 break;
+  break;
   }
   return node;
 }

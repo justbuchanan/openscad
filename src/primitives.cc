@@ -356,7 +356,7 @@ const Geometry *PrimitiveNode::createGeometry() const
       p->append_vertex(x1, y2, z2);
     }
   }
-                               break;
+  break;
   case primitive_type_e::SPHERE: {
     auto p = new PolySet(3, true);
     g = p;
@@ -428,7 +428,7 @@ sphere_next_r2:
       delete[] ring;
     }
   }
-                                 break;
+  break;
   case primitive_type_e::CYLINDER: {
     auto p = new PolySet(3, true);
     g = p;
@@ -494,15 +494,15 @@ sphere_next_r2:
       delete[] circle2;
     }
   }
-                                   break;
+  break;
   case primitive_type_e::POLYHEDRON: {
     auto p = new PolySet(3);
     g = p;
     p->setConvexity(this->convexity);
     for (size_t i = 0; i < this->faces->toVector().size(); i++) {
       p->append_poly();
-      const auto &vec = this->faces->toVector()[i]->toVector();
-      for (size_t j = 0; j < vec.size(); j++) {
+      const auto &vec = this->faces->toVector()[i] -> toVector();
+      for (size_t j = 0; j < vec.size(); j ++) {
         size_t pt = vec[j]->toDouble();
         if (pt < this->points->toVector().size()) {
           double px, py, pz;
@@ -516,7 +516,7 @@ sphere_next_r2:
       }
     }
   }
-                                     break;
+  break;
   case primitive_type_e::SQUARE: {
     auto p = new Polygon2d();
     g = p;
@@ -535,7 +535,7 @@ sphere_next_r2:
     }
     p->setSanitized(true);
   }
-                                 break;
+  break;
   case primitive_type_e::CIRCLE: {
     auto p = new Polygon2d();
     g = p;
@@ -546,13 +546,13 @@ sphere_next_r2:
       o.vertices.resize(fragments);
       for (int i = 0; i < fragments; i++) {
         double phi = (M_PI * 2 * i) / fragments;
-        o.vertices[i] = {this->r1 * cos(phi), this->r1 * sin(phi)};
+        o.vertices[i] = {this->r1 *cos(phi), this->r1 * sin(phi)};
       }
       p->addOutline(o);
     }
     p->setSanitized(true);
   }
-                                 break;
+  break;
   case primitive_type_e::POLYGON: {
     auto p = new Polygon2d();
     g = p;
