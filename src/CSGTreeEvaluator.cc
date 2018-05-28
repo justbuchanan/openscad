@@ -32,7 +32,7 @@ shared_ptr<CSGNode> CSGTreeEvaluator::buildCSGTree(const AbstractNode &node)
 {
 	this->traverse(node);
 	
-	shared_ptr<CSGNode> t(this->stored_term[node.index()]);
+	shared_ptr<CSGNode> t = this->stored_term[node.index()];
 	if (t) {
 		if (t->isHighlight()) this->highlightNodes.push_back(t);
 		if (t->isBackground()) {
@@ -47,7 +47,7 @@ shared_ptr<CSGNode> CSGTreeEvaluator::buildCSGTree(const AbstractNode &node)
 void CSGTreeEvaluator::applyBackgroundAndHighlight(State & /*state*/, const AbstractNode &node)
 {
 	for(const auto &chnode : this->visitedchildren[node.index()]) {
-		shared_ptr<CSGNode> t(this->stored_term[chnode->index()]);
+		shared_ptr<CSGNode> t = this->stored_term[chnode->index()];
 		this->stored_term.erase(chnode->index());
 		if (t) {
 			if (t->isBackground()) this->backgroundNodes.push_back(t);
@@ -60,7 +60,7 @@ void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &no
 {
 	shared_ptr<CSGNode> t1;
 	for(const auto &chnode : this->visitedchildren[node.index()]) {
-		shared_ptr<CSGNode> t2(this->stored_term[chnode->index()]);
+		shared_ptr<CSGNode> t2 = this->stored_term[chnode->index()];
 		this->stored_term.erase(chnode->index());
 		if (t2 && !t1) {
 			t1 = t2;
@@ -87,7 +87,7 @@ void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &no
 				t = CSGOperation::createCSGNode(op, t1, t2);
 			}
 			// Handle highlight
-				switch (op) {
+			switch (op) {
 				case OpenSCADOperator::DIFFERENCE:
 					if (t != t1 && t1->isHighlight()) {
 						t->setHighlight(true);
@@ -292,7 +292,9 @@ Response CSGTreeEvaluator::visit(State &state, const CgaladvNode &node)
 /*!
 	Adds ourself to out parent's list of traversed children.
 	Call this for _every_ node which affects output during traversal.
-    Usually, this should be called from the postfix stage, but for some nodes, we defer traversal letting other components (e.g. CGAL) render the subgraph, and we'll then call this from prefix and prune further traversal.
+    Usually, this should be called from the postfix stage, but for some nodes,
+    we defer traversal letting other components (e.g. CGAL) render the subgraph,
+    and we'll then call this from prefix and prune further traversal.
 */
 void CSGTreeEvaluator::addToParent(const State &state, const AbstractNode &node)
 {
