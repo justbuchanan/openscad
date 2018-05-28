@@ -197,8 +197,8 @@ Response CSGTreeEvaluator::visit(State &state, const AbstractPolyNode &node)
 {
 	if (state.isPostfix()) {
 		shared_ptr<CSGNode> t1;
-		if (this->geomevaluator) {
-			auto geom = this->geomevaluator->evaluateGeometry(node, false);
+		if (this->geomEvaluator) {
+			auto geom = this->geomEvaluator->evaluateGeometry(node, false);
 			if (geom) {
 				t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 			}
@@ -253,11 +253,11 @@ Response CSGTreeEvaluator::visit(State &state, const RenderNode &node)
 	if (state.isPostfix()) {
 		shared_ptr<CSGNode> t1;
 		shared_ptr<const Geometry> geom;
-		if (this->geomevaluator) {
+		if (this->geomEvaluator) {
 			// Note: multi-threading is allowed (assuming the thread-traversal
 			// feature is enabled) for render nodes because they are likely to
 			// be expensive and benefit from parallelism.
-			geom = this->geomevaluator->evaluateGeometry(node, false, true /* allowMultithreading */);
+			geom = this->geomEvaluator->evaluateGeometry(node, false, true /* allowMultithreading */);
 			if (geom) {
 				t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 			}
@@ -275,8 +275,8 @@ Response CSGTreeEvaluator::visit(State &state, const CgaladvNode &node)
 		shared_ptr<CSGNode> t1;
     // FIXME: Calling evaluator directly since we're not a PolyNode. Generalize this.
 		shared_ptr<const Geometry> geom;
-		if (this->geomevaluator) {
-			geom = this->geomevaluator->evaluateGeometry(node, false);
+		if (this->geomEvaluator) {
+			geom = this->geomEvaluator->evaluateGeometry(node, false);
 			if (geom) {
 				t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 			}

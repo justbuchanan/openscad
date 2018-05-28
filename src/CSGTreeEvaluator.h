@@ -8,11 +8,13 @@
 #include "memory.h"
 #include "csgnode.h"
 
+class GeometryEvaluator;
+
 class CSGTreeEvaluator : public NodeVisitor
 {
 public:
-	CSGTreeEvaluator(const class Tree &tree, class GeometryEvaluator *geomevaluator = nullptr)
-		: tree(tree), geomevaluator(geomevaluator) {
+	CSGTreeEvaluator(const class Tree &tree, class GeometryEvaluator *geomEvaluator = nullptr)
+		: tree(tree), geomEvaluator(geomEvaluator) {
 	}
 	~CSGTreeEvaluator() {}
 
@@ -38,7 +40,7 @@ public:
 	}
 
 private:
-  void addToParent(const State &state, const AbstractNode &node);
+	void addToParent(const State &state, const AbstractNode &node);
 	void applyToChildren(State &state, const AbstractNode &node, OpenSCADOperator op);
 	shared_ptr<CSGNode> evaluateCSGNodeFromGeometry(State &state, 
 																									const shared_ptr<const class Geometry> &geom,
@@ -52,7 +54,7 @@ private:
 
 protected:
 	const Tree &tree;
-	class GeometryEvaluator *geomevaluator;
+	GeometryEvaluator *geomEvaluator;
 	shared_ptr<CSGNode> rootNode;
 	std::vector<shared_ptr<CSGNode>> highlightNodes;
 	std::vector<shared_ptr<CSGNode>> backgroundNodes;
