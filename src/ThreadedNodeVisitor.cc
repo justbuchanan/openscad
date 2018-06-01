@@ -11,6 +11,9 @@ int ThreadedNodeVisitor::Parallelism = 0;
 
 namespace {
 
+class ProcessingContext;
+void ProcessWorkItems(ProcessingContext*ctx, NodeVisitor*visitor);
+
 constexpr bool THREAD_DEBUG = false;
 
 class WorkItem {
@@ -25,6 +28,43 @@ public:
 class ProcessingContext {
 public:
     ProcessingContext() {}
+
+    void start(NodeVisitor* visitor) {
+        // Start worker threads. Use Parallism if nonzero, otherwise use as many
+        // threads as the system has cores.
+        const size_t numThreads = ThreadedNodeVisitor::Parallelism != 0 ?
+                        ThreadedNodeVisitor::Parallelism :
+                        std::thread::hardware_concurrency();
+
+        for (int i = 0; i < numThreads; i++) {
+            // TODO: emplace_back instead of move()?
+            std::thread t([this, visitor](){
+                try {
+                    ProcessWorkItems(this, visitor);
+                } catch (...) {
+                    cerr << "UNHANDLED EXCEPTION IN WORKER THREAD" << endl;
+                    exit(1);
+                }
+            });
+            _workerThreads.push_back(std::move(t));
+        }
+        PRINTB("Started %d worker threads", numThreads);
+    }
+
+    void wait() {
+        // Wait for threads to finish processing all postfix traversals.
+        for (auto& t : _workerThreads) t.join();
+
+        if (THREAD_DEBUG) {
+            cout << "JOINED THREADS" << endl;
+        }
+
+        // Re-throw exception if we ended early due to a user-requested cancel.
+        if (isCanceled()) {
+            throw ProgressCancelException();
+        }
+    }
+
     std::queue<std::shared_ptr<WorkItem>> workQueue;
     // This lock is required when reading or writing the workQueue
     std::mutex queueMutex;
@@ -79,6 +119,8 @@ private:
     bool _abort = false;
     bool _finished = false;
     bool _canceled = false;
+
+    std::vector<std::thread> _workerThreads;
 };
 
 // This is the main function for each of the worker threads. It reads items from
@@ -230,41 +272,14 @@ Response ThreadedNodeVisitor::traverseThreaded(const AbstractNode &node, const c
     // Create the context that will be passed to all recursive calls
     ProcessingContext ctx;
 
-    // Start worker threads. Use Parallism if nonzero, otherwise use as many
-    // threads as the system has cores.
-    const size_t numThreads = Parallelism != 0 ?
-                    Parallelism :
-                    std::thread::hardware_concurrency();
-
-    std::vector<std::thread> workers;
-    for (int i = 0; i < numThreads; i++) {
-        std::thread t([&ctx, this](){
-            try {
-                ProcessWorkItems(&ctx, this);
-            } catch (...) {
-                cerr << "UNHANDLED EXCEPTION IN WORKER THREAD" << endl;
-                exit(1);
-            }
-        });
-        workers.push_back(std::move(t));
-    }
-    PRINTB("Started %d worker threads", numThreads);
+    // Start threads
+    ctx.start(this);
 
     // Recursively do all prefix traversals and schedule postfix traversals to
     // happen later.
     _traverseThreadedRecursive(&ctx, this, nullptr, node, state);
 
-    // Wait for threads to finish processing all postfix traversals.
-    for (auto& t : workers) t.join();
-
-    if (THREAD_DEBUG) {
-        cout << "JOINED THREADS" << endl;
-    }
-
-    // Re-throw exception if we ended early due to a user-requested cancel.
-    if (ctx.isCanceled()) {
-        throw ProgressCancelException();
-    }
+    ctx.wait();
 
     return ctx.isAborted() ? Response::AbortTraversal : Response::ContinueTraversal;
 }
