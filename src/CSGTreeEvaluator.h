@@ -27,7 +27,7 @@ public:
 	Response visit(State &state, const class RenderNode &node) override;
 	Response visit(State &state, const class CgaladvNode &node) override;
 
-	shared_ptr<class CSGNode> buildCSGTree(const AbstractNode &node);
+	shared_ptr<class CSGNode> buildCSGTree(const AbstractNode &node, bool allowMultithreading = true);
 
 	const shared_ptr<CSGNode> &getRootNode() const {
 		return this->rootNode;

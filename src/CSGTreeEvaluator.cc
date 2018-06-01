@@ -28,9 +28,13 @@
 	with OpenCSG.
 */
 
-shared_ptr<CSGNode> CSGTreeEvaluator::buildCSGTree(const AbstractNode &node)
+shared_ptr<CSGNode> CSGTreeEvaluator::buildCSGTree(const AbstractNode &node, bool allowMultithreading)
 {
-	this->traverse(node);
+	// if (Feature::ExperimentalThreadedTraversal.is_enabled() && allowMultithreading) {
+	// 	this->traverseThreaded(node);
+	// } else {
+		this->traverse(node);
+	// }
 	
 	shared_ptr<CSGNode> t = this->stored_term[node.index()];
 	if (t) {
