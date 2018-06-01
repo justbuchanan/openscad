@@ -5,6 +5,60 @@
 #include "Tree.h"
 #include "CGAL_Nef_polyhedron.h"
 
+#include <thread>
+#include <condition_variable>
+
+
+class WorkItem {
+public:
+    WorkItem(int numChildren) : state(nullptr), pendingChildren(numChildren) {}
+    State state;
+    const AbstractNode *node = nullptr;
+    std::atomic<int> pendingChildren;
+    std::shared_ptr<WorkItem> parentWork;
+};
+
+class ProcessingContext {
+public:
+    ProcessingContext() {}
+
+    typedef void (*ProcessWorkFunction)(ProcessingContext*, NodeVisitor*);
+
+    void start(NodeVisitor* visitor);
+
+    void wait();
+
+    bool exitNow();
+
+    void cancel();
+    bool isCanceled() const;
+
+    void abort();
+    bool isAborted() const;
+
+    void finish();
+
+    void pushWorkItem(std::shared_ptr<WorkItem> item);
+
+    std::queue<std::shared_ptr<WorkItem>> workQueue;
+    // This lock is required when reading or writing the workQueue
+    std::mutex queueMutex;
+    // The condition variable is signaled whenever a new item is added to the queue.
+    std::condition_variable cv;
+
+private:
+    bool _abort = false;
+    bool _finished = false;
+    bool _canceled = false;
+
+    std::vector<std::thread> _workerThreads;
+};
+
+
+
+
+
+
 class ThreadedNodeVisitor : public NodeVisitor {
   const Tree &_tree;
 

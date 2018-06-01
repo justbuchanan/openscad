@@ -1,127 +1,17 @@
 #include "ThreadedNodeVisitor.h"
 
 #include "printutils.h"
-#include <thread>
 #include <iostream>
-#include <condition_variable>
 
 using namespace std;
 
 int ThreadedNodeVisitor::Parallelism = 0;
 
+
 namespace {
 
-class ProcessingContext;
-void ProcessWorkItems(ProcessingContext*ctx, NodeVisitor*visitor);
+constexpr bool THREAD_DEBUG = true;
 
-constexpr bool THREAD_DEBUG = false;
-
-class WorkItem {
-public:
-    WorkItem(int numChildren) : state(nullptr), pendingChildren(numChildren) {}
-    State state;
-    const AbstractNode *node = nullptr;
-    std::atomic<int> pendingChildren;
-    std::shared_ptr<WorkItem> parentWork;
-};
-
-class ProcessingContext {
-public:
-    ProcessingContext() {}
-
-    void start(NodeVisitor* visitor) {
-        // Start worker threads. Use Parallism if nonzero, otherwise use as many
-        // threads as the system has cores.
-        const size_t numThreads = ThreadedNodeVisitor::Parallelism != 0 ?
-                        ThreadedNodeVisitor::Parallelism :
-                        std::thread::hardware_concurrency();
-
-        for (int i = 0; i < numThreads; i++) {
-            // TODO: emplace_back instead of move()?
-            std::thread t([this, visitor](){
-                try {
-                    ProcessWorkItems(this, visitor);
-                } catch (...) {
-                    cerr << "UNHANDLED EXCEPTION IN WORKER THREAD" << endl;
-                    exit(1);
-                }
-            });
-            _workerThreads.push_back(std::move(t));
-        }
-        PRINTB("Started %d worker threads", numThreads);
-    }
-
-    void wait() {
-        // Wait for threads to finish processing all postfix traversals.
-        for (auto& t : _workerThreads) t.join();
-
-        if (THREAD_DEBUG) {
-            cout << "JOINED THREADS" << endl;
-        }
-
-        // Re-throw exception if we ended early due to a user-requested cancel.
-        if (isCanceled()) {
-            throw ProgressCancelException();
-        }
-    }
-
-    std::queue<std::shared_ptr<WorkItem>> workQueue;
-    // This lock is required when reading or writing the workQueue
-    std::mutex queueMutex;
-    // The condition variable is signaled whenever a new item is added to the queue.
-    std::condition_variable cv;
-
-    bool exitNow() {
-        return _abort || _finished | _canceled;
-    }
-
-    void cancel() {
-        {
-            std::lock_guard<std::mutex> lock(queueMutex);
-            _canceled = true;
-        }
-        cv.notify_all();
-    }
-
-    bool isCanceled() const {
-        return _canceled;
-    }
-
-    void abort() {
-        {
-            std::lock_guard<std::mutex> lock(queueMutex);
-            _abort = true;
-        }
-        cv.notify_all();
-    }
-
-    bool isAborted() const {
-        return _abort;
-    }
-
-    void finish() {
-        {
-            std::lock_guard<std::mutex> lock(queueMutex);
-            _finished = true;
-        }
-        cv.notify_all();
-    }
-
-    void pushWorkItem(std::shared_ptr<WorkItem> item) {
-        {
-            std::lock_guard<std::mutex> lk(queueMutex);
-            workQueue.push(std::move(item));
-        }
-        cv.notify_one();
-    }
-
-private:
-    bool _abort = false;
-    bool _finished = false;
-    bool _canceled = false;
-
-    std::vector<std::thread> _workerThreads;
-};
 
 // This is the main function for each of the worker threads. It reads items from
 // the work queue and processes them. It exits when the context signals to abort
@@ -197,6 +87,92 @@ void ProcessWorkItems(ProcessingContext*ctx, NodeVisitor*visitor) {
         }
     }
 }
+
+} // namespace
+
+void ProcessingContext::start(NodeVisitor* visitor) {
+    // Start worker threads. Use Parallism if nonzero, otherwise use as many
+    // threads as the system has cores.
+    const size_t numThreads = ThreadedNodeVisitor::Parallelism != 0 ?
+                    ThreadedNodeVisitor::Parallelism :
+                    std::thread::hardware_concurrency();
+
+    for (int i = 0; i < numThreads; i++) {
+        // TODO: emplace_back instead of move()?
+        std::thread t([this, visitor](){
+            try {
+                ProcessWorkItems(this, visitor);
+            } catch (...) {
+                std::cerr << "UNHANDLED EXCEPTION IN WORKER THREAD" << std::endl;
+                exit(1);
+            }
+        });
+        _workerThreads.push_back(std::move(t));
+    }
+    PRINTB("Started %d worker threads", numThreads);
+}
+
+void ProcessingContext::wait() {
+    // Wait for threads to finish processing all postfix traversals.
+    for (auto& t : _workerThreads) t.join();
+
+    if (THREAD_DEBUG) {
+        std::cout << "JOINED THREADS" << std::endl;
+    }
+
+    // Re-throw exception if we ended early due to a user-requested cancel.
+    if (isCanceled()) {
+        throw ProgressCancelException();
+    }
+}
+
+bool ProcessingContext::exitNow() {
+    return _abort || _finished | _canceled;
+}
+
+void ProcessingContext::cancel() {
+    {
+        std::lock_guard<std::mutex> lock(queueMutex);
+        _canceled = true;
+    }
+    cv.notify_all();
+}
+
+bool ProcessingContext::isCanceled() const {
+    return _canceled;
+}
+
+void ProcessingContext::abort() {
+    {
+        std::lock_guard<std::mutex> lock(queueMutex);
+        _abort = true;
+    }
+    cv.notify_all();
+}
+
+bool ProcessingContext::isAborted() const {
+    return _abort;
+}
+
+void ProcessingContext::finish() {
+    {
+        std::lock_guard<std::mutex> lock(queueMutex);
+        _finished = true;
+    }
+    cv.notify_all();
+}
+
+void ProcessingContext::pushWorkItem(std::shared_ptr<WorkItem> item) {
+    {
+        std::lock_guard<std::mutex> lk(queueMutex);
+        workQueue.push(std::move(item));
+    }
+    cv.notify_one();
+}
+
+
+
+namespace {
 
 void _traverseThreadedRecursive(ProcessingContext*ctx,  NodeVisitor*visitor,
     std::shared_ptr<WorkItem> parentWorkItem, const AbstractNode &node, const class State &state) {
