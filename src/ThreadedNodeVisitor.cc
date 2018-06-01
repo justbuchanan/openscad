@@ -211,7 +211,7 @@ void ThreadedNodeVisitor::traverseThreadedRecursive(ProcessingContext*ctx,  Node
     // Recurse
     newstate.setParent(&node);
     for(const auto &chnode : node.getChildren()) {
-        _traverseThreadedRecursive(ctx, visitor, postfixWorkItem, *chnode, newstate);
+        traverseThreadedRecursive(ctx, visitor, postfixWorkItem, *chnode, newstate);
         if (ctx->exitNow()) return; // Abort immediately
     }
 }

@@ -77,7 +77,12 @@ GeometryEvaluator::GeometryEvaluator(const class Tree &tree)
 /*!
 	Set allownef to false to force the result to _not_ be a Nef polyhedron
 */
-shared_ptr<const Geometry> GeometryEvaluator::evaluateGeometry(const AbstractNode &node, bool allownef, bool allowMultithreading)
+shared_ptr<const Geometry> GeometryEvaluator::evaluateGeometry(
+	const AbstractNode &node,
+	bool allownef,
+	bool allowMultithreading,
+	ProcessingContext*pctx,
+	std::shared_ptr<WorkItem> parentWorkItem)
 {
 	const std::string key = this->tree.getIdString(node);
 	shared_ptr<const CGAL_Nef_polyhedron> N;
