@@ -171,10 +171,7 @@ void ProcessingContext::pushWorkItem(std::shared_ptr<WorkItem> item) {
 }
 
 
-
-namespace {
-
-void _traverseThreadedRecursive(ProcessingContext*ctx,  NodeVisitor*visitor,
+void ThreadedNodeVisitor::traverseThreadedRecursive(ProcessingContext*ctx,  NodeVisitor*visitor,
     std::shared_ptr<WorkItem> parentWorkItem, const AbstractNode &node, const class State &state) {
 
     if (ctx->exitNow()) return; // Abort immediately
@@ -219,8 +216,6 @@ void _traverseThreadedRecursive(ProcessingContext*ctx,  NodeVisitor*visitor,
     }
 }
 
-} // namespace
-
 // This begins by starting a fixed number of worker threads at the start of
 // traversal and scheduling work amongst them as it becomes available. A
 // condition variable is used to efficiently sleep threads while work is
@@ -253,7 +248,7 @@ Response ThreadedNodeVisitor::traverseThreaded(const AbstractNode &node, const c
 
     // Recursively do all prefix traversals and schedule postfix traversals to
     // happen later.
-    _traverseThreadedRecursive(&ctx, this, nullptr, node, state);
+    traverseThreadedRecursive(&ctx, this, nullptr, node, state);
 
     ctx.wait();
 

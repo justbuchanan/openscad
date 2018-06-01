@@ -22,8 +22,6 @@ class ProcessingContext {
 public:
     ProcessingContext() {}
 
-    typedef void (*ProcessWorkFunction)(ProcessingContext*, NodeVisitor*);
-
     void start(NodeVisitor* visitor);
 
     void wait();
@@ -56,9 +54,6 @@ private:
 
 
 
-
-
-
 class ThreadedNodeVisitor : public NodeVisitor {
   const Tree &_tree;
 
@@ -66,6 +61,10 @@ public:
   ThreadedNodeVisitor(const Tree &tree) : _tree(tree) {}
 
   Response traverseThreaded(const AbstractNode &node, const class State &state = NodeVisitor::nullstate);
+
+
+  void traverseThreadedRecursive(ProcessingContext*ctx,  NodeVisitor*visitor,
+        std::shared_ptr<WorkItem> parentWorkItem, const AbstractNode &node, const class State &state);
 
   // Number of threads to spawn for parallel traversal. If 0 (the default), uses
   // the value returned from std::thread::hardware_concurrency().
