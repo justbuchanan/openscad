@@ -30,11 +30,11 @@
 
 shared_ptr<CSGNode> CSGTreeEvaluator::buildCSGTree(const AbstractNode &node, bool allowMultithreading)
 {
-	// if (Feature::ExperimentalThreadedTraversal.is_enabled() && allowMultithreading) {
-	// 	this->traverseThreaded(node);
-	// } else {
+	if (Feature::ExperimentalThreadedTraversal.is_enabled() && allowMultithreading) {
+		this->traverseThreaded(node);
+	} else {
 		this->traverse(node);
-	// }
+	}
 	
 	shared_ptr<CSGNode> t = this->stored_term[node.index()];
 	if (t) {
@@ -201,13 +201,12 @@ Response CSGTreeEvaluator::visit(State &state, const AbstractPolyNode &node)
 {
 	if (state.isPostfix()) {
 		shared_ptr<CSGNode> t1;
-		if (this->geomEvaluator) {
-			auto geom = this->geomEvaluator->evaluateGeometry(node, false);
-			if (geom) {
-				t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
-			}
-			node.progress_report();
+		GeometryEvaluator geomEvaluator(tree);
+		auto geom = geomEvaluator.evaluateGeometry(node, false); // TODO: multithread
+		if (geom) {
+			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
+		node.progress_report();
 		this->stored_term[node.index()] = t1;
 		addToParent(state, node);
 	}
@@ -257,16 +256,16 @@ Response CSGTreeEvaluator::visit(State &state, const RenderNode &node)
 	if (state.isPostfix()) {
 		shared_ptr<CSGNode> t1;
 		shared_ptr<const Geometry> geom;
-		if (this->geomEvaluator) {
-			// Note: multi-threading is allowed (assuming the thread-traversal
-			// feature is enabled) for render nodes because they are likely to
-			// be expensive and benefit from parallelism.
-			geom = this->geomEvaluator->evaluateGeometry(node, false, true /* allowMultithreading */);
-			if (geom) {
-				t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
-			}
-			node.progress_report();
+		// Note: multi-threading is allowed (assuming the thread-traversal
+		// feature is enabled) for render nodes because they are likely to
+		// be expensive and benefit from parallelism.
+		// TODO: multithread
+		GeometryEvaluator geomEvaluator(tree);
+		geom = geomEvaluator.evaluateGeometry(node, false, true /* allowMultithreading */);
+		if (geom) {
+			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
+		node.progress_report();
 		this->stored_term[node.index()] = t1;
 		addToParent(state, node);
 	}
@@ -279,13 +278,13 @@ Response CSGTreeEvaluator::visit(State &state, const CgaladvNode &node)
 		shared_ptr<CSGNode> t1;
     // FIXME: Calling evaluator directly since we're not a PolyNode. Generalize this.
 		shared_ptr<const Geometry> geom;
-		if (this->geomEvaluator) {
-			geom = this->geomEvaluator->evaluateGeometry(node, false);
-			if (geom) {
-				t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
-			}
-			node.progress_report();
+		GeometryEvaluator geomEvaluator(tree);
+		geom = geomEvaluator.evaluateGeometry(node, false); // TODO: multithread
+		if (geom) {
+			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
+		node.progress_report();
+		// }
 		this->stored_term[node.index()] = t1;
 		applyBackgroundAndHighlight(state, node);
 		addToParent(state, node);

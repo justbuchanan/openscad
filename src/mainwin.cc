@@ -1148,13 +1148,13 @@ void MainWindow::compileCSG(bool procevents)
 	this->progresswidget = new ProgressWidget(this);
 	connect(this->progresswidget, SIGNAL(requestShow()), this, SLOT(showProgress()));
 
-#ifdef ENABLE_CGAL
-		GeometryEvaluator geomevaluator(this->tree);
-#else
-		// FIXME: Will we support this?
-#endif
+// #ifdef ENABLE_CGAL
+// 		GeometryEvaluator geomevaluator(this->tree);
+// #else
+// 		// FIXME: Will we support this?
+// #endif
 #ifdef ENABLE_OPENCSG
-		CSGTreeEvaluator csgrenderer(this->tree, &geomevaluator);
+		CSGTreeEvaluator csgrenderer(this->tree);
 #endif
 
 	progress_report_prep(this->root_node, report_func, this);

@@ -12,20 +12,41 @@ namespace {
 
 constexpr bool THREAD_DEBUG = true;
 
+void _processParent(ProcessingContext* ctx, WorkItem* workItem) {
+    if (workItem->parentWork) {
+        // decrement remaining child count for pending parent work item. If this
+        // was the last one, push the parent work item onto the queue.
+        int x = workItem->parentWork->pendingChildren.fetch_sub(1);
+        if (x == 1) {
+            if (THREAD_DEBUG) {
+                // cout << "Pushing parent work item" << endl;
+                cout << '^';
+                fflush(stdout);
+            }
+
+            // nextWorkItem = workItem->parentWork;
+            ctx->workQueue.push(workItem->parentWork);
+        }
+    } else {
+        // A parentless item is the root
+        if (THREAD_DEBUG) {
+            cout << "Finished traversing root item" << endl;
+        }
+        ctx->finish();
+    }
+}
 
 // This is the main function for each of the worker threads. It reads items from
 // the work queue and processes them. It exits when the context signals to abort
 // or that it is finished.
 void ProcessWorkItems(ProcessingContext*ctx, NodeVisitor*visitor) {
-    std::shared_ptr<WorkItem> nextWorkItem;
-
     while (!ctx->exitNow()) {
         std::shared_ptr<WorkItem> workItem;
 
-        if (nextWorkItem) {
-            workItem = nextWorkItem;
-            nextWorkItem = nullptr;
-        } else {
+        // if (nextWorkItem) {
+            // workItem = nextWorkItem;
+            // nextWorkItem = nullptr;
+        // } else {
             // Wait for a work item to process
             std::unique_lock<std::mutex> lk(ctx->queueMutex);
             ctx->cv.wait(lk, [ctx]() {
@@ -44,7 +65,7 @@ void ProcessWorkItems(ProcessingContext*ctx, NodeVisitor*visitor) {
             workItem = ctx->workQueue.front();
             ctx->workQueue.pop();
             lk.unlock();
-        }
+        // }
 
 
         if (THREAD_DEBUG){
@@ -53,38 +74,14 @@ void ProcessWorkItems(ProcessingContext*ctx, NodeVisitor*visitor) {
             fflush(stdout);
         }
 
-        // Run postfix
-        try {
-            Response response = workItem->node->accept(workItem->state, *visitor);
-            if (response == Response::AbortTraversal) {
-                ctx->abort();
-                return;
-            }
-        } catch (ProgressCancelException) {
-            ctx->cancel();
+        // Execute work function - typically a postfix traversal
+        workItem->func(ctx);
+
+        if (ctx->exitNow()) {
             return;
         }
 
-        if (workItem->parentWork) {
-            // decrement remaining child count for pending parent work item. If this
-            // was the last one, push the parent work item onto the queue.
-            int x = workItem->parentWork->pendingChildren.fetch_sub(1);
-            if (x == 1) {
-                if (THREAD_DEBUG) {
-                    // cout << "Pushing parent work item" << endl;
-                    cout << '^';
-                    fflush(stdout);
-                }
-
-                nextWorkItem = workItem->parentWork;
-            }
-        } else {
-            // A parentless item is the root
-            if (THREAD_DEBUG) {
-                cout << "Finished traversing root item" << endl;
-            }
-            ctx->finish();
-        }
+        _processParent(ctx, workItem.get());
     }
 }
 
@@ -196,11 +193,29 @@ void ThreadedNodeVisitor::traverseThreadedRecursive(ProcessingContext*ctx,  Node
 
     // build postfix work item
     std::shared_ptr<WorkItem> postfixWorkItem = std::make_shared<WorkItem>(node.getChildren().size());
-    postfixWorkItem->state = newstate;
-    postfixWorkItem->state.setPrefix(false);
-    postfixWorkItem->state.setPostfix(true);
-    postfixWorkItem->node = &node;
     postfixWorkItem->parentWork = parentWorkItem;
+    // postfixWorkItem->state = newstate;
+    // postfixWorkItem->state.setPrefix(false);
+    // postfixWorkItem->state.setPostfix(true);
+    // postfixWorkItem->node = &node;
+    postfixWorkItem->func = [newstate, &node, visitor](ProcessingContext* ctx) {
+        State state = newstate;
+        state.setPrefix(false);
+        state.setPostfix(true);
+
+        // Run postfix
+        try {
+            Response response = node.accept(state, *visitor);
+            if (response == Response::AbortTraversal) {
+                ctx->abort();
+                return;
+            }
+        } catch (ProgressCancelException) {
+            ctx->cancel();
+            return;
+        }
+    };
+
 
     if (response == Response::PruneTraversal || node.getChildren().empty()) {
         // leaf node - queue parent work directly
@@ -240,17 +255,29 @@ void ThreadedNodeVisitor::traverseThreadedRecursive(ProcessingContext*ctx,  Node
 // zero, that node is pushed onto the work queue and is executed as soon as a
 // thread is available.
 Response ThreadedNodeVisitor::traverseThreaded(const AbstractNode &node, const class State &state) {
-    // Create the context that will be passed to all recursive calls
-    ProcessingContext ctx;
+    bool ownContext = processingContext == nullptr;
 
-    // Start threads
-    ctx.start(this);
+    if (ownContext) {
+        // Create the context that will be passed to all recursive calls
+        processingContext = make_shared<ProcessingContext>();
+
+        // Start threads
+        processingContext->start(this);
+    }
 
     // Recursively do all prefix traversals and schedule postfix traversals to
     // happen later.
-    traverseThreadedRecursive(&ctx, this, nullptr, node, state);
+    traverseThreadedRecursive(processingContext.get(), this, nullptr, node, state);
 
-    ctx.wait();
+    if (ownContext) {
+        processingContext->wait();
+    }
 
-    return ctx.isAborted() ? Response::AbortTraversal : Response::ContinueTraversal;
+    Response response = processingContext->isAborted() ? Response::AbortTraversal : Response::ContinueTraversal;
+
+    if (ownContext) {
+        processingContext = nullptr;
+    }
+
+    return response;
 }

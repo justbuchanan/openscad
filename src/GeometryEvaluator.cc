@@ -105,6 +105,7 @@ shared_ptr<const Geometry> GeometryEvaluator::evaluateGeometry(
 		this->root = N;
 	} else {
 		if (Feature::ExperimentalThreadedTraversal.is_enabled() && allowMultithreading) {
+			// TODO: pass 
 			this->traverseThreaded(node);
 		} else {
 			this->traverse(node);

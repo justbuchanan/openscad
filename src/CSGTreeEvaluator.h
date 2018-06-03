@@ -4,17 +4,17 @@
 #include <list>
 #include <vector>
 #include <cstddef>
-#include "NodeVisitor.h"
+#include "ThreadedNodeVisitor.h"
 #include "memory.h"
 #include "csgnode.h"
 
 class GeometryEvaluator;
 
-class CSGTreeEvaluator : public NodeVisitor
+class CSGTreeEvaluator : public ThreadedNodeVisitor
 {
 public:
-	CSGTreeEvaluator(const class Tree &tree, class GeometryEvaluator *geomEvaluator = nullptr)
-		: tree(tree), geomEvaluator(geomEvaluator) {
+	CSGTreeEvaluator(const class Tree &tree)
+		: ThreadedNodeVisitor(tree), tree(tree) {
 	}
 	~CSGTreeEvaluator() {}
 
@@ -54,7 +54,6 @@ private:
 
 protected:
 	const Tree &tree;
-	GeometryEvaluator *geomEvaluator;
 	shared_ptr<CSGNode> rootNode;
 	std::vector<shared_ptr<CSGNode>> highlightNodes;
 	std::vector<shared_ptr<CSGNode>> backgroundNodes;

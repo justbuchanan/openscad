@@ -9,11 +9,15 @@
 #include <condition_variable>
 
 
+class ProcessingContext;
+
 class WorkItem {
 public:
-    WorkItem(int numChildren) : state(nullptr), pendingChildren(numChildren) {}
-    State state;
-    const AbstractNode *node = nullptr;
+    WorkItem(int numChildren) : pendingChildren(numChildren) {}
+    typedef std::function<void(ProcessingContext* ctx)> WorkFunction;
+    WorkFunction func = nullptr;
+    // State state;
+    // const AbstractNode *node = nullptr;
     std::atomic<int> pendingChildren;
     std::shared_ptr<WorkItem> parentWork;
 };
@@ -69,4 +73,6 @@ public:
   // Number of threads to spawn for parallel traversal. If 0 (the default), uses
   // the value returned from std::thread::hardware_concurrency().
   static int Parallelism;
+
+  std::shared_ptr<ProcessingContext> processingContext;
 };
