@@ -54,6 +54,7 @@ include_directories(${EIGEN3_INCLUDE_DIRS})
 find_package(Boost 1.36 REQUIRED COMPONENTS filesystem system thread regex program_options QUIET)
 message(STATUS "Boost: ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}")
 include_directories(${Boost_INCLUDE_DIRS})
+set(B_LIBS ${Boost_LIBRARIES})
 
 find_package(CGAL REQUIRED QUIET)
 message(STATUS "CGAL: ${CGAL_MAJOR_VERSION}.${CGAL_MINOR_VERSION}")
@@ -457,7 +458,7 @@ set(COMMON_LIBRARIES
     ${CGAL_LIBRARY}
     ${GMP_LIBRARIES}
     ${MPFR_LIBRARIES}
-    ${Boost_LIBRARIES}
+    ${B_LIBS}
     ${HARFBUZZ_LIBRARIES}
     ${FONTCONFIG_LIBRARIES}
     ${FREETYPE_LIBRARIES}
