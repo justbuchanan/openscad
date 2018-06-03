@@ -15,6 +15,7 @@
 
 #include <string>
 #include <map>
+#include <mutex>
 #include <list>
 #include <sstream>
 #include <iostream>
@@ -63,9 +64,25 @@ void CSGTreeEvaluator::applyBackgroundAndHighlight(State & /*state*/, const Abst
 void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &node, OpenSCADOperator op)
 {
 	shared_ptr<CSGNode> t1;
-	for(const auto &chnode : this->visitedchildren[node.index()]) {
-		shared_ptr<CSGNode> t2 = this->stored_term[chnode->index()];
-		this->stored_term.erase(chnode->index());
+
+	ChildList children;
+	{
+		std::lock_guard<boost::detail::spinlock> lk(dataLock);
+		children = std::move(this->visitedchildren[node.index()]);
+		this->visitedchildren.erase(node.index());
+	}
+
+	// Collect changes locally then apply them all at once to avoid having to lock over this whole loop.
+	std::vector<shared_ptr<CSGNode>> bgnodes, hlnodes;
+
+	for(const auto &chnode : children) {
+		shared_ptr<CSGNode> t2;
+		{
+			std::lock_guard<boost::detail::spinlock> lk(dataLock);
+			t2 = this->stored_term[chnode->index()];
+			this->stored_term.erase(chnode->index());
+		}
+
 		if (t2 && !t1) {
 			t1 = t2;
 		} else if (t2 && t1) {
@@ -81,11 +98,11 @@ void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &no
 			// Background objects are simply moved to backgroundNodes
 			else if (t2->isBackground()) {
 				t = t1;
-				this->backgroundNodes.push_back(t2);
+				bgnodes.push_back(t2);
 			}
 			else if (t1->isBackground()) {
 				t = t2;
-				this->backgroundNodes.push_back(t1);
+				bgnodes.push_back(t1);
 			}
 			else {
 				t = CSGOperation::createCSGNode(op, t1, t2);
@@ -97,7 +114,7 @@ void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &no
 						t->setHighlight(true);
 					}
 					else if (t != t2 && t2->isHighlight()) {
-						this->highlightNodes.push_back(t2);
+						hlnodes.push_back(t2);
 					}
 					break;
 				case OpenSCADOperator::INTERSECTION:
@@ -107,10 +124,10 @@ void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &no
 					}
 					else {
 						if (t != t1 && t1->isHighlight()) {
-							this->highlightNodes.push_back(t1);
+							hlnodes.push_back(t1);
 						}
 						if (t != t2 && t2->isHighlight()) {
-							this->highlightNodes.push_back(t2);
+							hlnodes.push_back(t2);
 						}
 					}
 					break;
@@ -120,11 +137,11 @@ void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &no
 						t->setHighlight(true);
 					}
 					else if (t != t1 && t1->isHighlight()) {
-						this->highlightNodes.push_back(t1);
+						hlnodes.push_back(t1);
 						t = t2;
 					}
 					else if (t != t2 && t2->isHighlight()) {
-						this->highlightNodes.push_back(t2);
+						hlnodes.push_back(t2);
 						t = t1;
 					}
 					break;
@@ -140,7 +157,14 @@ void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &no
 		if (node.modinst->isBackground()) t1->setBackground(true);
 		if (node.modinst->isHighlight()) t1->setHighlight(true);
 	}
-	this->stored_term[node.index()] = t1;
+
+	{
+		std::lock_guard<boost::detail::spinlock> lk(dataLock);
+
+		this->highlightNodes.insert(this->highlightNodes.begin(), hlnodes.begin(), hlnodes.end());
+		this->backgroundNodes.insert(this->backgroundNodes.begin(), bgnodes.begin(), bgnodes.end());
+		this->stored_term[node.index()] = t1;
+	}
 }
 
 Response CSGTreeEvaluator::visit(State &state, const AbstractNode &node)
@@ -202,7 +226,8 @@ Response CSGTreeEvaluator::visit(State &state, const AbstractPolyNode &node)
 	if (state.isPostfix()) {
 		shared_ptr<CSGNode> t1;
 		GeometryEvaluator geomEvaluator(tree);
-		auto geom = geomEvaluator.evaluateGeometry(node, false); // TODO: multithread
+		geomEvaluator.processingContext = this->processingContext;
+		auto geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, true /* allowMultithreading */);
 		if (geom) {
 			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
@@ -259,9 +284,9 @@ Response CSGTreeEvaluator::visit(State &state, const RenderNode &node)
 		// Note: multi-threading is allowed (assuming the thread-traversal
 		// feature is enabled) for render nodes because they are likely to
 		// be expensive and benefit from parallelism.
-		// TODO: multithread
 		GeometryEvaluator geomEvaluator(tree);
-		geom = geomEvaluator.evaluateGeometry(node, false, true /* allowMultithreading */);
+		geomEvaluator.processingContext = this->processingContext;
+		geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, true /* allowMultithreading */);
 		if (geom) {
 			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
@@ -277,9 +302,9 @@ Response CSGTreeEvaluator::visit(State &state, const CgaladvNode &node)
 	if (state.isPostfix()) {
 		shared_ptr<CSGNode> t1;
     // FIXME: Calling evaluator directly since we're not a PolyNode. Generalize this.
-		shared_ptr<const Geometry> geom;
 		GeometryEvaluator geomEvaluator(tree);
-		geom = geomEvaluator.evaluateGeometry(node, false); // TODO: multithread
+		geomEvaluator.processingContext = this->processingContext;
+		shared_ptr<const Geometry> geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, true /* allowMultithreading */);
 		if (geom) {
 			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
@@ -301,6 +326,7 @@ Response CSGTreeEvaluator::visit(State &state, const CgaladvNode &node)
 */
 void CSGTreeEvaluator::addToParent(const State &state, const AbstractNode &node)
 {
+	std::lock_guard<boost::detail::spinlock> lk(dataLock);
 	this->visitedchildren.erase(node.index());
 	if (state.parent()) {
 		this->visitedchildren[state.parent()->index()].push_back(&node);

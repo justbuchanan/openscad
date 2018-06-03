@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <cstddef>
+#include <boost/smart_ptr/detail/spinlock.hpp>
 #include "ThreadedNodeVisitor.h"
 #include "memory.h"
 #include "csgnode.h"
@@ -58,4 +59,6 @@ protected:
 	std::vector<shared_ptr<CSGNode>> highlightNodes;
 	std::vector<shared_ptr<CSGNode>> backgroundNodes;
 	std::map<int, shared_ptr<CSGNode>> stored_term; // The term evaluated from each node index
+
+	boost::detail::spinlock dataLock;
 };
