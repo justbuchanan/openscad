@@ -16,8 +16,6 @@ public:
     WorkItem(int numChildren) : pendingChildren(numChildren) {}
     typedef std::function<void(ProcessingContext* ctx)> WorkFunction;
     WorkFunction func = nullptr;
-    // State state;
-    // const AbstractNode *node = nullptr;
     std::atomic<int> pendingChildren;
     std::shared_ptr<WorkItem> parentWork;
 };
@@ -64,11 +62,17 @@ class ThreadedNodeVisitor : public NodeVisitor {
 public:
   ThreadedNodeVisitor(const Tree &tree) : _tree(tree) {}
 
-  Response traverseThreaded(const AbstractNode &node, const class State &state = NodeVisitor::nullstate);
+  Response traverseThreaded(
+    const AbstractNode &node,
+    const class State &state = NodeVisitor::nullstate);
 
 
-  void traverseThreadedRecursive(ProcessingContext*ctx,  NodeVisitor*visitor,
-        std::shared_ptr<WorkItem> parentWorkItem, const AbstractNode &node, const class State &state);
+  void traverseThreadedRecursive(
+    const AbstractNode &node,
+    const class State &state,
+    ProcessingContext*ctx,
+    NodeVisitor*visitor,
+    std::shared_ptr<WorkItem> parentWorkItem);
 
   // Number of threads to spawn for parallel traversal. If 0 (the default), uses
   // the value returned from std::thread::hardware_concurrency().

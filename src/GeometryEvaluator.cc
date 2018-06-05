@@ -77,11 +77,12 @@ GeometryEvaluator::GeometryEvaluator(const class Tree &tree)
 /*!
 	Set allownef to false to force the result to _not_ be a Nef polyhedron
 */
+// TODO: split into traversal and post-process methods
 shared_ptr<const Geometry> GeometryEvaluator::evaluateGeometry(
 	const AbstractNode &node,
 	bool allownef,
 	bool allowMultithreading,
-	ProcessingContext*pctx,
+	// ProcessingContext*pctx,
 	std::shared_ptr<WorkItem> parentWorkItem)
 {
 	const std::string key = this->tree.getIdString(node);
@@ -100,32 +101,55 @@ shared_ptr<const Geometry> GeometryEvaluator::evaluateGeometry(
 		}
 	}
 
+	auto postprocess = [&node, this, allownef, N](ProcessingContext* _) {
+		if (!allownef) {
+			if (shared_ptr<const CGAL_Nef_polyhedron> N = dynamic_pointer_cast<const CGAL_Nef_polyhedron>(this->root)) {
+				PolySet *ps = new PolySet(3);
+				ps->setConvexity(N->getConvexity());
+				this->root.reset(ps);
+				if (!N->isEmpty()) {
+					bool err = CGALUtils::createPolySetFromNefPolyhedron3(*N->p3, *ps);
+					if (err) {
+						PRINT("ERROR: Nef->PolySet failed");
+					}
+				}
+			}
+		}
+		smartCacheInsert(node, this->root);
+	};
+
 	// If not found in any caches, we need to evaluate the geometry
 	if (N) {
 		this->root = N;
 	} else {
 		if (Feature::ExperimentalThreadedTraversal.is_enabled() && allowMultithreading) {
-			// TODO: pass 
-			this->traverseThreaded(node);
+			// TODO: when a processingContext is already set, this method will return before everything is done. It won't wait for the post work to finish
+			// It will push the parent work onto the queue when finished
+			if (!parentWorkItem) {
+				this->traverseThreaded(node);
+			} else {
+				// Return after scheduling items, but before final geometry is computed.
+				exit(1);
+
+				auto postprocessWork = make_shared<WorkItem>(1);
+				postprocessWork->func = postprocess;
+				postprocessWork->parentWork = parentWorkItem; // connect to parent passed to function
+
+				this->traverseThreadedRecursive(
+					node,
+					NodeVisitor::nullstate,
+					this->processingContext.get(),
+					this,
+					parentWorkItem);
+
+				return nullptr;
+			}
 		} else {
 			this->traverse(node);
 		}
 	}
 
-	if (!allownef) {
-		if (shared_ptr<const CGAL_Nef_polyhedron> N = dynamic_pointer_cast<const CGAL_Nef_polyhedron>(this->root)) {
-			PolySet *ps = new PolySet(3);
-			ps->setConvexity(N->getConvexity());
-			this->root.reset(ps);
-			if (!N->isEmpty()) {
-				bool err = CGALUtils::createPolySetFromNefPolyhedron3(*N->p3, *ps);
-				if (err) {
-					PRINT("ERROR: Nef->PolySet failed");
-				}
-			}
-		}
-	}
-	smartCacheInsert(node, this->root);
+	postprocess(nullptr);
 	return this->root;
 }
 

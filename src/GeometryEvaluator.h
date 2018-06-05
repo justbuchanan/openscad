@@ -20,7 +20,7 @@ public:
 
 	shared_ptr<const Geometry> evaluateGeometry(const AbstractNode &node,
 				bool allownef, bool allowMultithreading = false,
-				ProcessingContext*pctx = nullptr,
+				// ProcessingContext*pctx = nullptr,
 				std::shared_ptr<WorkItem> parentWorkItem = nullptr);
 
 	Response visit(State &state, const AbstractNode &node) override;

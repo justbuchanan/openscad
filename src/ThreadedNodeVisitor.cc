@@ -25,7 +25,10 @@ void _processParent(ProcessingContext* ctx, WorkItem* workItem) {
             }
 
             // nextWorkItem = workItem->parentWork;
-            ctx->workQueue.push(workItem->parentWork);
+            {
+                std::unique_lock<std::mutex> lk(ctx->queueMutex);
+                ctx->workQueue.push(workItem->parentWork);
+            }
         }
     } else {
         // A parentless item is the root
@@ -168,8 +171,8 @@ void ProcessingContext::pushWorkItem(std::shared_ptr<WorkItem> item) {
 }
 
 
-void ThreadedNodeVisitor::traverseThreadedRecursive(ProcessingContext*ctx,  NodeVisitor*visitor,
-    std::shared_ptr<WorkItem> parentWorkItem, const AbstractNode &node, const class State &state) {
+void ThreadedNodeVisitor::traverseThreadedRecursive(const AbstractNode &node, const class State &state, ProcessingContext*ctx,  NodeVisitor*visitor,
+    std::shared_ptr<WorkItem> parentWorkItem) {
 
     if (ctx->exitNow()) return; // Abort immediately
 
@@ -226,7 +229,7 @@ void ThreadedNodeVisitor::traverseThreadedRecursive(ProcessingContext*ctx,  Node
     // Recurse
     newstate.setParent(&node);
     for(const auto &chnode : node.getChildren()) {
-        traverseThreadedRecursive(ctx, visitor, postfixWorkItem, *chnode, newstate);
+        traverseThreadedRecursive(*chnode, newstate, ctx, visitor, postfixWorkItem);
         if (ctx->exitNow()) return; // Abort immediately
     }
 }
@@ -255,6 +258,7 @@ void ThreadedNodeVisitor::traverseThreadedRecursive(ProcessingContext*ctx,  Node
 // zero, that node is pushed onto the work queue and is executed as soon as a
 // thread is available.
 Response ThreadedNodeVisitor::traverseThreaded(const AbstractNode &node, const class State &state) {
+    // TODO: not an ivar?
     bool ownContext = processingContext == nullptr;
 
     if (ownContext) {
@@ -267,7 +271,7 @@ Response ThreadedNodeVisitor::traverseThreaded(const AbstractNode &node, const c
 
     // Recursively do all prefix traversals and schedule postfix traversals to
     // happen later.
-    traverseThreadedRecursive(processingContext.get(), this, nullptr, node, state);
+    traverseThreadedRecursive(node, state, processingContext.get(), this, nullptr);
 
     if (ownContext) {
         processingContext->wait();

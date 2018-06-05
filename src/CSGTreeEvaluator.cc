@@ -225,9 +225,18 @@ Response CSGTreeEvaluator::visit(State &state, const AbstractPolyNode &node)
 {
 	if (state.isPostfix()) {
 		shared_ptr<CSGNode> t1;
+
 		GeometryEvaluator geomEvaluator(tree);
-		geomEvaluator.processingContext = this->processingContext;
 		auto geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, true /* allowMultithreading */);
+		// if (this->processingContext) {
+			// geomEvaluator.processingContext = this->processingContext;
+			// WorkItem* currentWork; // TODO: connect parent
+			// auto geom = geomEvaluator.evaluateGeometry(
+			// 	node,
+			// 	false /* allowNef */,
+			// 	true /* allowMultithreading */,
+			// 	currentWork ? currentWork->parentWork : nullptr);
+		// }
 		if (geom) {
 			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
@@ -285,8 +294,9 @@ Response CSGTreeEvaluator::visit(State &state, const RenderNode &node)
 		// feature is enabled) for render nodes because they are likely to
 		// be expensive and benefit from parallelism.
 		GeometryEvaluator geomEvaluator(tree);
-		geomEvaluator.processingContext = this->processingContext;
+		// geomEvaluator.processingContext = this->processingContext;
 		geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, true /* allowMultithreading */);
+		// TODO: connect parent
 		if (geom) {
 			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
@@ -303,8 +313,9 @@ Response CSGTreeEvaluator::visit(State &state, const CgaladvNode &node)
 		shared_ptr<CSGNode> t1;
     // FIXME: Calling evaluator directly since we're not a PolyNode. Generalize this.
 		GeometryEvaluator geomEvaluator(tree);
-		geomEvaluator.processingContext = this->processingContext;
+		// geomEvaluator.processingContext = this->processingContext;
 		shared_ptr<const Geometry> geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, true /* allowMultithreading */);
+		// TODO: connect parent
 		if (geom) {
 			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
