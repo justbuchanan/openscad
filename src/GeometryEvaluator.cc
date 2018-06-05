@@ -85,11 +85,13 @@ shared_ptr<const Geometry> GeometryEvaluator::evaluateGeometry(
 	// ProcessingContext*pctx,
 	std::shared_ptr<WorkItem> parentWorkItem)
 {
-	const std::string key = this->tree.getIdString(node);
+	std::string key;
 	shared_ptr<const CGAL_Nef_polyhedron> N;
 
 	{
 		std::lock_guard<boost::detail::spinlock> lk(GeometryCache::instance()->cacheLock);
+
+		key = this->tree.getIdString(node); // TODO: this line crashes b/c it gets called twice with the same node?
 
 		if (GeometryCache::instance()->contains(key)) {
 			shared_ptr<const Geometry> result = GeometryCache::instance()->get(key);

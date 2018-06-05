@@ -10,7 +10,7 @@ int ThreadedNodeVisitor::Parallelism = 0;
 
 namespace {
 
-constexpr bool THREAD_DEBUG = true;
+constexpr bool THREAD_DEBUG = false;
 
 void _processParent(ProcessingContext* ctx, WorkItem* workItem) {
     if (workItem->parentWork) {

@@ -16,6 +16,8 @@ class CSGTreeEvaluator : public ThreadedNodeVisitor
 public:
 	CSGTreeEvaluator(const class Tree &tree)
 		: ThreadedNodeVisitor(tree), tree(tree) {
+			// TODO: why is this needed?
+			dataLock.unlock();
 	}
 	~CSGTreeEvaluator() {}
 

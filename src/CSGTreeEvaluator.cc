@@ -49,6 +49,7 @@ shared_ptr<CSGNode> CSGTreeEvaluator::buildCSGTree(const AbstractNode &node, boo
 	return this->rootNode = t;
 }
 
+// dataLock must be held before calling this method
 void CSGTreeEvaluator::applyBackgroundAndHighlight(State & /*state*/, const AbstractNode &node)
 {
 	for(const auto &chnode : this->visitedchildren[node.index()]) {
@@ -227,7 +228,7 @@ Response CSGTreeEvaluator::visit(State &state, const AbstractPolyNode &node)
 		shared_ptr<CSGNode> t1;
 
 		GeometryEvaluator geomEvaluator(tree);
-		auto geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, true /* allowMultithreading */);
+		auto geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, false /* allowMultithreading */);
 		// if (this->processingContext) {
 			// geomEvaluator.processingContext = this->processingContext;
 			// WorkItem* currentWork; // TODO: connect parent
@@ -241,7 +242,10 @@ Response CSGTreeEvaluator::visit(State &state, const AbstractPolyNode &node)
 			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
 		node.progress_report();
-		this->stored_term[node.index()] = t1;
+		{
+			std::lock_guard<boost::detail::spinlock> lk(dataLock);
+			this->stored_term[node.index()] = t1;
+		}
 		addToParent(state, node);
 	}
 	return Response::ContinueTraversal;
@@ -301,7 +305,10 @@ Response CSGTreeEvaluator::visit(State &state, const RenderNode &node)
 			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
 		node.progress_report();
-		this->stored_term[node.index()] = t1;
+		{
+			std::lock_guard<boost::detail::spinlock> lk(dataLock);
+			this->stored_term[node.index()] = t1;
+		}
 		addToParent(state, node);
 	}
 	return Response::ContinueTraversal;
@@ -314,15 +321,18 @@ Response CSGTreeEvaluator::visit(State &state, const CgaladvNode &node)
     // FIXME: Calling evaluator directly since we're not a PolyNode. Generalize this.
 		GeometryEvaluator geomEvaluator(tree);
 		// geomEvaluator.processingContext = this->processingContext;
-		shared_ptr<const Geometry> geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, true /* allowMultithreading */);
+		shared_ptr<const Geometry> geom = geomEvaluator.evaluateGeometry(node, false /* allowNef */, false /* allowMultithreading */);
 		// TODO: connect parent
 		if (geom) {
 			t1 = evaluateCSGNodeFromGeometry(state, geom, node.modinst, node);
 		}
 		node.progress_report();
 		// }
-		this->stored_term[node.index()] = t1;
-		applyBackgroundAndHighlight(state, node);
+		{
+			std::lock_guard<boost::detail::spinlock> lk(dataLock);
+			this->stored_term[node.index()] = t1;
+			applyBackgroundAndHighlight(state, node);
+		}
 		addToParent(state, node);
 	}
 	return Response::ContinueTraversal;
